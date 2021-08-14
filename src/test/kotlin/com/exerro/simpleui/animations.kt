@@ -13,13 +13,12 @@ fun main() {
         val unclippedRegions = topHalf.partitionHorizontally(mountPoints.size, spacing = 16.px)
         val clippedRegions = bottomHalf.partitionHorizontally(mountPoints.size, spacing = 16.px)
 
-        println(System.nanoTime())
-
         fill(PaletteColour.White())
 
         for ((r, m) in unclippedRegions zip mountPoints) {
             r.draw(id = StaticIdentifier("noclip/$m"), mount = m) {
                 fill(PaletteColour.Teal())
+                write(m.name)
             }
         }
 
@@ -27,6 +26,7 @@ fun main() {
             r.draw(clip = true) {
                 r.draw(id = StaticIdentifier("clip/$m"), mount = m) {
                     fill(PaletteColour.Red())
+                    write(m.name)
                 }
             }
         }
@@ -36,7 +36,7 @@ fun main() {
             region.resizeTo(width = 100.px, height = 100.px).draw {
                 roundedRectangle(5f, PaletteColour.Yellow(), borderWidth = 4f, borderColour = PaletteColour.Orange())
                 region.withPadding(12.px).draw {
-                    write("Hello, I am in a popup!!")
+                    write("Hello, I am in a popup!!", wrap = true)
                 }
             }
         }

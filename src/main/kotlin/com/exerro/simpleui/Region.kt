@@ -1,6 +1,8 @@
 package com.exerro.simpleui
 
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
 @Undocumented
 data class Region internal constructor(
@@ -18,6 +20,20 @@ data class Region internal constructor(
         floor(x + 0.5f), floor(y + 0.5f),
         floor(width + 0.5f), floor(height + 0.5f)
     )
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    @Undocumented
+    infix fun intersectionWith(other: Region): Region {
+        val ix = max(x, other.x)
+        val iy = max(y, other.y)
+
+        return Region(
+            ix, iy,
+            width = max(0f, min(x + width, other.x + other.width) - ix),
+            height = max(0f, min(y + height, other.y + other.height) - iy),
+        )
+    }
 
     ////////////////////////////////////////////////////////////////////////////
 

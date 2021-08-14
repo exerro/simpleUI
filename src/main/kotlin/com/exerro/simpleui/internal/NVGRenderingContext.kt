@@ -15,7 +15,6 @@ internal class NVGRenderingContext(
     private val isRoot: Boolean,
 ): DrawContext {
     override fun fill(colour: PaletteColour, opacity: Float) {
-        // TODO: respect clipping
         val rgb = palette[colour]
         if (isRoot) {
             GL46C.glClearColor(rgb.red, rgb.green, rgb.blue, opacity)
@@ -37,7 +36,6 @@ internal class NVGRenderingContext(
         borderColour: PaletteColour,
         borderWidth: Float
     ) {
-        // TODO: respect clipping
         val rgb = palette[colour]
         NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
         NanoVG.nvgBeginPath(nvg.context)
@@ -59,7 +57,6 @@ internal class NVGRenderingContext(
     }
 
     override fun shadow(colour: PaletteColour, radius: Float) {
-        // TODO: respect clipping
         TODO("not implemented")
     }
 
@@ -70,7 +67,6 @@ internal class NVGRenderingContext(
         verticalAlignment: Alignment,
         wrap: Boolean
     ) {
-        // TODO: respect clipping
         NanoVG.nvgTextAlign(nvg.context, NanoVG.NVG_ALIGN_LEFT or NanoVG.NVG_ALIGN_TOP)
         NanoVG.nvgFontSize(nvg.context, font.lineHeight)
         NanoVG.nvgFontFace(nvg.context, if (font.isMonospaced) "mono" else "sans")
@@ -164,21 +160,31 @@ internal class NVGRenderingContext(
     override fun Region.draw(clip: Boolean, id: StaticIdentifier?, mount: MountPoint?, draw: DrawContext.() -> Unit) {
         val drawRegion = if (id == null) this else
             nvg.animation.evaluateRegion(this, clipRegion, id, mount, draw)
+        val subClipRegion = if (clip) clipRegion intersectionWith drawRegion else clipRegion
+
+        if (clip) {
+            if (subClipRegion.width == 0f || subClipRegion.height == 0f) return
+            NanoVG.nvgScissor(nvg.context, subClipRegion.x, subClipRegion.y, subClipRegion.width, subClipRegion.height)
+        }
 
         NVGRenderingContext(
             nvg, palette, id,
             drawRegion,
-            if (clip) drawRegion else clipRegion,
+            subClipRegion,
             false
         ).draw()
+
+        if (clip) {
+            NanoVG.nvgScissor(nvg.context, clipRegion.x, clipRegion.y, clipRegion.width, clipRegion.height)
+        }
+    }
+
+    init {
+        NanoVG.nvgScissor(nvg.context, clipRegion.x, clipRegion.y, clipRegion.width, clipRegion.height)
     }
 
     private val rx = region.x
     private val ry = region.y
     private val rw = region.width
     private val rh = region.height
-    private val cx = clipRegion.x
-    private val cy = clipRegion.y
-    private val cw = clipRegion.width
-    private val ch = clipRegion.height
 }
