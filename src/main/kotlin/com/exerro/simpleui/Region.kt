@@ -14,6 +14,14 @@ data class Region internal constructor(
     val height: Float,
 ) {
     @Undocumented
+    fun rounded() = Region(
+        floor(x + 0.5f), floor(y + 0.5f),
+        floor(width + 0.5f), floor(height + 0.5f)
+    )
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    @Undocumented
     fun shrink(
         horizontallyBy: Pixels = 0.px,
         verticallyBy: Pixels = 0.px,

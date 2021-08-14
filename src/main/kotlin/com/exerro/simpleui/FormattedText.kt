@@ -39,6 +39,9 @@ class FormattedText<out Extra> internal constructor(
 
     companion object {
         @Undocumented
+        val empty = FormattedText<Nothing>(false, listOf(emptyList()))
+
+        @Undocumented
         val whitespace = FormattedText(false, listOf(listOf(Segment.Whitespace(1))))
 
         @Undocumented
@@ -73,3 +76,11 @@ operator fun <Extra> FormattedText<Extra>.plus(
     other.lines.isEmpty() -> lines
     else -> lines.dropLast(1) + listOf(lines.last() + other.lines.first()) + other.lines.drop(1)
 })
+
+@Undocumented
+fun <Extra> List<FormattedText<Extra>>.flatten(
+    delim: FormattedText<Extra> = FormattedText.empty,
+): FormattedText<Extra> = when {
+    isEmpty() -> FormattedText.empty
+    else -> drop(1).fold(this[0]) { a, b -> a + delim + b }
+}

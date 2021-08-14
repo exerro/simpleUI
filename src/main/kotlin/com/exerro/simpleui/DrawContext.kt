@@ -6,6 +6,9 @@ interface DrawContext {
     val region: Region
 
     @Undocumented
+    val id: StaticIdentifier?
+
+    @Undocumented
     fun fill(
         colour: PaletteColour,
         opacity: Float = 1f
@@ -42,7 +45,12 @@ interface DrawContext {
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
         wrap: Boolean = false,
-    ) = write(FormattedText.text(text, colour), font, horizontalAlignment, verticalAlignment, wrap)
+    ) {
+        val ftext = text.split('\n').map { line ->
+            line.split(' ').map { FormattedText.text(it, colour) } .flatten(FormattedText.whitespace)
+        } .flatten(FormattedText.lineBreak)
+         return write(ftext, font, horizontalAlignment, verticalAlignment, wrap)
+    }
 
 
     @Undocumented
@@ -56,6 +64,8 @@ interface DrawContext {
     @Undocumented
     fun Region.draw(
         clip: Boolean = false,
+        id: StaticIdentifier? = null,
+        mount: MountPoint? = null,
         draw: DrawContext.() -> Unit
     )
 }

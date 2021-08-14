@@ -1,16 +1,17 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.internal.AnimationHelper
+import com.exerro.simpleui.internal.NVGData
+import com.exerro.simpleui.internal.NVGRenderingContext
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.nanovg.NVGColor
-import org.lwjgl.nanovg.NVGGlyphPosition
 import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
-import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
@@ -127,7 +128,7 @@ object GLFWWindowCreator: WindowCreator {
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
             NanoVG.nvgCreateFontMem(context, "mono", monoBuffer, 1)
 
-            nvgData = NVGData(context, colour, monoBuffer, sansBuffer)
+            nvgData = NVGData(context, AnimationHelper(), colour, monoBuffer, sansBuffer)
             true
         }
 
@@ -174,156 +175,15 @@ object GLFWWindowCreator: WindowCreator {
         height: Int,
         fn: DrawContext.() -> Unit
     ) {
-        fun createContext(
-            rx: Float, ry: Float,
-            rw: Float, rh: Float,
-            cx: Float, cy: Float,
-            cw: Float, ch: Float,
-            isRoot: Boolean,
-        ): DrawContext = object: DrawContext {
-            override val region = Region(rx, ry, rw, rh)
-
-            override fun fill(colour: PaletteColour, opacity: Float) {
-                val rgb = palette[colour]
-                if (isRoot) {
-                    GL46C.glClearColor(rgb.red, rgb.green, rgb.blue, opacity)
-                    GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
-                }
-                else {
-                    NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
-                    NanoVG.nvgBeginPath(nvg.context)
-                    NanoVG.nvgRect(nvg.context, rx, ry, rw, rh)
-                    NanoVG.nvgClosePath(nvg.context)
-                    NanoVG.nvgFillColor(nvg.context, nvg.colour)
-                    NanoVG.nvgFill(nvg.context)
-                }
-            }
-
-            override fun roundedRectangle(
-                cornerRadius: Float,
-                colour: PaletteColour,
-                borderColour: PaletteColour,
-                borderWidth: Float
-            ) {
-                val rgb = palette[colour]
-                NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
-                NanoVG.nvgBeginPath(nvg.context)
-                NanoVG.nvgRoundedRect(nvg.context, rx, ry, rw, rh, cornerRadius)
-                NanoVG.nvgClosePath(nvg.context)
-                NanoVG.nvgFillColor(nvg.context, nvg.colour)
-                NanoVG.nvgFill(nvg.context)
-
-                if (borderWidth > 0f) {
-                    val rgbBorder = palette[borderColour]
-                    NanoVG.nvgRGBf(rgbBorder.red, rgbBorder.green, rgbBorder.blue, nvg.colour)
-                    NanoVG.nvgBeginPath(nvg.context)
-                    NanoVG.nvgRoundedRect(nvg.context, rx, ry, rw, rh, cornerRadius)
-                    NanoVG.nvgClosePath(nvg.context)
-                    NanoVG.nvgStrokeColor(nvg.context, nvg.colour)
-                    NanoVG.nvgStrokeWidth(nvg.context, borderWidth)
-                    NanoVG.nvgStroke(nvg.context)
-                }
-            }
-
-            override fun shadow(colour: PaletteColour, radius: Float) {
-//                TODO("not implemented")
-            }
-
-            override fun write(
-                text: FormattedText<*>,
-                font: Font,
-                horizontalAlignment: Alignment,
-                verticalAlignment: Alignment,
-                wrap: Boolean
-            ) {
-                NanoVG.nvgTextAlign(nvg.context, NanoVG.NVG_ALIGN_LEFT or NanoVG.NVG_ALIGN_TOP)
-                NanoVG.nvgFontSize(nvg.context, font.lineHeight)
-                NanoVG.nvgFontFace(nvg.context, if (font.isMonospaced) "mono" else "sans")
-
-                val textLines = text.lines.map { line ->
-                    line to line.joinToString("") { when (it) {
-                        is FormattedText.Segment.LineBreak -> ""
-                        is FormattedText.Segment.Text -> it.text
-                        is FormattedText.Segment.Whitespace -> " ".repeat(it.length)
-                    } }
-                }
-
-                val widthsAndPositionedSegments = textLines.flatMap { (formattedLine, lineString) ->
-                    if (lineString.isEmpty()) return@flatMap listOf(0f to emptyList<Pair<Float, FormattedText.Segment.Text<*>>>())
-
-                    val buffer = NVGGlyphPosition.calloc(lineString.length)
-                    NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, "$lineString", buffer)
-
-                    val totalWidth = buffer[lineString.length - 1].maxx() - buffer[0].minx()
-                    val positionedSegments = mutableListOf<Pair<Float, FormattedText.Segment.Text<*>>>()
-                    var x = 0
-
-                    for (segment in formattedLine) when (segment) {
-                        is FormattedText.Segment.LineBreak -> break
-                        is FormattedText.Segment.Whitespace -> x += segment.length
-                        is FormattedText.Segment.Text -> {
-                            positionedSegments.add(buffer[x].minx() to segment)
-                            x += segment.text.length
-                        }
-                    }
-
-                    // TODO: word wrapping
-
-                    buffer.free()
-                    listOf(totalWidth to positionedSegments)
-                }
-
-                val maxHeight = font.lineHeight * widthsAndPositionedSegments.size
-                val maxWidth = widthsAndPositionedSegments.maxOfOrNull { it.first } ?: 0f
-                val x0 = rx + (rw - maxWidth) * horizontalAlignment
-                var y = ry + (rh - maxHeight) * verticalAlignment
-
-                for ((_, line) in widthsAndPositionedSegments) {
-                    for ((offset, segment) in line) {
-                        val rgb = palette[segment.colour]
-                        NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
-                        NanoVG.nvgFillColor(nvg.context, nvg.colour)
-                        NanoVG.nvgText(nvg.context, x0 + offset, y, segment.text)
-                    }
-
-                    y += font.lineHeight
-                }
-            }
-
-            override fun write(
-                text: String,
-                colour: PaletteColour,
-                font: Font,
-                horizontalAlignment: Alignment,
-                verticalAlignment: Alignment,
-                wrap: Boolean
-            ) = super.write(text, colour, font, horizontalAlignment, verticalAlignment, wrap)
-
-            override fun image(
-                path: String,
-                horizontalAlignment: Alignment,
-                verticalAlignment: Alignment,
-                stretchToFit: Boolean
-            ) {
-//                TODO("not implemented")
-            }
-
-            override fun Region.draw(clip: Boolean, draw: DrawContext.() -> Unit) {
-                createContext(
-                    x, y, this.width, this.height,
-                    if (clip) x else cx, if (clip) y else cy,
-                    if (clip) this.width else cw, if (clip) this.height else ch,
-                    false
-                ).draw()
-            }
-        }
-
         GL46C.glViewport(0, 0, width, height)
-        createContext(
-            0f, 0f, width.toFloat(), height.toFloat(),
-            0f, 0f, width.toFloat(), height.toFloat(),
-            true,
-        ).fn()
+        val r = Region(0f, 0f, width.toFloat(), height.toFloat())
+        nvg.animation.beginFrame()
+        NVGRenderingContext(nvg, palette, null, r, r, true).fn()
+
+        for (d in nvg.animation.endFrame()) {
+            val ctx = NVGRenderingContext(nvg, palette, null, d.region, d.clipRegion, false)
+            d.draw(ctx)
+        }
     }
 
     private fun createWorkerThread(name: String, capacity: Int = 4): Queue<() -> Boolean> {
@@ -342,13 +202,6 @@ object GLFWWindowCreator: WindowCreator {
 
         return queue
     }
-
-    private class NVGData(
-        val context: Long,
-        val colour: NVGColor,
-        val monoBuffer: ByteBuffer,
-        val sansBuffer: ByteBuffer,
-    )
 
     ////////////////////////////////////////////////////////////////////////////
 
