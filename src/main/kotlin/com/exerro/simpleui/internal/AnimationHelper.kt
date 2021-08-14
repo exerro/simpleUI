@@ -6,9 +6,11 @@ import kotlin.math.sqrt
 @Undocumented
 class AnimationHelper {
     @Undocumented
-    fun beginFrame() {
+    fun beginFrame(allowAnimations: Boolean) {
+        this.allowAnimations = allowAnimations
         thisFrameTime = System.nanoTime()
         thisFrame.clear()
+        anyAnimating = false
     }
 
     @Undocumented
@@ -26,9 +28,10 @@ class AnimationHelper {
             // if it's not mounted, it gets positioned at its target location
             // straight away
             // otherwise, it gets positioned at the entrance region
-            val initialPosition = if (mount == null) region else
+            val initialPosition = if (mount == null || !allowAnimations) region else
                 evaluateMountRegion(region, clipRegion, mount)
 
+            anyAnimating = anyAnimating || mount != null
             thisFrame.add(CachedRegionDraw(
                 positionedAt = thisFrameTime,
                 initialPosition = initialPosition,
@@ -37,16 +40,21 @@ class AnimationHelper {
                 clipRegion = clipRegion,
                 mount = mount, id = id, draw = draw
             ))
+
             initialPosition
         }
         // if we've seen the region before
         else {
-            val seenFor = thisFrameTime - lastFrameData.positionedAt
-            val currentPosition = if (seenFor >= animationDuration) lastFrameData.target
-                else lerpAny(seenFor / animationDuration.toFloat(), lastFrameData.initialPosition, lastFrameData.target, lastFrameData.mode)
+            val positionedFor = thisFrameTime - lastFrameData.positionedAt
+            val currentPosition = when {
+                !allowAnimations -> region
+                positionedFor >= animationDuration -> lastFrameData.target
+                else -> lerpAny(positionedFor / animationDuration.toFloat(), lastFrameData.initialPosition, lastFrameData.target, lastFrameData.mode)
+            }
 
             // the region has moved - should transition between the two
             if (lastFrameData.target != region) {
+                anyAnimating = true
                 thisFrame.add(CachedRegionDraw(
                     positionedAt = thisFrameTime,
                     initialPosition = currentPosition,
@@ -58,6 +66,7 @@ class AnimationHelper {
             }
             // we're aiming for the same place, keep the same cached data (except the draw fn might've changed)
             else {
+                anyAnimating = anyAnimating || positionedFor < animationDuration && lastFrameData.initialPosition != lastFrameData.target
                 thisFrame.add(lastFrameData.copy(
                     draw = draw,
                     clipRegion = clipRegion,
@@ -70,7 +79,7 @@ class AnimationHelper {
     }
 
     @Undocumented
-    fun endFrame(): List<ExitDraw> {
+    fun endFrame(): Pair<Boolean, List<ExitDraw>> {
         val removedRegions = lastFrame.values.filter { r -> !thisFrame.any { it.id == r.id } }
 
         lastFrame.clear()
@@ -99,7 +108,9 @@ class AnimationHelper {
             it.removedAt + animationDuration <= thisFrameTime
         }
 
-        return removedEntities.map { d ->
+        anyAnimating = anyAnimating || removedEntities.isNotEmpty()
+
+        return anyAnimating to removedEntities.map { d ->
             val t = (thisFrameTime - d.removedAt) / animationDuration.toFloat()
             val region = lerpAny(t, d.initialPosition, d.target, PositionMode.Exit)
             ExitDraw(region, d.clipRegion, d.draw)
@@ -164,7 +175,7 @@ class AnimationHelper {
     ////////////////////////////////////////////////////////////
 
     @Undocumented
-    private val animationDuration = 250000000L
+    private val animationDuration = 200000000L
 
     @Undocumented
     private val thisFrame: MutableList<CachedRegionDraw> = mutableListOf()
@@ -177,6 +188,12 @@ class AnimationHelper {
 
     @Undocumented
     private var thisFrameTime: Long = 0L
+
+    @Undocumented
+    private var anyAnimating = false
+
+    @Undocumented
+    private var allowAnimations = false
 
     @Undocumented
     private data class CachedRegionDraw(

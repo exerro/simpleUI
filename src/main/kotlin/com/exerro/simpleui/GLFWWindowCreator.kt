@@ -68,12 +68,12 @@ object GLFWWindowCreator: WindowCreator {
             callbacks.forEach { it(event) }
         }
 
-        fun submitRedraw() = renderFunction.let { rf -> renderQueue.offer {
+        fun submitRedraw(contentChanged: Boolean): Unit = renderFunction.let { rf -> renderQueue.offer {
             val width = IntArray(1)
             val height = IntArray(1)
             GLFW.glfwGetFramebufferSize(windowID, width, height)
             NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
-            redraw(nvgData, palette, width[0], height[0], rf)
+            if (redraw(nvgData, palette, contentChanged, width[0], height[0], rf) && contentChanged) submitRedraw(true)
             NanoVG.nvgEndFrame(nvgData.context)
             GLFW.glfwSwapBuffers(windowID)
             true
@@ -100,7 +100,27 @@ object GLFWWindowCreator: WindowCreator {
         }
 
         GLFW.glfwSetWindowRefreshCallback(windowID) {
-            submitRedraw()
+            submitRedraw(false)
+        }
+
+        GLFW.glfwSetKeyCallback(windowID) { _, key, scancode, action, mods ->
+            val repeat = action == GLFW.GLFW_REPEAT
+            val pressed = action == GLFW.GLFW_PRESS || repeat
+            val name = GLFW.glfwGetKeyName(key, scancode) ?: "unknown"
+            val modifiers = setOfNotNull(
+                KeyModifier.Control.takeIf { mods and GLFW.GLFW_MOD_CONTROL != 0 },
+                KeyModifier.Alt.takeIf { mods and GLFW.GLFW_MOD_ALT != 0 },
+                KeyModifier.Shift.takeIf { mods and GLFW.GLFW_MOD_SHIFT != 0 },
+                KeyModifier.Super.takeIf { mods and GLFW.GLFW_MOD_SUPER != 0 },
+            )
+
+            if (pressed) pushEvent(EKeyPressed(name, scancode, repeat, modifiers))
+            else pushEvent(EKeyReleased(name, scancode, modifiers))
+        }
+
+        GLFW.glfwSetCharCallback(windowID) { _, codepoint ->
+            val content = String(intArrayOf(codepoint), 0, 1)
+            pushEvent(ETextInput(content))
         }
 
         ////////////////////////////////////////////////////////
@@ -132,7 +152,7 @@ object GLFWWindowCreator: WindowCreator {
             true
         }
 
-        submitRedraw()
+        submitRedraw(true)
 
         ////////////////////////////////////////////////////////
 
@@ -142,7 +162,7 @@ object GLFWWindowCreator: WindowCreator {
                 get() = palette
                 set(value) { palette = value }
 
-            override val events = Window.EventBus { onEvent ->
+            override val events = Window.EventBus<WindowEvent> { onEvent ->
                 synchronized(onEventList) { onEventList.add(onEvent) }
                 Window.EventBus.Connection {
                     synchronized(onEventList) { onEventList.remove(onEvent) }
@@ -151,7 +171,7 @@ object GLFWWindowCreator: WindowCreator {
 
             override fun draw(onDraw: DrawContext.() -> Unit) {
                 renderFunction = onDraw
-                submitRedraw()
+                submitRedraw(true)
             }
 
             override fun close() {
@@ -168,24 +188,30 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    @Undocumented
     private fun redraw(
         nvg: NVGData,
         palette: Palette,
+        contentChanged: Boolean,
         width: Int,
         height: Int,
         fn: DrawContext.() -> Unit
-    ) {
+    ): Boolean {
         GL46C.glViewport(0, 0, width, height)
         val r = Region(0f, 0f, width.toFloat(), height.toFloat())
-        nvg.animation.beginFrame()
+        nvg.animation.beginFrame(allowAnimations = contentChanged)
         NVGRenderingContext(nvg, palette, null, r, r, true).fn()
+        val (anyAnimating, exitAnimations) = nvg.animation.endFrame()
 
-        for (d in nvg.animation.endFrame()) {
+        for (d in exitAnimations) {
             val ctx = NVGRenderingContext(nvg, palette, null, d.region, d.clipRegion, false)
             d.draw(ctx)
         }
+
+        return anyAnimating
     }
 
+    @Undocumented
     private fun createWorkerThread(name: String, capacity: Int = 4): Queue<() -> Boolean> {
         val queue = ArrayBlockingQueue<() -> Boolean>(capacity)
 
@@ -205,5 +231,6 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    @Undocumented
     private var windows = 0
 }

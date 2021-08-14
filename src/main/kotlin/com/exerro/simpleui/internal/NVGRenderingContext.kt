@@ -89,7 +89,6 @@ internal class NVGRenderingContext(
         }
 
         val widthsAndPositionedSegments = textLines.flatMap { (formattedLine, lineString) ->
-            // TODO: indentation!
             if (lineString.isEmpty()) return@flatMap listOf(0f to emptyList<Pair<Float, FormattedText.Segment.Text<*>>>())
 
             val buffer = NVGGlyphPosition.calloc(lineString.length + 1)
@@ -129,8 +128,6 @@ internal class NVGRenderingContext(
                     charIndex += segment.text.length
                 }
             }
-
-            // TODO: word wrapping
 
             buffer.free()
             result.add(lineWidth to positionedSegments)

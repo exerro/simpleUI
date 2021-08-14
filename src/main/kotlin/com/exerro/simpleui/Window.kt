@@ -4,7 +4,7 @@ package com.exerro.simpleui
  *  and respond to events. */
 interface Window {
     /** A stream of [WindowEvent]s that can be connected to. */
-    val events: EventBus
+    val events: EventBus<WindowEvent>
 
     /** Palette of the window, used to map palette colours to
      *  RGB used for rendering. */
@@ -24,7 +24,7 @@ interface Window {
     fun close()
 
     /** A bus of events which you can [connect] to. */
-    fun interface EventBus {
+    fun interface EventBus<out E> {
         /** Connect a callback [onEvent] to the event bus.
          *  Whenever an event is emitted on this bus, [onEvent]
          *  will be called with that event as its parameter. A
@@ -36,7 +36,17 @@ interface Window {
          *  run on another thread since blocking in response to
          *  an event here will prevent further events from being
          *  handled. */
-        fun connect(onEvent: (WindowEvent) -> Unit): Connection
+        fun connect(onEvent: (E) -> Unit): Connection
+
+        @Undocumented
+        fun <T> map(fn: (E) -> T) = EventBus<T> { onEvent ->
+            connect { e -> onEvent(fn(e)) }
+        }
+
+        @Undocumented
+        fun filter(fn: (E) -> Boolean) = EventBus<E> { onEvent ->
+            connect { e -> if (fn(e)) onEvent(e) }
+        }
 
         /** A handle to a callback registered with an [EventBus],
          *  used to disconnect that callback when it should no
@@ -47,4 +57,9 @@ interface Window {
             fun disconnect()
         }
     }
+}
+
+@Undocumented
+inline fun <reified T> Window.EventBus<*>.filterIsInstance() = Window.EventBus<T> { onEvent ->
+    connect { e -> if (e is T) onEvent(e) }
 }

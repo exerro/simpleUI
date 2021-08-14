@@ -19,7 +19,7 @@ interface DrawContext {
         cornerRadius: Float,
         colour: PaletteColour,
         borderColour: PaletteColour = colour,
-        borderWidth: Float = 0f,
+        borderWidth: Float = 0f, // TODO: make this pixels not float
     )
 
     @Undocumented
