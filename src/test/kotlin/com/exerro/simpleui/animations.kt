@@ -6,7 +6,6 @@ fun main() {
     var active = true
 
     fun draw() = if (active) window.draw {
-        val popup = region.withPadding(left = 25.percent, right = 25.percent, top = 10.percent, bottom = 40.percent)
         val (topHalfRaw, bottomHalfRaw) = region.splitVertically()
         val topHalf = topHalfRaw.withPadding(16.px)
         val bottomHalf = bottomHalfRaw.withPadding(16.px)
@@ -30,9 +29,15 @@ fun main() {
                 }
             }
         }
+    }
+    else window.draw {
+        val popup = region.withPadding(left = 25.percent, right = 25.percent, top = 10.percent, bottom = 40.percent)
+
+        fill(PaletteColour.Charcoal(PaletteVariant.Lighter))
 
         popup.draw(id = StaticIdentifier("popup"), mount = MountPoint.Top) {
-            fill(PaletteColour.Charcoal())
+            shadow(cornerRadius = 4f)
+            roundedRectangle(cornerRadius = 4f, PaletteColour.Charcoal())
             region.resizeTo(width = 100.px, height = 100.px).draw {
                 roundedRectangle(5f, PaletteColour.Yellow(), borderWidth = 4f, borderColour = PaletteColour.Orange())
                 region.withPadding(12.px).draw {
@@ -41,7 +46,6 @@ fun main() {
             }
         }
     }
-    else window.draw { fill(PaletteColour.White()) }
 
     window.events.filterIsInstance<EKeyPressed>().connect {
         active = !active

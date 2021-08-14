@@ -22,19 +22,24 @@ fun main() {
         )
 
         val topRegions = region
-            .resizeTo(height = 208.px, verticalAlignment = 0f)
-            .withPadding(8.px)
-            .partitionHorizontally(partitions = colours.size, spacing = 8.px)
-
-        val belowRegions = region
-            .withPadding(top = 208.px)
             .resizeTo(height = 48.px, verticalAlignment = 0f)
             .withPadding(8.px)
             .partitionHorizontally(partitions = colours.size, spacing = 8.px)
 
-        val rest = region.withPadding(top = 256.px).withPadding(8.px)
+        val belowRegions = region
+            .withPadding(top = 48.px)
+            .listVertically(208.px)
+            .map { it.withPadding(8.px) }
+            .flatMap { it.partitionHorizontally(partitions = colours.size / 4, spacing = 8.px) }
 
         topRegions.zip(colours).forEach { (r, c) ->
+            r.draw {
+                roundedRectangle(4f, c.second, c.second.withVariant(PaletteVariant.Darker), 2f)
+                write(FormattedText.text(c.first.uppercase(), PaletteColour.Black()), Font.monospace)
+            }
+        }
+
+        belowRegions.zip(colours).forEach { (r, c) ->
             r.draw {
                 val (r0, r1, r2, r3, r4) = r.partitionVertically(5, 8.px)
 
@@ -45,24 +50,6 @@ fun main() {
                 r4.draw { fill(c.second.withVariant(PaletteVariant.Lighter)); write("lighter") }
             }
         }
-
-        belowRegions.zip(colours).forEach { (r, c) ->
-            r.draw {
-                roundedRectangle(4f, c.second, c.second.withVariant(PaletteVariant.Darker), 2f)
-                write(FormattedText.text(c.first.uppercase(), PaletteColour.Black()), Font.monospace)
-            }
-        }
-
-        val quads = rest
-            .partitionVertically(3, spacing = 8.px)
-            .map { it.listHorizontally(256.px, spacing = 8.px) }
-            .flatten()
-
-        for (i in 0 .. 9) {
-            quads[i].draw { fill(PaletteColour.White()) }
-        }
-
-        quads[10].draw { fill(PaletteColour.Teal()) }
     }
 
     window.events.connect(::println)

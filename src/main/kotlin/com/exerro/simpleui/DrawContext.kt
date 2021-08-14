@@ -24,8 +24,10 @@ interface DrawContext {
 
     @Undocumented
     fun shadow(
-        colour: PaletteColour = PaletteColour.Black(PaletteVariant.Darker),
-        radius: Float = 5f,
+        colour: PaletteColour = PaletteColour.Black(PaletteVariant.Lighter),
+        radius: Float = 10f,
+        offset: Float = 2f,
+        cornerRadius: Float = 0f,
     )
 
     @Undocumented

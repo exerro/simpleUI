@@ -2,6 +2,7 @@ package com.exerro.simpleui.internal
 
 import com.exerro.simpleui.*
 import org.lwjgl.nanovg.NVGGlyphPosition
+import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.opengl.GL46C
 
@@ -56,8 +57,18 @@ internal class NVGRenderingContext(
         }
     }
 
-    override fun shadow(colour: PaletteColour, radius: Float) {
-        TODO("not implemented")
+    override fun shadow(colour: PaletteColour, radius: Float, offset: Float, cornerRadius: Float) {
+        val rgb = palette[colour]
+        val paint = NVGPaint.calloc()
+        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 1f, nvg.colour)
+        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 0f, nvg.colour2)
+        NanoVG.nvgBoxGradient(nvg.context, rx, ry + offset, rw, rh, cornerRadius, radius, nvg.colour, nvg.colour2, paint)
+        NanoVG.nvgBeginPath(nvg.context)
+        NanoVG.nvgRect(nvg.context, rx - radius, ry + offset - radius, rw + radius * 2, rh + radius * 2)
+        NanoVG.nvgClosePath(nvg.context)
+        NanoVG.nvgFillPaint(nvg.context, paint)
+        NanoVG.nvgFill(nvg.context)
+        paint.free()
     }
 
     override fun write(

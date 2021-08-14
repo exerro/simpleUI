@@ -9,6 +9,7 @@ internal class NVGData(
     val context: Long,
     val animation: AnimationHelper,
     val colour: NVGColor,
+    val colour2: NVGColor,
     val monoBuffer: ByteBuffer,
     val sansBuffer: ByteBuffer,
 )

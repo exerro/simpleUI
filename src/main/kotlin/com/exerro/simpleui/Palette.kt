@@ -18,9 +18,9 @@ fun interface Palette {
             is PaletteColour.Charcoal -> when (colour.variant) {
                 PaletteVariant.Dimmer -> RGB(20, 20, 20)
                 PaletteVariant.Brighter -> RGB(28, 28, 32)
-                PaletteVariant.Darker -> RGB(16, 17, 17)
+                PaletteVariant.Darker -> RGB(18, 19, 19)
                 PaletteVariant.Default -> RGB(24, 25, 25)
-                PaletteVariant.Lighter -> RGB(36, 37, 37)
+                PaletteVariant.Lighter -> RGB(30, 31, 31)
             }
             is PaletteColour.Silver -> when (colour.variant) {
                 PaletteVariant.Dimmer -> RGB(162, 162, 162)
@@ -32,9 +32,9 @@ fun interface Palette {
             is PaletteColour.White -> when (colour.variant) {
                 PaletteVariant.Dimmer -> RGB(210, 210, 210).adjust(colour.variant)
                 PaletteVariant.Brighter -> RGB(255, 255, 255).adjust(colour.variant)
-                PaletteVariant.Darker -> RGB(210, 210, 210).adjust(colour.variant)
+                PaletteVariant.Darker -> RGB(225, 225, 225).adjust(colour.variant)
                 PaletteVariant.Default -> RGB(235, 235, 235)
-                PaletteVariant.Lighter -> RGB(250, 250, 250).adjust(colour.variant)
+                PaletteVariant.Lighter -> RGB(242, 242, 242).adjust(colour.variant)
             }
             is PaletteColour.Blue -> when (colour.variant) {
                 PaletteVariant.Dimmer -> RGB(50, 140, 210).adjust(colour.variant)

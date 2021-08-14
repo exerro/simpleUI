@@ -73,7 +73,7 @@ object GLFWWindowCreator: WindowCreator {
             val height = IntArray(1)
             GLFW.glfwGetFramebufferSize(windowID, width, height)
             NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
-            if (redraw(nvgData, palette, contentChanged, width[0], height[0], rf) && contentChanged) submitRedraw(true)
+            if (redraw(nvgData, palette, contentChanged, width[0], height[0], rf) && contentChanged && rf == renderFunction) submitRedraw(true)
             NanoVG.nvgEndFrame(nvgData.context)
             GLFW.glfwSwapBuffers(windowID)
             true
@@ -81,6 +81,7 @@ object GLFWWindowCreator: WindowCreator {
 
         fun closeWindow() {
             nvgData.colour.free()
+            nvgData.colour2.free()
             NanoVGGL3.nvgDelete(nvgData.context)
             GL.setCapabilities(null)
             GLFW.glfwDestroyWindow(windowID)
@@ -131,15 +132,16 @@ object GLFWWindowCreator: WindowCreator {
             val context = NanoVGGL3.nvgCreate(0)
             if (context == MemoryUtil.NULL) return@offer false
             val colour = NVGColor.calloc()
+            val colour2 = NVGColor.calloc()
 
-            val monoStream = this::class.java.getResourceAsStream("/com/exerro/fonts/inconsolata/Inconsolata.otf")
+            val monoStream = this::class.java.getResourceAsStream("fonts/inconsolata/Inconsolata.otf")!!
             val monoByteArray = monoStream.readAllBytes()
             val monoBuffer = BufferUtils.createByteBuffer(monoByteArray.size)
             monoBuffer.put(monoByteArray)
             monoBuffer.flip()
             NanoVG.nvgCreateFontMem(context, "mono", monoBuffer, 1)
 
-            val sansStream = this::class.java.getResourceAsStream("/com/exerro/fonts/open-sans/OpenSans-Regular.ttf")
+            val sansStream = this::class.java.getResourceAsStream("fonts/open-sans/OpenSans-Regular.ttf")!!
             val sansByteArray = sansStream.readAllBytes()
             val sansBuffer = BufferUtils.createByteBuffer(sansByteArray.size)
             sansBuffer.put(sansByteArray)
@@ -148,7 +150,7 @@ object GLFWWindowCreator: WindowCreator {
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
             NanoVG.nvgCreateFontMem(context, "mono", monoBuffer, 1)
 
-            nvgData = NVGData(context, AnimationHelper(), colour, monoBuffer, sansBuffer)
+            nvgData = NVGData(context, AnimationHelper(), colour, colour2, monoBuffer, sansBuffer)
             true
         }
 

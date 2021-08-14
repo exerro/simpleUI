@@ -175,7 +175,7 @@ data class Region internal constructor(
         val hh = size.apply(height)
         val dy = hh + spacing.apply(height)
 
-        return LazyRegionList { n -> Region(y, y0 + n * dy, width, hh) }
+        return LazyRegionList { n -> Region(x, y0 + n * dy, width, hh) }
     }
 
     ////////////////////////////////////////////////////////////////////////////
