@@ -1,0 +1,61 @@
+package com.exerro.simpleui
+
+@Undocumented
+interface DrawContext {
+    @Undocumented
+    val region: Region
+
+    @Undocumented
+    fun fill(
+        colour: PaletteColour,
+        opacity: Float = 1f
+    )
+
+    @Undocumented
+    fun roundedRectangle(
+        cornerRadius: Float,
+        colour: PaletteColour,
+        borderColour: PaletteColour = colour,
+        borderWidth: Float = 0f,
+    )
+
+    @Undocumented
+    fun shadow(
+        colour: PaletteColour = PaletteColour.Black(PaletteVariant.Darker),
+        radius: Float = 5f,
+    )
+
+    @Undocumented
+    fun write(
+        text: FormattedText<*>,
+        font: Font = Font.default,
+        horizontalAlignment: Alignment = 0.5f,
+        verticalAlignment: Alignment = 0.5f,
+        wrap: Boolean = false,
+    )
+
+    @Undocumented
+    fun write(
+        text: String,
+        colour: PaletteColour = PaletteColour.White(),
+        font: Font = Font.default,
+        horizontalAlignment: Alignment = 0.5f,
+        verticalAlignment: Alignment = 0.5f,
+        wrap: Boolean = false,
+    ) = write(FormattedText.text(text, colour), font, horizontalAlignment, verticalAlignment, wrap)
+
+
+    @Undocumented
+    fun image(
+        path: String,
+        horizontalAlignment: Alignment = 0.5f,
+        verticalAlignment: Alignment = 0.5f,
+        stretchToFit: Boolean = false,
+    )
+
+    @Undocumented
+    fun Region.draw(
+        clip: Boolean = false,
+        draw: DrawContext.() -> Unit
+    )
+}
