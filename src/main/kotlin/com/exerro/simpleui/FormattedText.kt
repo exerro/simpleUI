@@ -1,5 +1,8 @@
 package com.exerro.simpleui
 
+import java.text.Format
+import kotlin.experimental.ExperimentalTypeInference
+
 @Undocumented
 class FormattedText<out Extra> internal constructor(
     internal val isNewline: Boolean,
@@ -65,6 +68,17 @@ class FormattedText<out Extra> internal constructor(
             text: String,
             colour: PaletteColour,
         ) = text(text, colour, Unit)
+
+        @Undocumented
+        fun <Extra> builder(
+            defaultExtra: Extra,
+            builder: FormattedTextBuilder<Extra>.() -> FormattedText<Extra>
+        ) = object: FormattedTextBuilder<Extra> {} .builder()
+
+        @Undocumented
+        fun builder(
+            builder: FormattedTextBuilder<Unit>.() -> FormattedText<Unit>
+        ) = builder(defaultExtra = Unit, builder)
     }
 }
 

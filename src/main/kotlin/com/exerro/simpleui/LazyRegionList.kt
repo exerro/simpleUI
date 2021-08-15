@@ -5,7 +5,12 @@ class LazyRegionList internal constructor(
     private val getNth: (Int) -> Region
 ): Iterable<Region> {
     @Undocumented
-    operator fun get(index: Int) = cache.computeIfAbsent(index, getNth)
+    operator fun get(index: Int) =
+        cache.computeIfAbsent(index, getNth)
+
+    @Undocumented
+    operator fun get(from: Int, to: Int) =
+        (from until to).map { get(it) }
 
     @Undocumented
     fun map(fn: (Region) -> Region) =
@@ -22,20 +27,15 @@ class LazyRegionList internal constructor(
     fun drop(count: Int) =
         LazyRegionList { n -> get(n + count) }
 
-    @Undocumented
     operator fun component1() = this[0]
-
-    @Undocumented
     operator fun component2() = this[1]
-
-    @Undocumented
     operator fun component3() = this[2]
-
-    @Undocumented
     operator fun component4() = this[3]
-
-    @Undocumented
     operator fun component5() = this[4]
+    operator fun component6() = this[5]
+    operator fun component7() = this[6]
+    operator fun component8() = this[7]
+    operator fun component9() = this[8]
 
     override fun iterator() = object: Iterator<Region> {
         private var index = 0

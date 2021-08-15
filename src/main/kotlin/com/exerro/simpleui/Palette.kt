@@ -37,7 +37,7 @@ fun interface Palette {
                 PaletteVariant.Lighter -> RGB(242, 242, 242).adjust(colour.variant)
             }
             is PaletteColour.Blue -> when (colour.variant) {
-                PaletteVariant.Dimmer -> RGB(50, 140, 210).adjust(colour.variant)
+                PaletteVariant.Dimmer -> RGB(70, 120, 160)
                 PaletteVariant.Brighter -> RGB(50, 140, 210).adjust(colour.variant)
                 PaletteVariant.Darker -> RGB(50, 140, 210).adjust(colour.variant)
                 PaletteVariant.Default -> RGB(50, 140, 210)
@@ -58,18 +58,18 @@ fun interface Palette {
                 PaletteVariant.Lighter -> RGB(210, 140, 70).adjust(colour.variant)
             }
             is PaletteColour.Pink -> when (colour.variant) {
-                PaletteVariant.Dimmer -> RGB(210, 140, 175).adjust(colour.variant)
-                PaletteVariant.Brighter -> RGB(210, 140, 175).adjust(colour.variant)
-                PaletteVariant.Darker -> RGB(210, 140, 175).adjust(colour.variant)
-                PaletteVariant.Default -> RGB(210, 140, 175)
-                PaletteVariant.Lighter -> RGB(210, 140, 175).adjust(colour.variant)
+                PaletteVariant.Dimmer -> RGB(220, 140, 180).adjust(colour.variant)
+                PaletteVariant.Brighter -> RGB(220, 140, 180).adjust(colour.variant)
+                PaletteVariant.Darker -> RGB(220, 140, 180).adjust(colour.variant)
+                PaletteVariant.Default -> RGB(220, 140, 180)
+                PaletteVariant.Lighter -> RGB(220, 140, 180).adjust(colour.variant)
             }
             is PaletteColour.Purple -> when (colour.variant) {
-                PaletteVariant.Dimmer -> RGB(70, 70, 210).adjust(colour.variant)
-                PaletteVariant.Brighter -> RGB(70, 70, 210).adjust(colour.variant)
-                PaletteVariant.Darker -> RGB(70, 70, 210).adjust(colour.variant)
-                PaletteVariant.Default -> RGB(70, 70, 210)
-                PaletteVariant.Lighter -> RGB(70, 70, 210).adjust(colour.variant)
+                PaletteVariant.Dimmer -> RGB(90, 70, 210).adjust(colour.variant)
+                PaletteVariant.Brighter -> RGB(90, 70, 210).adjust(colour.variant)
+                PaletteVariant.Darker -> RGB(90, 70, 210).adjust(colour.variant)
+                PaletteVariant.Default -> RGB(90, 70, 210)
+                PaletteVariant.Lighter -> RGB(90, 70, 210).adjust(colour.variant)
             }
             is PaletteColour.Red -> when (colour.variant) {
                 PaletteVariant.Dimmer -> RGB(210, 70, 70).adjust(colour.variant)
@@ -86,11 +86,11 @@ fun interface Palette {
                 PaletteVariant.Lighter -> RGB(50, 140, 140).adjust(colour.variant)
             }
             is PaletteColour.Yellow -> when (colour.variant) {
-                PaletteVariant.Dimmer -> RGB(210, 200, 70).adjust(colour.variant)
-                PaletteVariant.Brighter -> RGB(210, 200, 70).adjust(colour.variant)
-                PaletteVariant.Darker -> RGB(210, 200, 70).adjust(colour.variant)
-                PaletteVariant.Default -> RGB(210, 200, 70)
-                PaletteVariant.Lighter -> RGB(210, 200, 70).adjust(colour.variant)
+                PaletteVariant.Dimmer -> RGB(230, 200, 70).adjust(colour.variant)
+                PaletteVariant.Brighter -> RGB(230, 200, 70).adjust(colour.variant)
+                PaletteVariant.Darker -> RGB(230, 200, 70).adjust(colour.variant)
+                PaletteVariant.Default -> RGB(230, 200, 70)
+                PaletteVariant.Lighter -> RGB(230, 200, 70).adjust(colour.variant)
             }
         }
 

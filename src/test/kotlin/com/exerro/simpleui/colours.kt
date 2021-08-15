@@ -34,7 +34,7 @@ fun main() {
 
         topRegions.zip(colours).forEach { (r, c) ->
             r.draw {
-                roundedRectangle(4f, c.second, c.second.withVariant(PaletteVariant.Darker), 2f)
+                roundedRectangle(4.px, c.second, c.second.withVariant(PaletteVariant.Darker), 2.px)
                 write(FormattedText.text(c.first.uppercase(), PaletteColour.Black()), Font.monospace)
             }
         }

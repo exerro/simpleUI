@@ -80,15 +80,34 @@ object GLFWWindowCreator: WindowCreator {
         } }
 
         fun closeWindow() {
-            nvgData.colour.free()
-            nvgData.colour2.free()
-            NanoVGGL3.nvgDelete(nvgData.context)
-            GL.setCapabilities(null)
-            GLFW.glfwDestroyWindow(windowID)
+            if (isClosed) return
             isClosed = true
-            renderQueue.offer { false }
-            // terminate GLFW if this was the last window
-            if (--windows == 0) GLFW.glfwTerminate()
+            renderQueue.offer {
+                val width = IntArray(1)
+                val height = IntArray(1)
+
+                GLFW.glfwGetFramebufferSize(windowID, width, height)
+                GL46C.glViewport(0, 0, width[0], height[0])
+                GL46C.glClearColor(0f, 0f, 0f, 1f)
+                GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
+                GLFW.glfwSwapBuffers(windowID)
+                nvgData.colour.free()
+                nvgData.colour2.free()
+
+                for (image in nvgData.imageCache.values) {
+                    NanoVG.nvgDeleteImage(nvgData.context, image)
+                }
+
+                NanoVGGL3.nvgDelete(nvgData.context)
+                GL.setCapabilities(null)
+                GLFW.glfwDestroyWindow(windowID)
+
+                // terminate GLFW if this was the last window
+                if (--windows == 0) GLFW.glfwTerminate()
+
+                // stop the render thread
+                false
+            }
         }
 
         ////////////////////////////////////////////////////////
@@ -107,7 +126,13 @@ object GLFWWindowCreator: WindowCreator {
         GLFW.glfwSetKeyCallback(windowID) { _, key, scancode, action, mods ->
             val repeat = action == GLFW.GLFW_REPEAT
             val pressed = action == GLFW.GLFW_PRESS || repeat
-            val name = GLFW.glfwGetKeyName(key, scancode) ?: "unknown"
+            val name = GLFW.glfwGetKeyName(key, scancode) ?: when (key) {
+                GLFW.GLFW_KEY_UP -> "up"
+                GLFW.GLFW_KEY_DOWN -> "down"
+                GLFW.GLFW_KEY_SPACE -> "space"
+                // TODO!
+                else -> "unknown"
+            }
             val modifiers = setOfNotNull(
                 KeyModifier.Control.takeIf { mods and GLFW.GLFW_MOD_CONTROL != 0 },
                 KeyModifier.Alt.takeIf { mods and GLFW.GLFW_MOD_ALT != 0 },
@@ -146,11 +171,9 @@ object GLFWWindowCreator: WindowCreator {
             val sansBuffer = BufferUtils.createByteBuffer(sansByteArray.size)
             sansBuffer.put(sansByteArray)
             sansBuffer.flip()
-
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
-            NanoVG.nvgCreateFontMem(context, "mono", monoBuffer, 1)
 
-            nvgData = NVGData(context, AnimationHelper(), colour, colour2, monoBuffer, sansBuffer)
+            nvgData = NVGData(context, AnimationHelper(), colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
             true
         }
 
@@ -164,9 +187,9 @@ object GLFWWindowCreator: WindowCreator {
                 get() = palette
                 set(value) { palette = value }
 
-            override val events = Window.EventBus<WindowEvent> { onEvent ->
+            override val events = EventBus<WindowEvent> { onEvent ->
                 synchronized(onEventList) { onEventList.add(onEvent) }
-                Window.EventBus.Connection {
+                EventBus.Connection {
                     synchronized(onEventList) { onEventList.remove(onEvent) }
                 }
             }

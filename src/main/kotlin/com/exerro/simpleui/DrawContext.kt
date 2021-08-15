@@ -11,23 +11,32 @@ interface DrawContext {
     @Undocumented
     fun fill(
         colour: PaletteColour,
-        opacity: Float = 1f
+        opacity: Float = 1f,
     )
 
     @Undocumented
     fun roundedRectangle(
-        cornerRadius: Float,
+        cornerRadius: Pixels,
         colour: PaletteColour,
         borderColour: PaletteColour = colour,
-        borderWidth: Float = 0f, // TODO: make this pixels not float
+        borderWidth: Pixels = 0.px, // TODO: make this pixels not float
+        opacity: Float = 1f,
+    )
+
+    @Undocumented
+    fun ellipse(
+        colour: PaletteColour,
+        borderColour: PaletteColour = colour,
+        borderWidth: Pixels = 0.px, // TODO: make this pixels not float
+        opacity: Float = 1f,
     )
 
     @Undocumented
     fun shadow(
         colour: PaletteColour = PaletteColour.Black(PaletteVariant.Lighter),
-        radius: Float = 10f,
-        offset: Float = 2f,
-        cornerRadius: Float = 0f,
+        radius: Pixels = 10.px,
+        offset: Pixels = 2f.px,
+        cornerRadius: Pixels = 0.px,
     )
 
     @Undocumented
@@ -58,9 +67,8 @@ interface DrawContext {
     @Undocumented
     fun image(
         path: String,
-        horizontalAlignment: Alignment = 0.5f,
-        verticalAlignment: Alignment = 0.5f,
-        stretchToFit: Boolean = false,
+        tint: PaletteColour? = null,
+        isResource: Boolean = true,
     )
 
     @Undocumented
@@ -70,4 +78,12 @@ interface DrawContext {
         mount: MountPoint? = null,
         draw: DrawContext.() -> Unit
     )
+
+    @Undocumented
+    fun List<Region>.draw(
+        clip: Boolean = false,
+        id: StaticIdentifier? = null,
+        mount: MountPoint? = null,
+        draw: DrawContext.(index: Int) -> Unit
+    ) = forEachIndexed { i, r -> r.draw(clip = clip, id, mount) { draw(i) } }
 }

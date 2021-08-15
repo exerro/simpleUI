@@ -12,4 +12,5 @@ internal class NVGData(
     val colour2: NVGColor,
     val monoBuffer: ByteBuffer,
     val sansBuffer: ByteBuffer,
+    val imageCache: MutableMap<String, Int>
 )

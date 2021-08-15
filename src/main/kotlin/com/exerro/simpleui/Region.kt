@@ -112,8 +112,24 @@ data class Region internal constructor(
         grow: Boolean = false,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
-    ) {
-        TODO()
+    ) = when {
+        width / height == aspectRatio -> this
+        grow && height * aspectRatio > width -> copy(
+            x = x - (height * aspectRatio - width) * horizontalAlignment,
+            width = height * aspectRatio,
+        )
+        grow && height * aspectRatio <= width -> copy(
+            y = y - (width / aspectRatio - height) * verticalAlignment,
+            height = width / aspectRatio,
+        )
+        height * aspectRatio > width -> copy(
+            y = y + (width / aspectRatio - height) * verticalAlignment,
+            height = width / aspectRatio,
+        )
+        else -> copy(
+            x = x - (height * aspectRatio - width) * horizontalAlignment,
+            width = height * aspectRatio,
+        )
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -203,7 +219,10 @@ data class Region internal constructor(
         at1: Pixels = 40.percent,
         at2: Pixels = 60.percent,
     ): Triple<Region, Region, Region> {
-        TODO()
+        val w0 = at1.apply(width)
+        val w1 = at2.apply(width) - w0
+        val w2 = width - w1 - w0
+        return Triple(Region(x, y, w0, height), Region(x + w0, y, w1, height), Region(x + w0 + w1, y, w2, height))
     }
 
     @Undocumented
@@ -211,6 +230,17 @@ data class Region internal constructor(
         at1: Pixels = 40.percent,
         at2: Pixels = 60.percent,
     ): Triple<Region, Region, Region> {
-        TODO()
+        val h0 = at1.apply(height)
+        val h1 = at2.apply(height) - h0
+        val h2 = height - h0 - h1
+        return Triple(Region(x, y, width, h0), Region(x, y + h0, width, h1), Region(x, y + h0 + h1, width, h2))
     }
+}
+
+fun List<Region>.boundingRegion(): Region {
+    val x = minOf { it.x }
+    val y = minOf { it.y }
+    val mx = maxOf { it.x + it.width }
+    val my = maxOf { it.y + it.height }
+    return Region(x, y, mx - x, my - y)
 }

@@ -14,22 +14,22 @@ fun main() {
 
             top.draw {
                 region.resizeTo(256.px, 256.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Silver(), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.White())
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Silver(), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.White())
                 }
             }
 
             bottomLeft.draw {
                 region.resizeTo(height = 256.px).withPadding(horizontal = 128.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Silver(), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.White(PaletteVariant.Lighter))
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Silver(), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.White(PaletteVariant.Lighter))
                 }
             }
 
             bottomRight.draw {
                 region.resizeTo(height = 256.px).withPadding(horizontal = 128.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Silver(), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.White(PaletteVariant.Darker))
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Silver(), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.White(PaletteVariant.Darker))
                 }
             }
         }
@@ -38,26 +38,26 @@ fun main() {
             val (top, bottom) = region.splitVertically()
             val (bottomLeft, bottomRight) = bottom.splitHorizontally()
 
-            roundedRectangle(4f, PaletteColour.Charcoal())
+            roundedRectangle(4.px, PaletteColour.Charcoal())
 
             top.draw {
                 region.resizeTo(256.px, 256.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Black(PaletteVariant.Lighter), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.Charcoal())
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Black(PaletteVariant.Lighter), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.Charcoal())
                 }
             }
 
             bottomLeft.draw {
                 region.resizeTo(height = 256.px).withPadding(horizontal = 128.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Black(), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.Charcoal(PaletteVariant.Darker))
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Black(), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.Charcoal(PaletteVariant.Darker))
                 }
             }
 
             bottomRight.draw {
                 region.resizeTo(height = 256.px).withPadding(horizontal = 128.px).draw {
-                    shadow(radius = 10f, offset = 2f, colour = PaletteColour.Black(PaletteVariant.Lighter), cornerRadius = 4f)
-                    roundedRectangle(4f, PaletteColour.Charcoal(PaletteVariant.Lighter))
+                    shadow(radius = 10.px, offset = 2.px, colour = PaletteColour.Black(PaletteVariant.Lighter), cornerRadius = 4.px)
+                    roundedRectangle(4.px, PaletteColour.Charcoal(PaletteVariant.Lighter))
                 }
             }
         }

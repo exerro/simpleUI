@@ -1,10 +1,12 @@
 package com.exerro.simpleui.internal
 
 import com.exerro.simpleui.*
+import org.lwjgl.BufferUtils
 import org.lwjgl.nanovg.NVGGlyphPosition
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.opengl.GL46C
+import kotlin.math.min
 
 @Undocumented
 internal class NVGRenderingContext(
@@ -32,39 +34,72 @@ internal class NVGRenderingContext(
     }
 
     override fun roundedRectangle(
-        cornerRadius: Float,
+        cornerRadius: Pixels,
         colour: PaletteColour,
         borderColour: PaletteColour,
-        borderWidth: Float
+        borderWidth: Pixels,
+        opacity: Float,
     ) {
         val rgb = palette[colour]
-        NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
+        val cr = cornerRadius.apply(min(rw, rh))
+        val bw = borderWidth.apply(min(rw, rh))
+        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, opacity, nvg.colour)
         NanoVG.nvgBeginPath(nvg.context)
-        NanoVG.nvgRoundedRect(nvg.context, rx, ry, rw, rh, cornerRadius)
+        NanoVG.nvgRoundedRect(nvg.context, rx, ry, rw, rh, cr)
         NanoVG.nvgClosePath(nvg.context)
         NanoVG.nvgFillColor(nvg.context, nvg.colour)
         NanoVG.nvgFill(nvg.context)
 
-        if (borderWidth > 0f) {
+        if (bw > 0f) {
             val rgbBorder = palette[borderColour]
             NanoVG.nvgRGBf(rgbBorder.red, rgbBorder.green, rgbBorder.blue, nvg.colour)
             NanoVG.nvgBeginPath(nvg.context)
-            NanoVG.nvgRoundedRect(nvg.context, rx + borderWidth / 2 - 1f, ry + borderWidth / 2 - 1f, rw - borderWidth + 2f, rh - borderWidth + 2f, cornerRadius)
+            NanoVG.nvgRoundedRect(nvg.context, rx + bw / 2 - 1f, ry + bw / 2 - 1f, rw - bw + 2f, rh - bw + 2f, cr)
             NanoVG.nvgClosePath(nvg.context)
             NanoVG.nvgStrokeColor(nvg.context, nvg.colour)
-            NanoVG.nvgStrokeWidth(nvg.context, borderWidth)
+            NanoVG.nvgStrokeWidth(nvg.context, bw)
             NanoVG.nvgStroke(nvg.context)
         }
     }
 
-    override fun shadow(colour: PaletteColour, radius: Float, offset: Float, cornerRadius: Float) {
+    override fun ellipse(
+        colour: PaletteColour,
+        borderColour: PaletteColour,
+        borderWidth: Pixels,
+        opacity: Float,
+    ) {
+        val rgb = palette[colour]
+        val bw = borderWidth.apply(min(rw, rh))
+        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, opacity, nvg.colour)
+        NanoVG.nvgBeginPath(nvg.context)
+        NanoVG.nvgEllipse(nvg.context, rx + rw / 2, ry + rh / 2, rw / 2, rh / 2)
+        NanoVG.nvgClosePath(nvg.context)
+        NanoVG.nvgFillColor(nvg.context, nvg.colour)
+        NanoVG.nvgFill(nvg.context)
+
+        if (bw > 0f) {
+            val rgbBorder = palette[borderColour]
+            NanoVG.nvgRGBf(rgbBorder.red, rgbBorder.green, rgbBorder.blue, nvg.colour)
+            NanoVG.nvgBeginPath(nvg.context)
+            NanoVG.nvgEllipse(nvg.context, rx + rw / 2 + bw / 2 - 1f, ry + rh / 2 + bw / 2 - 1f, rw / 2 - bw + 2f, rh / 2 - bw + 2f)
+            NanoVG.nvgClosePath(nvg.context)
+            NanoVG.nvgStrokeColor(nvg.context, nvg.colour)
+            NanoVG.nvgStrokeWidth(nvg.context, bw)
+            NanoVG.nvgStroke(nvg.context)
+        }
+    }
+
+    override fun shadow(colour: PaletteColour, radius: Pixels, offset: Pixels, cornerRadius: Pixels) {
         val rgb = palette[colour]
         val paint = NVGPaint.calloc()
+        val dy = offset.apply(min(rw, rh))
+        val cr = cornerRadius.apply(min(rw, rh))
+        val r = radius.apply(min(rw, rh))
         NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 1f, nvg.colour)
         NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 0f, nvg.colour2)
-        NanoVG.nvgBoxGradient(nvg.context, rx, ry + offset, rw, rh, cornerRadius, radius, nvg.colour, nvg.colour2, paint)
+        NanoVG.nvgBoxGradient(nvg.context, rx, ry + dy, rw, rh, cr, r, nvg.colour, nvg.colour2, paint)
         NanoVG.nvgBeginPath(nvg.context)
-        NanoVG.nvgRect(nvg.context, rx - radius, ry + offset - radius, rw + radius * 2, rh + radius * 2)
+        NanoVG.nvgRect(nvg.context, rx - r, ry + dy - r, rw + r * 2, rh + r * 2)
         NanoVG.nvgClosePath(nvg.context)
         NanoVG.nvgFillPaint(nvg.context, paint)
         NanoVG.nvgFill(nvg.context)
@@ -84,7 +119,7 @@ internal class NVGRenderingContext(
 
         val spaceBuffer = NVGGlyphPosition.calloc(2)
         NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, "  ", spaceBuffer)
-        val indentationSize = (spaceBuffer[1].minx() - spaceBuffer[0].minx()) * (0.5f - horizontalAlignment) * 2
+        val indentationSize = (spaceBuffer[1].minx() - spaceBuffer[0].minx()) * (0.5f - horizontalAlignment) * 2 * 4
 
         var indentation = 0
         val textLines = text.lines.map { line ->
@@ -161,11 +196,32 @@ internal class NVGRenderingContext(
 
     override fun image(
         path: String,
-        horizontalAlignment: Alignment,
-        verticalAlignment: Alignment,
-        stretchToFit: Boolean
+        tint: PaletteColour?,
+        isResource: Boolean,
     ) {
-        TODO("not implemented")
+        val image = nvg.imageCache.computeIfAbsent(path) {
+            if (isResource) {
+                val imageStream = GLFWWindowCreator::class.java.getResourceAsStream(path)!!
+                val imageByteArray = imageStream.readAllBytes()
+                val imageBuffer = BufferUtils.createByteBuffer(imageByteArray.size)
+                imageBuffer.put(imageByteArray)
+                imageBuffer.flip()
+                NanoVG.nvgCreateImageMem(nvg.context, 0, imageBuffer)
+            }
+            else {
+                NanoVG.nvgCreateImage(nvg.context, path, 0)
+            }
+        }
+        val rgb = tint?.let { palette[it] } ?: RGB(1f, 1f, 1f)
+        val paint = NVGPaint.calloc()
+        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 1f, nvg.colour)
+        NanoVG.nvgImagePattern(nvg.context, rx, ry, rw, rh, 0f, image, 1f, paint)
+        NanoVG.nvgBeginPath(nvg.context)
+        NanoVG.nvgRect(nvg.context, rx, ry, rw, rh)
+        NanoVG.nvgClosePath(nvg.context)
+        NanoVG.nvgFillPaint(nvg.context, paint)
+        NanoVG.nvgFill(nvg.context)
+        paint.free()
     }
 
     override fun Region.draw(clip: Boolean, id: StaticIdentifier?, mount: MountPoint?, draw: DrawContext.() -> Unit) {

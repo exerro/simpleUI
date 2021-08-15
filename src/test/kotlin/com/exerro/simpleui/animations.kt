@@ -36,10 +36,10 @@ fun main() {
         fill(PaletteColour.Charcoal(PaletteVariant.Lighter))
 
         popup.draw(id = StaticIdentifier("popup"), mount = MountPoint.Top) {
-            shadow(cornerRadius = 4f)
-            roundedRectangle(cornerRadius = 4f, PaletteColour.Charcoal())
+            shadow(cornerRadius = 4.px)
+            roundedRectangle(cornerRadius = 4.px, PaletteColour.Charcoal())
             region.resizeTo(width = 100.px, height = 100.px).draw {
-                roundedRectangle(5f, PaletteColour.Yellow(), borderWidth = 4f, borderColour = PaletteColour.Orange())
+                roundedRectangle(5.px, PaletteColour.Yellow(), borderWidth = 4.px, borderColour = PaletteColour.Orange())
                 region.withPadding(12.px).draw {
                     write("Hello, I am in a popup!!", wrap = true)
                 }
