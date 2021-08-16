@@ -11,12 +11,15 @@ interface DrawContext {
     /** Area on-screen where content is drawn. */
     val region: Region
 
+    /** Area on-screen where content is visible. */
+    val clipRegion: Region
+
     /** Set to a user-defined identifier based on parameters given to [draw]. */
     val id: StaticIdentifier?
 
     /** Fill the region with a [colour] with the given [opacity]. */
     fun fill(
-        colour: PaletteColour,
+        colour: RGB,
         opacity: Float = 1f,
     )
 
@@ -24,8 +27,8 @@ interface DrawContext {
      *  controls background opacity, but the border is always fully opaque. */
     fun roundedRectangle(
         cornerRadius: Pixels,
-        colour: PaletteColour,
-        borderColour: PaletteColour = colour,
+        colour: RGB,
+        borderColour: RGB = colour,
         borderWidth: Pixels = 0.px,
         opacity: Float = 1f,
     )
@@ -33,8 +36,8 @@ interface DrawContext {
     /** Draw an ellipse spanning the full area of the [region].[opacity]
      *  controls background opacity, but the border is always fully opaque. */
     fun ellipse(
-        colour: PaletteColour,
-        borderColour: PaletteColour = colour,
+        colour: RGB,
+        borderColour: RGB = colour,
         borderWidth: Pixels = 0.px,
         opacity: Float = 1f,
     )
@@ -45,7 +48,7 @@ interface DrawContext {
      *  match that of [roundedRectangle] when giving a rounded rectangle or
      *  circle a shadow. */
     fun shadow(
-        colour: PaletteColour = PaletteColour.Black(PaletteVariant.Lighter),
+        colour: RGB = RGB(0.05f),
         radius: Pixels = 10.px,
         offset: Pixels = 2f.px,
         cornerRadius: Pixels = 0.px,
@@ -58,7 +61,7 @@ interface DrawContext {
      *  [Region.withAspectRatio]. */
     fun image(
         path: String,
-        tint: PaletteColour? = null,
+        tint: RGB? = null,
         isResource: Boolean = true,
     )
 
@@ -78,7 +81,7 @@ interface DrawContext {
     /** Write a simple string of text in the specified colour. */
     fun write(
         text: String,
-        colour: PaletteColour = PaletteColour.White(),
+        colour: RGB,
         font: Font = Font.default,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
@@ -91,6 +94,14 @@ interface DrawContext {
     ) {
         text(text, colour, splitAtSpaces = wrap)
     }
+
+//    @Undocumented
+//    fun <T> animated(
+//        from: T, to: T,
+//        interpolate: (t: Float, from: T, to: T) -> T,
+//        duration: Duration = Duration.seconds(0.25),
+//        draw: DrawContext.(value: T) -> Unit,
+//    )
 
     /** Draw content within another region. When [clip] is true, all content
      *  drawn within the callback [draw] is clipped to the region given. [id]

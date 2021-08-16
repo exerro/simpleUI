@@ -8,4 +8,10 @@ data class RGB(
 ) {
     constructor(red: Int, green: Int, blue: Int):
             this(red / 255f, green / 255f, blue / 255f)
+
+    constructor(greyscale: Int):
+            this(greyscale, greyscale, greyscale)
+
+    constructor(greyscale: Float):
+            this(greyscale, greyscale, greyscale)
 }

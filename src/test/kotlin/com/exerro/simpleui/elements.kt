@@ -2,27 +2,33 @@ package com.exerro.simpleui
 
 import kotlin.math.max
 
-val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
+private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
 
 data class Theme(
-    val backgroundColour: PaletteColour,
-    val textColour: PaletteColour,
-    val shadowColour: PaletteColour,
-    val disabledColour: PaletteColour,
+    val backgroundColour: RGB,
+    val lighterBackgroundColour: RGB,
+    val darkerBackgroundColour: RGB,
+    val textColour: RGB,
+    val shadowColour: RGB,
+    val disabledColour: RGB,
 ) {
     companion object {
         val light = Theme(
-            backgroundColour = PaletteColour.White(),
-            textColour = PaletteColour.Black(),
-            shadowColour = PaletteColour.Silver(),
-            disabledColour = PaletteColour.Silver(),
+            backgroundColour = Palette.Default[PaletteColour.White()],
+            lighterBackgroundColour = Palette.Default[PaletteColour.White(PaletteVariant.Lighter)],
+            darkerBackgroundColour = Palette.Default[PaletteColour.White(PaletteVariant.Darker)],
+            textColour = Palette.Default[PaletteColour.Black()],
+            shadowColour = Palette.Default[PaletteColour.Silver()],
+            disabledColour = Palette.Default[PaletteColour.Silver()],
         )
 
         val dark = Theme(
-            backgroundColour = PaletteColour.Charcoal(),
-            textColour = PaletteColour.White(),
-            shadowColour = PaletteColour.Black(PaletteVariant.Lighter),
-            disabledColour = PaletteColour.Silver(PaletteVariant.Darker),
+            backgroundColour = Palette.Default[PaletteColour.Charcoal()],
+            lighterBackgroundColour = Palette.Default[PaletteColour.Charcoal(PaletteVariant.Lighter)],
+            darkerBackgroundColour = Palette.Default[PaletteColour.Charcoal(PaletteVariant.Darker)],
+            textColour = Palette.Default[PaletteColour.White()],
+            shadowColour = Palette.Default[PaletteColour.Black(PaletteVariant.Lighter)],
+            disabledColour = Palette.Default[PaletteColour.Silver(PaletteVariant.Darker)],
         )
     }
 }
@@ -30,8 +36,9 @@ data class Theme(
 fun main() {
     val window = GLFWWindowCreator.createWindow("Elements")
     var theme = Theme.dark
-    val colours = listOf(PaletteColour.Red(), PaletteColour.Orange(), PaletteColour.Yellow(), PaletteColour.Green(), PaletteColour.Teal(), PaletteColour.Blue(), PaletteColour.Purple(), PaletteColour.Pink())
-    var primaryColour: PaletteColour = PaletteColour.Teal()
+    val palette = Palette.Default
+    val colours = listOf(PaletteColour.Red(), PaletteColour.Orange(), PaletteColour.Yellow(), PaletteColour.Green(), PaletteColour.Teal(), PaletteColour.Blue(), PaletteColour.Purple(), PaletteColour.Pink()).map { palette[it] }
+    var primaryColour: RGB = palette[PaletteColour.Teal()]
     var isSideVisible = false
     var sideIndexSelected = 0
 
@@ -53,30 +60,30 @@ fun main() {
         b0.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
             roundedRectangle(cornerRadius = 6.px, colour = primaryColour)
-            write("CONFIRM")
+            write("CONFIRM", palette[PaletteColour.White()])
         }
 
         b1.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 6.px, colour = PaletteColour.Red())
-            write("CANCEL")
+            roundedRectangle(cornerRadius = 6.px, colour = palette[PaletteColour.Red()])
+            write("CANCEL", palette[PaletteColour.White()])
         }
 
         b2.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
             roundedRectangle(cornerRadius = 6.px, colour = theme.disabledColour)
-            write("DISABLED")
+            write("DISABLED", palette[PaletteColour.White()])
         }
 
         b3.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 6.px, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 6.px, colour = theme.lighterBackgroundColour)
             write("ACTION", colour = theme.textColour)
         }
 
         b4.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 6.px, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 6.px, colour = theme.lighterBackgroundColour)
             write("ACTION", colour = theme.textColour)
             region.resizeTo(height = 2.px, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
                 region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
@@ -88,10 +95,10 @@ fun main() {
         b5.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
             roundedRectangle(cornerRadius = 6.px, colour = primaryColour)
-            write("ACTION", colour = PaletteColour.White())
+            write("ACTION", colour = palette[PaletteColour.White()])
             region.resizeTo(height = 2.px, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
                 region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
-                    roundedRectangle(cornerRadius = 6.px, colour = PaletteColour.White())
+                    roundedRectangle(cornerRadius = 6.px, colour = palette[PaletteColour.White()])
                 }
             }
         }
@@ -99,7 +106,7 @@ fun main() {
         ib0.resizeTo(height = 32.px).draw {
             val icon = region.resizeTo(width = region.height.px, horizontalAlignment = 0f)
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 6.px, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 6.px, colour = theme.lighterBackgroundColour)
             icon.withPadding(6.px).draw { image("images/search.png") }
             write("SEARCH", colour = theme.textColour)
         }
@@ -107,7 +114,7 @@ fun main() {
         ib1.resizeTo(height = 32.px).draw {
             val icon = region.resizeTo(width = region.height.px, horizontalAlignment = 0f)
             shadow(cornerRadius = 6.px, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 6.px, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 6.px, colour = theme.lighterBackgroundColour)
             icon.withPadding(6.px).draw { image("images/search.png") }
             write("SEARCH", colour = theme.textColour)
             region.resizeTo(height = 2.px, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
@@ -120,17 +127,17 @@ fun main() {
         ib2.resizeTo(height = 48.px).draw {
             region.resizeTo(width = 48.px, horizontalAlignment = 0.2f).draw {
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
                 region.withPadding(12.px).draw { image("images/search.png") }
             }
 
             region.resizeTo(width = 48.px, horizontalAlignment = 0.8f).draw {
                 val thisRegion = region
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
                 region.resizeTo(height = 5.px, width = 100.percent, verticalAlignment = 1f).draw(clip = true) {
                     thisRegion.withPadding(1.px).draw {
-                        roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter), borderColour = primaryColour, borderWidth = 2.px)
+                        roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour, borderColour = primaryColour, borderWidth = 2.px)
                     }
                 }
                 region.withPadding(12.px).draw { image("images/search.png", tint = theme.textColour) }
@@ -139,13 +146,13 @@ fun main() {
 
         if (isSideVisible) right.draw(id = StaticIdentifier("sidebar"), mount = MountPoint.InPlace) {
             shadow(colour = theme.shadowColour)
-            fill(theme.backgroundColour.withVariant(PaletteVariant.Default))
+            fill(theme.backgroundColour)
 
             val (rightHeader, rightContent) = right.splitVertically(at = 64.px)
 
             region.draw(clip = true) {
                 rightHeader.draw {
-                    fill(theme.backgroundColour.withVariant(PaletteVariant.Darker))
+                    fill(theme.darkerBackgroundColour)
                     region.withPadding(vertical = 16.px, horizontal = 32.px).draw {
                         write("Header text", horizontalAlignment = 0f, colour = theme.textColour, font = Font.heading)
                     }
@@ -154,7 +161,7 @@ fun main() {
                 rightContent.listVertically(48.px).take(10).draw { index ->
                     val isSelected = index == sideIndexSelected
                     val bgColour =
-                        if (isSelected) theme.backgroundColour.withVariant(PaletteVariant.Lighter) else theme.backgroundColour
+                        if (isSelected) theme.lighterBackgroundColour else theme.backgroundColour
 
                     fill(bgColour)
 
@@ -171,7 +178,7 @@ fun main() {
 
         t0.draw {
             shadow(colour = theme.shadowColour)
-            fill(theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            fill(theme.lighterBackgroundColour)
             region.withPadding(8.px).draw(clip = true) {
                 write(lorem, wrap = true, colour = theme.textColour, horizontalAlignment = 0f, verticalAlignment = 0f)
             }
@@ -179,9 +186,15 @@ fun main() {
 
         listOf(t1, t2).boundingRegion().draw {
             shadow(colour = theme.shadowColour)
-            fill(theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            fill(theme.lighterBackgroundColour)
             region.withPadding(16.px).draw {
                 write(font = Font.monospace, horizontalAlignment = 0f, verticalAlignment = 0f) {
+                    val red = palette[PaletteColour.Red()]
+                    val orange = palette[PaletteColour.Orange()]
+                    val teal = palette[PaletteColour.Teal()]
+                    val blue = palette[PaletteColour.Blue()]
+                    val purple = palette[PaletteColour.Purple()]
+
                     // Lua stuff
                     text("while", purple)
                     whitespace()
@@ -227,16 +240,16 @@ fun main() {
 
         t3.draw {
             shadow(colour = theme.shadowColour)
-            fill(theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            fill(theme.lighterBackgroundColour)
 
             region.listVertically(48.px).map { it.withPadding(vertical = 8.px, horizontal = 24.px) }.take(5).draw { index ->
                 write("Setting $index", colour = theme.textColour, horizontalAlignment = 0f)
-                write("'val #${index * 4}'", colour = PaletteColour.Silver(), horizontalAlignment = 1f)
+                write("'val #${index * 4}'", colour = palette[PaletteColour.Silver()], horizontalAlignment = 1f)
             }
         }
 
         radioButtons.listVertically(24.px, spacing = 8.px)[0].withPadding(left = 4.px).draw {
-            write("Radio buttons", horizontalAlignment = 0f, colour = PaletteColour.Silver())
+            write("Radio buttons", horizontalAlignment = 0f, colour = palette[PaletteColour.Silver()])
         }
 
         radioButtons.listVertically(24.px, spacing = 8.px).drop(1).take(6).draw { index ->
@@ -244,7 +257,7 @@ fun main() {
 
             button.withPadding(4.px).draw {
                 shadow(theme.shadowColour, cornerRadius = 50.percent)
-                ellipse(theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                ellipse(theme.lighterBackgroundColour)
                 if (index == 2) region.withPadding(4.px).draw { ellipse(primaryColour) }
             }
 
@@ -254,7 +267,7 @@ fun main() {
         }
 
         checkBoxes.listVertically(24.px, spacing = 8.px)[0].withPadding(left = 4.px).draw {
-            write("Checkboxes", horizontalAlignment = 0f, colour = PaletteColour.Silver())
+            write("Checkboxes", horizontalAlignment = 0f, colour = palette[PaletteColour.Silver()])
         }
 
         checkBoxes.listVertically(24.px, spacing = 8.px).drop(1).take(6).draw { index ->
@@ -262,7 +275,7 @@ fun main() {
 
             button.withPadding(4.px).draw {
                 shadow(theme.shadowColour, cornerRadius = 2.px)
-                roundedRectangle(2.px, theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(2.px, theme.lighterBackgroundColour)
                 if (index % 2 == 1) region.withPadding(4.px).draw { fill(primaryColour) }
             }
 
@@ -272,7 +285,7 @@ fun main() {
         }
 
         toggles.listVertically(24.px, spacing = 8.px)[0].withPadding(left = 4.px).draw {
-            write("Toggles", horizontalAlignment = 0f, colour = PaletteColour.Silver())
+            write("Toggles", horizontalAlignment = 0f, colour = palette[PaletteColour.Silver()])
         }
 
         toggles.listVertically(24.px, spacing = 8.px).drop(1).take(6).draw { index ->
@@ -283,7 +296,7 @@ fun main() {
 
             if (drawAnything) r.draw {
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                roundedRectangle(50.percent, theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(50.percent, theme.lighterBackgroundColour)
             }
 
             if (drawAnything) r.withPadding(4.px).resizeTo(width = 50.percent, horizontalAlignment = if (isOn) 0f else 1f).draw {
@@ -292,18 +305,18 @@ fun main() {
 
             if (drawAnything) left.draw(clip = true) {
                 left.resizeTo(region.width.px + region.height.px, horizontalAlignment = 0f).draw {
-//                    roundedRectangle(50.percent, if (isOn) primaryColour else theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+//                    roundedRectangle(50.percent, if (isOn) primaryColour else theme.lighterBackgroundColour)
                 }
 
-                region.withPadding(4.px).draw { write("ON", colour = if (isOn) PaletteColour.White() else theme.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
+                region.withPadding(4.px).draw { write("ON", colour = if (isOn) palette[PaletteColour.White()] else theme.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
             }
 
             if (drawAnything) right.draw(clip = true) {
                 right.resizeTo(region.width.px + region.height.px, horizontalAlignment = 1f).draw {
-//                    roundedRectangle(50.percent, if (!isOn) primaryColour else theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+//                    roundedRectangle(50.percent, if (!isOn) primaryColour else theme.lighterBackgroundColour)
                 }
 
-                region.withPadding(4.px).draw { write("OFF", colour = if (!isOn) PaletteColour.White() else theme.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
+                region.withPadding(4.px).draw { write("OFF", colour = if (!isOn) palette[PaletteColour.White()] else theme.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
             }
         }
 
@@ -312,7 +325,7 @@ fun main() {
             roundedRectangle(4.px, theme.backgroundColour)
 
             region.withPadding(horizontal = 16.px).draw {
-                write("Placeholder...", colour = PaletteColour.Silver(), horizontalAlignment = 0f)
+                write("Placeholder...", colour = palette[PaletteColour.Silver()], horizontalAlignment = 0f)
             }
         }
 
@@ -327,10 +340,10 @@ fun main() {
 
         i2.draw {
             shadow(colour = theme.shadowColour, cornerRadius = 4.px)
-            roundedRectangle(4.px, theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(4.px, theme.lighterBackgroundColour)
 
             region.withPadding(horizontal = 16.px).draw {
-                write("|Placeholder...", colour = PaletteColour.Silver(), horizontalAlignment = 0f)
+                write("|Placeholder...", colour = palette[PaletteColour.Silver()], horizontalAlignment = 0f)
             }
 
             region.resizeTo(height = 2.px, width = 100.percent - 16.px, verticalAlignment = 1f).draw(clip = true) {
@@ -342,7 +355,7 @@ fun main() {
 
         i3.draw {
             shadow(colour = theme.shadowColour, cornerRadius = 4.px)
-            roundedRectangle(4.px, theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(4.px, theme.lighterBackgroundColour)
 
             region.withPadding(horizontal = 16.px).draw {
                 write("Something|", colour = theme.textColour, horizontalAlignment = 0f)
@@ -357,7 +370,7 @@ fun main() {
 
         i4.draw {
             shadow(colour = theme.shadowColour, cornerRadius = 4.px)
-            roundedRectangle(4.px, theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(4.px, theme.lighterBackgroundColour)
 
             region.withPadding(horizontal = 16.px).draw {
                 write("Invalid|", colour = theme.textColour, horizontalAlignment = 0f)
@@ -365,7 +378,7 @@ fun main() {
 
             region.resizeTo(height = 2.px, width = 100.percent - 16.px, verticalAlignment = 1f).draw(clip = true) {
                 region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
-                    roundedRectangle(cornerRadius = 6.px, colour = PaletteColour.Red())
+                    roundedRectangle(cornerRadius = 6.px, colour = palette[PaletteColour.Red()])
                 }
             }
         }
@@ -373,19 +386,19 @@ fun main() {
         slider0.draw {
             region.resizeTo(height = 6.px).draw {
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
             }
 
             region.resizeTo(height = 16.px).withAspectRatio(1f, horizontalAlignment = 0.3f).draw {
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                ellipse(colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                ellipse(colour = theme.lighterBackgroundColour)
             }
         }
 
         slider1.draw {
             region.resizeTo(height = 6.px).draw {
                 shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-                roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+                roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
             }
 
             region.resizeTo(height = 16.px).withAspectRatio(1f, horizontalAlignment = 0.3f).draw {
@@ -396,7 +409,7 @@ fun main() {
 
         progress0.resizeTo(height = 24.px).draw {
             shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
 
             region.resizeTo(width = 40.percent, horizontalAlignment = 0f).draw(clip = true) {
                 region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 0f).draw {
@@ -407,14 +420,14 @@ fun main() {
 
         progress1.resizeTo(height = 24.px).draw {
             shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
 
             region.resizeTo(width = 60.percent, horizontalAlignment = 0f).draw(clip = true) {
                 region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 0f).draw {
                     roundedRectangle(cornerRadius = 50.percent, colour = primaryColour)
                 }
 
-                write("60%")
+                write("60%", palette[PaletteColour.White()])
             }
         }
 
@@ -428,7 +441,7 @@ fun main() {
 
             region.resizeTo(width = region.height.px * 1.5f, horizontalAlignment = 1f).draw(clip = true) {
                 region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 1f).draw {
-                    roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Darker))
+                    roundedRectangle(cornerRadius = 50.percent, colour = theme.darkerBackgroundColour)
                 }
 
                 region.resizeTo(height = 50.percent).withAspectRatio(1f).draw {
@@ -439,7 +452,7 @@ fun main() {
 
         dropdown1.resizeTo(height = 32.px).draw {
             shadow(cornerRadius = 50.percent, colour = theme.shadowColour)
-            roundedRectangle(cornerRadius = 50.percent, colour = theme.backgroundColour.withVariant(PaletteVariant.Lighter))
+            roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
 
             region.withPadding(left = 16.px).draw {
                 write("Option 1", colour = theme.textColour, horizontalAlignment = 0f)

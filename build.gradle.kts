@@ -46,4 +46,5 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-Xinline-classes"
     kotlinOptions.freeCompilerArgs += "-language-version"
     kotlinOptions.freeCompilerArgs += "1.5"
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.time.ExperimentalTime"
 }

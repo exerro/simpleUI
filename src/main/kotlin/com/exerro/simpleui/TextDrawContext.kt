@@ -13,16 +13,16 @@ interface TextDrawContext {
 
     /** Write [text] in the given [colour]. If [splitAtSpaces] is true, [text]
      *  will be split at space characters to allow word wrapping. */
-    fun text(text: String, colour: PaletteColour, splitAtSpaces: Boolean = true)
+    fun text(text: String, colour: RGB, splitAtSpaces: Boolean = true)
 
     @Undocumented
-    fun verticalCursor(colour: PaletteColour)
+    fun verticalCursor(colour: RGB)
 
     /** Start underlining text in the given [colour]. Any text written after
      *  this call (or until the [stopUnderlining]) will be underlined in this
      *  [colour]. Colours stack, so underlining in blue then red, then stopping
      *  underlining, will continue underlying in the previous colour blue. */
-    fun beginUnderlining(colour: PaletteColour)
+    fun beginUnderlining(colour: RGB)
 
     /** Stop underlining with the last-set underline colour. */
     fun stopUnderlining()
@@ -31,17 +31,8 @@ interface TextDrawContext {
      *  this call (or until the [stopHighlighting]) will be highlighted in this
      *  [colour]. Colours stack, so highlighting in blue then red, then stopping
      *  highlighting, will continue highlighting in the previous colour blue. */
-    fun beginHighlighting(colour: PaletteColour)
+    fun beginHighlighting(colour: RGB)
 
     /** Stop highlighting with the last-set highlight colour. */
     fun stopHighlighting()
-
-    val red get() = PaletteColour.Red()
-    val orange get() = PaletteColour.Orange()
-    val yellow get() = PaletteColour.Yellow()
-    val green get() = PaletteColour.Green()
-    val teal get() = PaletteColour.Teal()
-    val blue get() = PaletteColour.Blue()
-    val purple get() = PaletteColour.Purple()
-    val pink get() = PaletteColour.Pink()
 }

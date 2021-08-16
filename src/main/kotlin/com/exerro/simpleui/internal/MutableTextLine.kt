@@ -1,6 +1,6 @@
 package com.exerro.simpleui.internal
 
-import com.exerro.simpleui.PaletteColour
+import com.exerro.simpleui.RGB
 import com.exerro.simpleui.UndocumentedInternal
 
 @UndocumentedInternal
@@ -19,7 +19,7 @@ class MutableTextLine {
     }
 
     @UndocumentedInternal
-    fun pushText(text: String, colour: PaletteColour) {
+    fun pushText(text: String, colour: RGB) {
         segments.add(Segment(content.length, text, colour,
             activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(), false))
         content.append(text)
@@ -28,7 +28,7 @@ class MutableTextLine {
     @UndocumentedInternal
     fun pushWhitespace(length: Int) {
         if (activeHighlightColours.isNotEmpty() || activeUnderlineColours.isNotEmpty()) {
-            segments.add(Segment(content.length, " ", PaletteColour.White(),
+            segments.add(Segment(content.length, " ", RGB(1f),
                 activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(), true))
             content.append(" ".repeat(length))
         }
@@ -37,17 +37,17 @@ class MutableTextLine {
     }
 
     @UndocumentedInternal
-    fun pushCursor(colour: PaletteColour) {
+    fun pushCursor(colour: RGB) {
         cursors.add(Cursor(content.length, colour))
     }
 
     @UndocumentedInternal
-    fun pushHighlightColour(colour: PaletteColour) {
+    fun pushHighlightColour(colour: RGB) {
         activeHighlightColours.add(colour)
     }
 
     @UndocumentedInternal
-    fun pushUnderlineColour(colour: PaletteColour) {
+    fun pushUnderlineColour(colour: RGB) {
         activeUnderlineColours.add(colour)
     }
 
@@ -67,25 +67,25 @@ class MutableTextLine {
     data class Segment(
         val startCharIndex: Int,
         val text: String,
-        val textColour: PaletteColour,
-        val highlightColour: PaletteColour?,
-        val underlineColour: PaletteColour?,
+        val textColour: RGB,
+        val highlightColour: RGB?,
+        val underlineColour: RGB?,
         val isWhitespace: Boolean,
     )
 
     @UndocumentedInternal
     data class Cursor(
         val startCharIndex: Int,
-        val colour: PaletteColour,
+        val colour: RGB,
     )
 
     ////////////////////////////////////////////////////////////////////////////
 
     @UndocumentedInternal
-    private val activeHighlightColours = mutableListOf<PaletteColour>()
+    private val activeHighlightColours = mutableListOf<RGB>()
 
     @UndocumentedInternal
-    private val activeUnderlineColours = mutableListOf<PaletteColour>()
+    private val activeUnderlineColours = mutableListOf<RGB>()
 
     @UndocumentedInternal
     private val content = StringBuilder()

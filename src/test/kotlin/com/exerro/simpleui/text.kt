@@ -1,12 +1,24 @@
 package com.exerro.simpleui
 
-val lorem2 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
+private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
 
 fun main() {
     val window = GLFWWindowCreator.createWindow("Shadows")
+    val palette = Palette.Default
+    val white = palette[PaletteColour.White()]
+    val silver = palette[PaletteColour.Silver()]
+    val charcoal = palette[PaletteColour.Charcoal()]
+    val red = palette[PaletteColour.Red()]
+    val orange = palette[PaletteColour.Orange()]
+    val yellow = palette[PaletteColour.Yellow()]
+    val green = palette[PaletteColour.Green()]
+    val teal = palette[PaletteColour.Teal()]
+    val blue = palette[PaletteColour.Blue()]
+    val purple = palette[PaletteColour.Purple()]
+    val pink = palette[PaletteColour.Pink()]
 
     window.draw {
-        fill(PaletteColour.Charcoal())
+        fill(charcoal)
 
         val (top, _, bottom) = region.withPadding(32.px).splitVertically(at1 = 50.percent - 16.px, at2 = 50.percent + 16.px)
         val textBoxes = listOf(top.listHorizontally(384.px, spacing = 32.px), bottom.listHorizontally(384.px, spacing = 32.px)).flatten()
@@ -14,7 +26,7 @@ fun main() {
 
         textBoxes.take(10).draw {
             shadow()
-            fill(PaletteColour.Charcoal(PaletteVariant.Darker))
+            fill(palette[PaletteColour.Charcoal(PaletteVariant.Darker)])
         }
 
         textBoxContent[0].draw { write(
@@ -22,7 +34,7 @@ fun main() {
             highlightAlpha = 0.4f, underlineAlpha = 1f,
             wrap = false
         ) {
-            text("Hello world!", PaletteColour.White())
+            text("Hello world!", white)
             lineBreak()
             text("Line two", blue)
             lineBreak()
@@ -36,9 +48,9 @@ fun main() {
             lineBreak()
             text("Line five", red)
             lineBreak()
-            beginHighlighting(PaletteColour.Silver())
-            beginUnderlining(PaletteColour.Silver())
-            text("I am underlined and highlighted", PaletteColour.White())
+            beginHighlighting(silver)
+            beginUnderlining(silver)
+            text("I am underlined and highlighted", white)
             stopHighlighting()
             stopUnderlining()
         } }
@@ -48,9 +60,6 @@ fun main() {
             highlightAlpha = 1f,
             horizontalAlignment = 0f, verticalAlignment = 0f
         ) {
-            val white = PaletteColour.White()
-            val silver = PaletteColour.Silver()
-            val charcoal = PaletteColour.Charcoal()
 
             text("effect", purple)
             whitespace()
@@ -64,8 +73,8 @@ fun main() {
             beginHighlighting(charcoal)
             text("yield", teal)
             text("(", white)
-            beginHighlighting(charcoal.withVariant(PaletteVariant.Lighter))
-            text("value", red)
+            beginHighlighting(palette[PaletteColour.Charcoal().withVariant(PaletteVariant.Lighter)])
+            text("value", pink)
             stopHighlighting()
             text(":", white)
             whitespace()
@@ -84,21 +93,21 @@ fun main() {
         textBoxContent[2].draw { write(
             horizontalAlignment = 0f, verticalAlignment = 0f,
         ) {
-            text(lorem2, PaletteColour.White())
+            text(lorem, white)
         } }
 
         textBoxContent[3].draw { write {
-            text(lorem2, PaletteColour.White())
+            text(lorem, white)
         } }
 
         textBoxContent[4].draw { write {
-            beginHighlighting(PaletteColour.Blue())
-            text(lorem2, PaletteColour.White())
+            beginHighlighting(blue)
+            text(lorem, white)
         } }
 
         textBoxContent[5].draw { write {
-            beginUnderlining(PaletteColour.Blue())
-            text(lorem2, PaletteColour.White())
+            beginUnderlining(blue)
+            text(lorem, white)
         } }
     }
 

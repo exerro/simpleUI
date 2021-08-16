@@ -74,11 +74,11 @@ object GLFWWindowCreator: WindowCreator {
             GL46C.glViewport(0, 0, width[0], height[0])
             val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
             nvgData.animation.beginFrame(allowAnimations = contentChanged)
-            NVGRenderingContext(nvgData, palette, null, r, r, true).rf()
+            NVGRenderingContext(nvgData, null, r, r, true).rf()
             val (anyAnimating, exitAnimations) = nvgData.animation.endFrame()
 
             for (d in exitAnimations) {
-                val ctx = NVGRenderingContext(nvgData, palette, null, d.region, d.clipRegion, false)
+                val ctx = NVGRenderingContext(nvgData, null, d.region, d.clipRegion, false)
                 d.draw(ctx)
             }
 
