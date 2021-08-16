@@ -1,6 +1,8 @@
 package com.exerro.simpleui.internal
 
 import com.exerro.simpleui.*
+import com.exerro.simpleui.colour.Colour
+import com.exerro.simpleui.colour.RGBA
 import org.lwjgl.BufferUtils
 import org.lwjgl.nanovg.NVGGlyphPosition
 import org.lwjgl.nanovg.NVGPaint
@@ -16,13 +18,13 @@ internal class NVGRenderingContext(
     override val clipRegion: Region,
     private val isRoot: Boolean,
 ): DrawContext {
-    override fun fill(colour: RGB, opacity: Float) {
+    override fun fill(colour: Colour) {
         if (isRoot) {
-            GL46C.glClearColor(colour.red, colour.green, colour.blue, opacity)
+            GL46C.glClearColor(colour.red, colour.green, colour.blue, colour.alpha)
             GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
         }
         else {
-            NanoVG.nvgRGBf(colour.red, colour.green, colour.blue, nvg.colour)
+            NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, nvg.colour)
             NanoVG.nvgBeginPath(nvg.context)
             NanoVG.nvgRect(nvg.context, rx, ry, rw, rh)
             NanoVG.nvgClosePath(nvg.context)
@@ -33,14 +35,13 @@ internal class NVGRenderingContext(
 
     override fun roundedRectangle(
         cornerRadius: Pixels,
-        colour: RGB,
-        borderColour: RGB,
+        colour: Colour,
+        borderColour: Colour,
         borderWidth: Pixels,
-        opacity: Float,
     ) {
         val cr = cornerRadius.apply(min(rw, rh))
         val bw = borderWidth.apply(min(rw, rh))
-        NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, opacity, nvg.colour)
+        NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, nvg.colour)
         NanoVG.nvgBeginPath(nvg.context)
         NanoVG.nvgRoundedRect(nvg.context, rx, ry, rw, rh, cr)
         NanoVG.nvgClosePath(nvg.context)
@@ -59,13 +60,12 @@ internal class NVGRenderingContext(
     }
 
     override fun ellipse(
-        colour: RGB,
-        borderColour: RGB,
+        colour: Colour,
+        borderColour: Colour,
         borderWidth: Pixels,
-        opacity: Float,
     ) {
         val bw = borderWidth.apply(min(rw, rh))
-        NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, opacity, nvg.colour)
+        NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, nvg.colour)
         NanoVG.nvgBeginPath(nvg.context)
         NanoVG.nvgEllipse(nvg.context, rx + rw / 2, ry + rh / 2, rw / 2, rh / 2)
         NanoVG.nvgClosePath(nvg.context)
@@ -83,7 +83,7 @@ internal class NVGRenderingContext(
         }
     }
 
-    override fun shadow(colour: RGB, radius: Pixels, offset: Pixels, cornerRadius: Pixels) {
+    override fun shadow(colour: Colour, radius: Pixels, offset: Pixels, cornerRadius: Pixels) {
         val paint = NVGPaint.calloc()
         val dy = offset.apply(min(rw, rh))
         val cr = cornerRadius.apply(min(rw, rh))
@@ -101,7 +101,7 @@ internal class NVGRenderingContext(
 
     override fun image(
         path: String,
-        tint: RGB?,
+        tint: Colour?,
         isResource: Boolean,
     ) {
         val image = nvg.imageCache.computeIfAbsent(path) {
@@ -117,7 +117,7 @@ internal class NVGRenderingContext(
                 NanoVG.nvgCreateImage(nvg.context, path, 0)
             }
         }
-        val rgb = tint ?: RGB(1f, 1f, 1f)
+        val rgb = tint ?: RGBA(1f, 1f, 1f)
         val paint = NVGPaint.calloc()
         NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 1f, nvg.colour)
         NanoVG.nvgImagePattern(nvg.context, rx, ry, rw, rh, 0f, image, 1f, paint)
@@ -135,8 +135,6 @@ internal class NVGRenderingContext(
         verticalAlignment: Alignment,
         indentationSize: Int,
         initialIndentation: Int,
-        highlightAlpha: Float,
-        underlineAlpha: Float,
         wrap: Boolean,
         writer: TextDrawContext.() -> Unit
     ) {
@@ -206,7 +204,7 @@ internal class NVGRenderingContext(
                 tl.pushWhitespace(length)
             }
 
-            override fun text(text: String, colour: RGB, splitAtSpaces: Boolean) {
+            override fun text(text: String, colour: Colour, splitAtSpaces: Boolean) {
                 if (text.isEmpty()) return
                 if (splitAtSpaces) {
                     val parts = text.split(' ')
@@ -221,11 +219,11 @@ internal class NVGRenderingContext(
                     tl.pushText(text, colour)
             }
 
-            override fun verticalCursor(colour: RGB) {
+            override fun verticalCursor(colour: Colour) {
                 tl.pushCursor(colour)
             }
 
-            override fun beginUnderlining(colour: RGB) {
+            override fun beginUnderlining(colour: Colour) {
                 tl.pushUnderlineColour(colour)
             }
 
@@ -233,7 +231,7 @@ internal class NVGRenderingContext(
                 tl.popUnderlineColour()
             }
 
-            override fun beginHighlighting(colour: RGB) {
+            override fun beginHighlighting(colour: Colour) {
                 tl.pushHighlightColour(colour)
             }
 
@@ -256,7 +254,7 @@ internal class NVGRenderingContext(
             for ((segment, sx0, sx1) in line) {
                 if (segment.highlightColour != null) {
                     val rgb = segment.highlightColour
-                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, highlightAlpha, nvg.colour)
+                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, rgb.alpha, nvg.colour)
                     NanoVG.nvgBeginPath(nvg.context)
                     NanoVG.nvgRect(nvg.context, x + sx0 - x0, y, sx1 - sx0, font.lineHeight)
                     NanoVG.nvgClosePath(nvg.context)
@@ -264,14 +262,16 @@ internal class NVGRenderingContext(
                     NanoVG.nvgFill(nvg.context)
                 }
 
-                val rgb = segment.textColour
-                NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
-                NanoVG.nvgFillColor(nvg.context, nvg.colour)
-                NanoVG.nvgText(nvg.context, x + sx0 - x0, y, segment.text)
+                run {
+                    val rgb = segment.textColour
+                    NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
+                    NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                    NanoVG.nvgText(nvg.context, x + sx0 - x0, y, segment.text)
+                }
 
                 if (segment.underlineColour != null) {
                     val rgb = segment.underlineColour
-                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, underlineAlpha, nvg.colour)
+                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, rgb.alpha, nvg.colour)
                     NanoVG.nvgBeginPath(nvg.context)
                     NanoVG.nvgRect(nvg.context, x + sx0 - x0, y + font.lineHeight - 2f, sx1 - sx0, 2f)
                     NanoVG.nvgClosePath(nvg.context)

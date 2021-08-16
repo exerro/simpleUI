@@ -1,5 +1,7 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.colour.Colour
+
 /** A context used to provide text rendering capabilities. */
 interface TextDrawContext {
     /** Begin a new line, indented relative to the current line by
@@ -13,16 +15,16 @@ interface TextDrawContext {
 
     /** Write [text] in the given [colour]. If [splitAtSpaces] is true, [text]
      *  will be split at space characters to allow word wrapping. */
-    fun text(text: String, colour: RGB, splitAtSpaces: Boolean = true)
+    fun text(text: String, colour: Colour, splitAtSpaces: Boolean = true)
 
     @Undocumented
-    fun verticalCursor(colour: RGB)
+    fun verticalCursor(colour: Colour)
 
     /** Start underlining text in the given [colour]. Any text written after
      *  this call (or until the [stopUnderlining]) will be underlined in this
      *  [colour]. Colours stack, so underlining in blue then red, then stopping
      *  underlining, will continue underlying in the previous colour blue. */
-    fun beginUnderlining(colour: RGB)
+    fun beginUnderlining(colour: Colour)
 
     /** Stop underlining with the last-set underline colour. */
     fun stopUnderlining()
@@ -31,7 +33,7 @@ interface TextDrawContext {
      *  this call (or until the [stopHighlighting]) will be highlighted in this
      *  [colour]. Colours stack, so highlighting in blue then red, then stopping
      *  highlighting, will continue highlighting in the previous colour blue. */
-    fun beginHighlighting(colour: RGB)
+    fun beginHighlighting(colour: Colour)
 
     /** Stop highlighting with the last-set highlight colour. */
     fun stopHighlighting()

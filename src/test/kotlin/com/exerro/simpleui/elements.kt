@@ -1,16 +1,18 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.colour.Colour
+import com.exerro.simpleui.colour.Colours
 import kotlin.math.max
 
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
 
 data class Theme(
-    val backgroundColour: RGB,
-    val lighterBackgroundColour: RGB,
-    val darkerBackgroundColour: RGB,
-    val textColour: RGB,
-    val shadowColour: RGB,
-    val disabledColour: RGB,
+    val backgroundColour: Colour,
+    val lighterBackgroundColour: Colour,
+    val darkerBackgroundColour: Colour,
+    val textColour: Colour,
+    val shadowColour: Colour,
+    val disabledColour: Colour,
 ) {
     companion object {
         val light = Theme(
@@ -37,8 +39,8 @@ fun main() {
     val window = GLFWWindowCreator.createWindow("Elements")
     var theme = Theme.dark
     val palette = Palette.Default
-    val colours = listOf(PaletteColour.Red(), PaletteColour.Orange(), PaletteColour.Yellow(), PaletteColour.Green(), PaletteColour.Teal(), PaletteColour.Blue(), PaletteColour.Purple(), PaletteColour.Pink()).map { palette[it] }
-    var primaryColour: RGB = palette[PaletteColour.Teal()]
+    val colours = Colours.all - Colours.greyscale
+    var primaryColour: Colour = Colours.teal
     var isSideVisible = false
     var sideIndexSelected = 0
 

@@ -31,7 +31,6 @@ fun main() {
 
         textBoxContent[0].draw { write(
             horizontalAlignment = 0f, verticalAlignment = 0f,
-            highlightAlpha = 0.4f, underlineAlpha = 1f,
             wrap = false
         ) {
             text("Hello world!", white)
@@ -48,7 +47,7 @@ fun main() {
             lineBreak()
             text("Line five", red)
             lineBreak()
-            beginHighlighting(silver)
+            beginHighlighting(silver.withAlpha(0.4f))
             beginUnderlining(silver)
             text("I am underlined and highlighted", white)
             stopHighlighting()
@@ -57,7 +56,6 @@ fun main() {
 
         textBoxContent[1].draw { write(
             font = Font.monospace,
-            highlightAlpha = 1f,
             horizontalAlignment = 0f, verticalAlignment = 0f
         ) {
 
@@ -70,10 +68,10 @@ fun main() {
             whitespace()
             text("{", white)
             lineBreak(1)
-            beginHighlighting(charcoal)
+            beginHighlighting(white.withAlpha(0.1f))
             text("yield", teal)
             text("(", white)
-            beginHighlighting(palette[PaletteColour.Charcoal().withVariant(PaletteVariant.Lighter)])
+            beginHighlighting(teal.withAlpha(0.4f))
             text("value", pink)
             stopHighlighting()
             text(":", white)

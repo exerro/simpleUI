@@ -1,5 +1,8 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.colour.Colour
+import com.exerro.simpleui.colour.Greyscale
+
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
  *  Various methods draw content within this [region], such as [fill], and
@@ -17,29 +20,26 @@ interface DrawContext {
     /** Set to a user-defined identifier based on parameters given to [draw]. */
     val id: StaticIdentifier?
 
-    /** Fill the region with a [colour] with the given [opacity]. */
+    /** Fill the region with a [colour]. */
     fun fill(
-        colour: RGB,
-        opacity: Float = 1f,
+        colour: Colour,
     )
 
-    /** Draw a rounded rectangle, optionally providing a border. [opacity]
-     *  controls background opacity, but the border is always fully opaque. */
+    /** Draw a rounded rectangle, optionally providing a border. Note that the
+     *  border is always fully opaque, regardless of alpha. */
     fun roundedRectangle(
         cornerRadius: Pixels,
-        colour: RGB,
-        borderColour: RGB = colour,
+        colour: Colour,
+        borderColour: Colour = colour,
         borderWidth: Pixels = 0.px,
-        opacity: Float = 1f,
     )
 
-    /** Draw an ellipse spanning the full area of the [region].[opacity]
-     *  controls background opacity, but the border is always fully opaque. */
+    /** Draw an ellipse spanning the full area of the [region]. Note that the
+     *  border is always fully opaque, regardless of alpha. */
     fun ellipse(
-        colour: RGB,
-        borderColour: RGB = colour,
+        colour: Colour,
+        borderColour: Colour = colour,
         borderWidth: Pixels = 0.px,
-        opacity: Float = 1f,
     )
 
     /** Draw a shadow at the outer-edge of the current [region]. [radius]
@@ -48,7 +48,7 @@ interface DrawContext {
      *  match that of [roundedRectangle] when giving a rounded rectangle or
      *  circle a shadow. */
     fun shadow(
-        colour: RGB = RGB(0.05f),
+        colour: Colour = Greyscale(0f, alpha = 0.8f),
         radius: Pixels = 10.px,
         offset: Pixels = 2f.px,
         cornerRadius: Pixels = 0.px,
@@ -61,7 +61,7 @@ interface DrawContext {
      *  [Region.withAspectRatio]. */
     fun image(
         path: String,
-        tint: RGB? = null,
+        tint: Colour? = null,
         isResource: Boolean = true,
     )
 
@@ -72,8 +72,6 @@ interface DrawContext {
         verticalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
         initialIndentation: Int = 0,
-        highlightAlpha: Float = 0.4f,
-        underlineAlpha: Float = 1f,
         wrap: Boolean = true,
         writer: TextDrawContext.() -> Unit
     )
@@ -81,7 +79,7 @@ interface DrawContext {
     /** Write a simple string of text in the specified colour. */
     fun write(
         text: String,
-        colour: RGB,
+        colour: Colour,
         font: Font = Font.default,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
