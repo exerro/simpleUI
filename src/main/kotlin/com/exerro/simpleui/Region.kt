@@ -4,18 +4,15 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-@Undocumented
+/** A rectangular region within a window. */
 data class Region internal constructor(
-    @Undocumented
     val x: Float,
-    @Undocumented
     val y: Float,
-    @Undocumented
     val width: Float,
-    @Undocumented
     val height: Float,
 ) {
-    @Undocumented
+    /** Return a copy of this region with all properties rounded to the nearest
+     *  integer. */
     fun rounded() = Region(
         floor(x + 0.5f), floor(y + 0.5f),
         floor(width + 0.5f), floor(height + 0.5f)
@@ -23,7 +20,9 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Return the region of intersection between [this] and [other]. If there
+     *  is no intersection, the [width] or [height] of the returned region will
+     *  be 0. */
     infix fun intersectionWith(other: Region): Region {
         val ix = max(x, other.x)
         val iy = max(y, other.y)
@@ -37,31 +36,7 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
-    fun shrink(
-        horizontallyBy: Pixels = 0.px,
-        verticallyBy: Pixels = 0.px,
-        horizontalAlignment: Alignment = 0.5f,
-        verticalAlignment: Alignment = 0.5f,
-    ): Region {
-        val newWidth = (100.percent - horizontallyBy).apply(width)
-        val newHeight = (100.percent - verticallyBy).apply(height)
-        val newX = x + (width - newWidth) * horizontalAlignment
-        val newY = y + (height - newHeight) * verticalAlignment
-
-        return Region(newX, newY, newWidth, newHeight)
-    }
-
-    /** Shrinks by [by] pixels in both axes. See [shrink]. */
-    fun shrink(
-        by: Pixels,
-        horizontalAlignment: Alignment = 0.5f,
-        verticalAlignment: Alignment = 0.5f,
-    ) = shrink(by, by, horizontalAlignment, verticalAlignment)
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    @Undocumented
+    /** Return a region with each edge moved inwards by the respective value. */
     fun withPadding(
         top: Pixels = 0.px,
         right: Pixels = 0.px,
@@ -76,20 +51,26 @@ data class Region internal constructor(
         return Region(x + dx, y + dy, width - dw, height - dh)
     }
 
-    @Undocumented
+    /** Shorthand for [withPadding]. */
     fun withPadding(
         horizontal: Pixels = 0.px,
         vertical: Pixels = 0.px,
     ) = withPadding(vertical, horizontal, vertical, horizontal)
 
-    @Undocumented
+    /** Shorthand for [withPadding]. */
     fun withPadding(
         padding: Pixels,
     ) = withPadding(padding, padding, padding, padding)
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Return a region resized to ([width] x [height]). [horizontalAlignment]
+     *  and [verticalAlignment] control the positioning of the returned region,
+     *  essentially defining a relative anchor point within each region that
+     *  will be aligned after the resizing. E.g. if [horizontalAlignment] is 0,
+     *  then the leftmost pixels of each region will be aligned. If
+     *  [verticalAlignment] is 0.5, then the vertical centres of each region
+     *  will be aligned. */
     fun resizeTo(
         width: Pixels = this.width.px,
         height: Pixels = this.height.px,
@@ -106,7 +87,11 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Return a region with the given [aspectRatio]. If [grow] is true, the
+     *  returned region will contain the original. Otherwise, the returned
+     *  region will be contained within the original. [horizontalAlignment]
+     *  and [verticalAlignment] control the positioning of the returned region
+     *  as with [resizeTo]. */
     fun withAspectRatio(
         aspectRatio: Float,
         grow: Boolean = false,
@@ -134,7 +119,8 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Partition this region horizontally into [partitions] equally sized
+     *  regions, with some amount of [spacing] between them. */
     fun partitionHorizontally(
         partitions: Int,
         spacing: Pixels = 0.px,
@@ -150,7 +136,8 @@ data class Region internal constructor(
         } + listOf(Region(x1, y, width - x1 + x, height))
     }
 
-    @Undocumented
+    /** Partition this region vertically into [partitions] equally sized
+     *  regions, with some amount of [spacing] between them. */
     fun partitionVertically(
         partitions: Int,
         spacing: Pixels = 0.px,
@@ -168,35 +155,40 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Return an infinite lazy list of regions with the given [width] stacked
+     *  horizontally with some amount of [spacing]. [offset] controls an initial
+     *  horizontal offset of the regions. */
     fun listHorizontally(
-        size: Pixels,
+        width: Pixels,
         offset: Pixels = 0.px,
         spacing: Pixels = 0.px,
     ): LazyRegionList {
-        val x0 = x + offset.apply(width)
-        val ww = size.apply(width)
-        val dx = ww + spacing.apply(width)
+        val x0 = x + offset.apply(this.width)
+        val ww = width.apply(this.width)
+        val dx = ww + spacing.apply(this.width)
 
         return LazyRegionList { n -> Region(x0 + n * dx, y, ww, height) }
     }
 
-    @Undocumented
+    /** Return an infinite lazy list of regions with the given [height] stacked
+     *  vertically with some amount of [spacing]. [offset] controls an initial
+     *  vertical offset of the regions. */
     fun listVertically(
-        size: Pixels,
+        height: Pixels,
         offset: Pixels = 0.px,
         spacing: Pixels = 0.px,
     ): LazyRegionList {
-        val y0 = y + offset.apply(height)
-        val hh = size.apply(height)
-        val dy = hh + spacing.apply(height)
+        val y0 = y + offset.apply(this.height)
+        val hh = height.apply(this.height)
+        val dy = hh + spacing.apply(this.height)
 
         return LazyRegionList { n -> Region(x, y0 + n * dy, width, hh) }
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Split a region at the vertical line [at] into two regions stacked
+     *  horizontally. */
     fun splitHorizontally(
         at: Pixels = 50.percent,
     ): Pair<Region, Region> {
@@ -205,7 +197,8 @@ data class Region internal constructor(
         return Region(x, y, w0, height) to Region(x + w0, y, w1, height)
     }
 
-    @Undocumented
+    /** Split a region at the horizontal line [at] into two regions stacked
+     *  vertically. */
     fun splitVertically(
         at: Pixels = 50.percent,
     ): Pair<Region, Region> {
@@ -214,7 +207,8 @@ data class Region internal constructor(
         return Region(x, y, width, h0) to Region(x, y + h0, width, h1)
     }
 
-    @Undocumented
+    /** Split a region at the vertical line [at1] and [at2] into three regions
+     *  stacked horizontally. */
     fun splitHorizontally(
         at1: Pixels = 40.percent,
         at2: Pixels = 60.percent,
@@ -225,7 +219,8 @@ data class Region internal constructor(
         return Triple(Region(x, y, w0, height), Region(x + w0, y, w1, height), Region(x + w0 + w1, y, w2, height))
     }
 
-    @Undocumented
+    /** Split a region at the horizontal line [at1] and [at2] into three regions
+     *  stacked vertically. */
     fun splitVertically(
         at1: Pixels = 40.percent,
         at2: Pixels = 60.percent,
@@ -237,6 +232,7 @@ data class Region internal constructor(
     }
 }
 
+/** Return a [Region] containing every region provided. */
 fun List<Region>.boundingRegion(): Region {
     val x = minOf { it.x }
     val y = minOf { it.y }

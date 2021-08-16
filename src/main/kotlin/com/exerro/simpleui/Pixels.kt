@@ -8,7 +8,8 @@ data class Pixels(
     /** Relative dimension component. */
     val relative: Float,
 ) {
-    @Undocumented
+    /** Evaluate the plain numeric value of this [Pixels] instance within some
+     *  [context] that [relative] should be relative to. */
     fun apply(context: Float) = relative * context + pixels
 
     ////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** RGB colour values between 0 and 1. */
 data class RGB(
     val red: Float,
     val green: Float,

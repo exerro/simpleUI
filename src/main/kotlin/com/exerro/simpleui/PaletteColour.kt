@@ -1,13 +1,16 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** A collection of standard colours. Each palette colour has a [PaletteVariant]
+ *  allowing minor changes to the standard colour. */
 sealed interface PaletteColour {
     val variant: PaletteVariant
 
+    /** Return a copy of this colour with a different [PaletteVariant]. */
     fun withVariant(variant: PaletteVariant): PaletteColour
 
     data class Black(override val variant: PaletteVariant = PaletteVariant.Default): PaletteColour { override fun withVariant(variant: PaletteVariant) = copy(variant = variant) }
     data class Charcoal(override val variant: PaletteVariant = PaletteVariant.Default): PaletteColour { override fun withVariant(variant: PaletteVariant) = copy(variant = variant) }
+//    data class Grey(override val variant: PaletteVariant = PaletteVariant.Default): PaletteColour { override fun withVariant(variant: PaletteVariant) = copy(variant = variant) }
     data class Silver(override val variant: PaletteVariant = PaletteVariant.Default): PaletteColour { override fun withVariant(variant: PaletteVariant) = copy(variant = variant) }
     data class White(override val variant: PaletteVariant = PaletteVariant.Default): PaletteColour { override fun withVariant(variant: PaletteVariant) = copy(variant = variant) }
 

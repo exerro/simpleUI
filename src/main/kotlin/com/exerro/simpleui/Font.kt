@@ -1,20 +1,20 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** Description of font information. */
 data class Font(
-    @Undocumented
+    /** Size of the font, represented as the height of a line of text in pixels. */
     val lineHeight: Float,
-    @Undocumented
+    /** Whether the monospace or default font should be used. */
     val isMonospaced: Boolean,
 ) {
     companion object {
-        @Undocumented
+        /** Default font used for general text. */
         val default = Font(lineHeight = 22f, isMonospaced = false)
 
-        @Undocumented
+        /** Default font used for monospace text. */
         val monospace = Font(lineHeight = 18f, isMonospaced = true)
 
-        @Undocumented
+        /** Default font used for heading text. */
         val heading = Font(lineHeight = 28f, isMonospaced = true)
     }
 }

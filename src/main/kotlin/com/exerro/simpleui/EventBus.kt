@@ -15,14 +15,15 @@ fun interface EventBus<out E> {
      *  handled. */
     fun connect(onEvent: (E) -> Unit): Connection
 
-    @Undocumented
+    /** Map events (optionally to a new type) using [fn]. */
     fun <T> map(fn: (E) -> T) = EventBus<T> { onEvent ->
         connect { e -> onEvent(fn(e)) }
     }
 
-    @Undocumented
-    fun filter(fn: (E) -> Boolean) = EventBus<E> { onEvent ->
-        connect { e -> if (fn(e)) onEvent(e) }
+    /** Filter events using [predicate] such that anything connected to the
+     *  [EventBus] returned will match [predicate]. */
+    fun filter(predicate: (E) -> Boolean) = EventBus<E> { onEvent ->
+        connect { e -> if (predicate(e)) onEvent(e) }
     }
 
     /** A handle to a callback registered with an [EventBus],
@@ -35,7 +36,7 @@ fun interface EventBus<out E> {
     }
 }
 
-@Undocumented
+/** Filter events to type [T]. */
 inline fun <reified T> EventBus<*>.filterIsInstance() = EventBus<T> { onEvent ->
     connect { e -> if (e is T) onEvent(e) }
 }

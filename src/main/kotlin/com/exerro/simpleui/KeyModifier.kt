@@ -1,6 +1,6 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** Modifier keys that can be held when pressing a key, e.g. control. */
 enum class KeyModifier {
     Control,
     Shift,

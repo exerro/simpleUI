@@ -16,10 +16,8 @@ import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
 
-
-@Undocumented
+/** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
 object GLFWWindowCreator: WindowCreator {
-    @Undocumented
     override fun createWindow(
         title: String
     ): Window {
@@ -73,7 +71,18 @@ object GLFWWindowCreator: WindowCreator {
             val height = IntArray(1)
             GLFW.glfwGetFramebufferSize(windowID, width, height)
             NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
-            if (redraw(nvgData, palette, contentChanged, width[0], height[0], rf) && contentChanged && rf == renderFunction) submitRedraw(true)
+            GL46C.glViewport(0, 0, width[0], height[0])
+            val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
+            nvgData.animation.beginFrame(allowAnimations = contentChanged)
+            NVGRenderingContext(nvgData, palette, null, r, r, true).rf()
+            val (anyAnimating, exitAnimations) = nvgData.animation.endFrame()
+
+            for (d in exitAnimations) {
+                val ctx = NVGRenderingContext(nvgData, palette, null, d.region, d.clipRegion, false)
+                d.draw(ctx)
+            }
+
+            if (anyAnimating && contentChanged && rf == renderFunction) submitRedraw(true)
             NanoVG.nvgEndFrame(nvgData.context)
             GLFW.glfwSwapBuffers(windowID)
             true
@@ -213,30 +222,7 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
-    private fun redraw(
-        nvg: NVGData,
-        palette: Palette,
-        contentChanged: Boolean,
-        width: Int,
-        height: Int,
-        fn: DrawContext.() -> Unit
-    ): Boolean {
-        GL46C.glViewport(0, 0, width, height)
-        val r = Region(0f, 0f, width.toFloat(), height.toFloat())
-        nvg.animation.beginFrame(allowAnimations = contentChanged)
-        NVGRenderingContext(nvg, palette, null, r, r, true).fn()
-        val (anyAnimating, exitAnimations) = nvg.animation.endFrame()
-
-        for (d in exitAnimations) {
-            val ctx = NVGRenderingContext(nvg, palette, null, d.region, d.clipRegion, false)
-            d.draw(ctx)
-        }
-
-        return anyAnimating
-    }
-
-    @Undocumented
+    /** Create a thread running tasks from a queue, and return that queue. */
     private fun createWorkerThread(name: String, capacity: Int = 4): Queue<() -> Boolean> {
         val queue = ArrayBlockingQueue<() -> Boolean>(capacity)
 
@@ -256,6 +242,7 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Number of windows visible. Used to terminate GLFW when the last window
+     *  is closed. */
     private var windows = 0
 }

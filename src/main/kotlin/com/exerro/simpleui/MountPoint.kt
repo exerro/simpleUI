@@ -1,6 +1,6 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** Represents an out-of-view position of a region to animate in/out to/from. */
 enum class MountPoint {
     Top,
     Right,

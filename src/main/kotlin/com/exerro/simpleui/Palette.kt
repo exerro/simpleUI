@@ -1,11 +1,11 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** A mapping from [PaletteColour]s to [RGB] values. */
 fun interface Palette {
-    @Undocumented
+    /** Return the [RGB] value of a [PaletteColour]. */
     operator fun get(colour: PaletteColour): RGB
 
-    @Undocumented
+    /** A default palette with some nice colours. */
     object Default: Palette {
         override fun get(colour: PaletteColour) = when (colour) {
             is PaletteColour.Black -> when (colour.variant) {

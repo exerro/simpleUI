@@ -8,7 +8,7 @@ import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.opengl.GL46C
 import kotlin.math.min
 
-@Undocumented
+/** NanoVG implementation of a [DrawContext]. */
 internal class NVGRenderingContext(
     private val nvg: NVGData,
     private val palette: Palette,
@@ -106,94 +106,6 @@ internal class NVGRenderingContext(
         paint.free()
     }
 
-    override fun write(
-        text: FormattedText<*>,
-        font: Font,
-        horizontalAlignment: Alignment,
-        verticalAlignment: Alignment,
-        wrap: Boolean
-    ) {
-        NanoVG.nvgTextAlign(nvg.context, NanoVG.NVG_ALIGN_LEFT or NanoVG.NVG_ALIGN_TOP)
-        NanoVG.nvgFontSize(nvg.context, font.lineHeight)
-        NanoVG.nvgFontFace(nvg.context, if (font.isMonospaced) "mono" else "sans")
-
-        val spaceBuffer = NVGGlyphPosition.calloc(2)
-        NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, "  ", spaceBuffer)
-        val indentationSize = (spaceBuffer[1].minx() - spaceBuffer[0].minx()) * (0.5f - horizontalAlignment) * 2 * 4
-
-        var indentation = 0
-        val textLines = text.lines.map { line ->
-            line to line.joinToString("") { when (it) {
-                is FormattedText.Segment.LineBreak -> ""
-                is FormattedText.Segment.Text -> it.text
-                is FormattedText.Segment.Whitespace -> " ".repeat(it.length)
-            } }
-        }
-
-        val widthsAndPositionedSegments = textLines.flatMap { (formattedLine, lineString) ->
-            if (lineString.isEmpty()) return@flatMap listOf(0f to emptyList<Pair<Float, FormattedText.Segment.Text<*>>>())
-
-            val buffer = NVGGlyphPosition.calloc(lineString.length + 1)
-            NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, "$lineString ", buffer)
-
-            var lineWidth = 0f
-            var wsWidth = 0f
-            var xOffset = 0f
-            val result = mutableListOf<Pair<Float, List<Pair<Float,FormattedText.Segment.Text<*>>>>>()
-            var positionedSegments = mutableListOf<Pair<Float, FormattedText.Segment.Text<*>>>()
-            var charIndex = 0
-
-            for (segment in formattedLine) when (segment) {
-                is FormattedText.Segment.LineBreak -> {
-                    indentation += segment.relativeIndent
-                    break
-                }
-                is FormattedText.Segment.Whitespace -> {
-                    wsWidth += buffer[charIndex + segment.length].minx() - buffer[charIndex].minx()
-                    charIndex += segment.length
-                }
-                is FormattedText.Segment.Text -> {
-                    val ww = buffer[charIndex + segment.text.length].minx() - buffer[charIndex].minx()
-
-                    if (wrap && lineWidth + wsWidth + ww > rw) {
-                        // wrap
-                        result += lineWidth to positionedSegments
-                        positionedSegments = mutableListOf()
-                        xOffset += lineWidth + wsWidth
-                        wsWidth = 0f
-                        lineWidth = 0f
-                    }
-
-                    positionedSegments.add(buffer[charIndex].minx() - xOffset + indentation * indentationSize to segment)
-                    lineWidth += ww + wsWidth
-                    wsWidth = 0f
-                    charIndex += segment.text.length
-                }
-            }
-
-            buffer.free()
-            result.add(lineWidth to positionedSegments)
-            result
-        }
-
-        val maxHeight = font.lineHeight * widthsAndPositionedSegments.size
-        val maxWidth = widthsAndPositionedSegments.maxOfOrNull { it.first } ?: 0f
-        val x0 = rx + (rw - maxWidth) * horizontalAlignment
-        var y = ry + (rh - maxHeight) * verticalAlignment
-
-        for ((lineWidth, line) in widthsAndPositionedSegments) {
-            val alignOffset = (maxWidth - lineWidth) * horizontalAlignment
-            for ((offset, segment) in line) {
-                val rgb = palette[segment.colour]
-                NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
-                NanoVG.nvgFillColor(nvg.context, nvg.colour)
-                NanoVG.nvgText(nvg.context, x0 + offset + alignOffset, y, segment.text)
-            }
-
-            y += font.lineHeight
-        }
-    }
-
     override fun image(
         path: String,
         tint: PaletteColour?,
@@ -222,6 +134,162 @@ internal class NVGRenderingContext(
         NanoVG.nvgFillPaint(nvg.context, paint)
         NanoVG.nvgFill(nvg.context)
         paint.free()
+    }
+
+    override fun write(
+        font: Font,
+        horizontalAlignment: Alignment,
+        verticalAlignment: Alignment,
+        indentationSize: Int,
+        initialIndentation: Int,
+        highlightAlpha: Float,
+        underlineAlpha: Float,
+        wrap: Boolean,
+        writer: TextDrawContext.() -> Unit
+    ) {
+        val lines = mutableListOf<Pair<Int, List<Triple<MutableTextLine.Segment, Float, Float>>>>()
+        val buffer = NVGGlyphPosition.calloc(2)
+
+        NanoVG.nvgTextAlign(nvg.context, NanoVG.NVG_ALIGN_LEFT or NanoVG.NVG_ALIGN_TOP)
+        NanoVG.nvgFontSize(nvg.context, font.lineHeight)
+        NanoVG.nvgFontFace(nvg.context, if (font.isMonospaced) "mono" else "sans")
+        NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, "  ", buffer)
+
+        val pixelsPerIndentation = indentationSize * (buffer[1].minx() - buffer[0].minx()) * (0.5f - horizontalAlignment) * 2
+        buffer.free()
+
+        fun drawLine(
+            allText: String,
+            segments: List<MutableTextLine.Segment>,
+            cursors: List<MutableTextLine.Cursor>,
+            indentation: Int,
+        ) {
+            val buffer = NVGGlyphPosition.calloc(allText.length)
+            NanoVG.nvgTextGlyphPositions(nvg.context, 0f, 0f, allText, buffer)
+
+            var wrapOffset = 0f
+            var thisLine = mutableListOf<Triple<MutableTextLine.Segment, Float, Float>>()
+            val allWrappedLines = mutableListOf(indentation to thisLine)
+
+            // TODO: do something with cursors :((
+            // TODO: use indentation :((
+
+            for (segment in segments) {
+                val startX = buffer[segment.startCharIndex].minx() - wrapOffset
+                val endX = when (segment.startCharIndex + segment.text.length >= allText.length) {
+                    true -> buffer.last().maxx()
+                    else -> buffer[segment.startCharIndex + segment.text.length].minx()
+                } - wrapOffset
+
+                if (wrap && endX > rw && !segment.isWhitespace) {
+                    wrapOffset += startX
+                    thisLine = mutableListOf(Triple(segment, 0f, endX - startX))
+                    allWrappedLines.add(indentation to thisLine)
+                }
+                else {
+                    thisLine.add(Triple(segment, startX, endX))
+                }
+            }
+
+            for ((_, line) in allWrappedLines) {
+                while (line.lastOrNull()?.first?.isWhitespace == true)
+                    line.removeLast()
+            }
+
+            lines.addAll(allWrappedLines)
+            buffer.free()
+        }
+
+        var indentation = initialIndentation
+        val tl = MutableTextLine()
+        val ctx = object: TextDrawContext {
+            override fun lineBreak(relativeIndentation: Int) {
+                val (line, segments, cursors) = tl.finishLine()
+
+                drawLine(line, segments, cursors, indentation)
+                indentation += relativeIndentation
+            }
+
+            override fun whitespace(length: Int) {
+                tl.pushWhitespace(length)
+            }
+
+            override fun text(text: String, colour: PaletteColour, splitAtSpaces: Boolean) {
+                if (text.isEmpty()) return
+                if (splitAtSpaces) {
+                    val parts = text.split(' ')
+                    if (parts[0].isNotEmpty()) tl.pushText(parts[0], colour)
+
+                    for (part in parts.drop(1)) {
+                        tl.pushWhitespace(1)
+                        if (part.isNotEmpty()) tl.pushText(part, colour)
+                    }
+                }
+                else
+                    tl.pushText(text, colour)
+            }
+
+            override fun verticalCursor(colour: PaletteColour) {
+                tl.pushCursor(colour)
+            }
+
+            override fun beginUnderlining(colour: PaletteColour) {
+                tl.pushUnderlineColour(colour)
+            }
+
+            override fun stopUnderlining() {
+                tl.popUnderlineColour()
+            }
+
+            override fun beginHighlighting(colour: PaletteColour) {
+                tl.pushHighlightColour(colour)
+            }
+
+            override fun stopHighlighting() {
+                tl.popHighlightColour()
+            }
+        }
+
+        ctx.writer()
+        ctx.lineBreak()
+
+        var y = ry + (rh - font.lineHeight * lines.size) * verticalAlignment
+
+        for ((indent, line) in lines) {
+            if (line.isEmpty()) { y += font.lineHeight; continue }
+            val x0 = line.first().second
+            val x1 = line.last().third
+            val x = rx + (rw - x1 + x0) * horizontalAlignment + indent * pixelsPerIndentation
+
+            for ((segment, sx0, sx1) in line) {
+                if (segment.highlightColour != null) {
+                    val rgb = palette[segment.highlightColour]
+                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, highlightAlpha, nvg.colour)
+                    NanoVG.nvgBeginPath(nvg.context)
+                    NanoVG.nvgRect(nvg.context, x + sx0 - x0, y, sx1 - sx0, font.lineHeight)
+                    NanoVG.nvgClosePath(nvg.context)
+                    NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                    NanoVG.nvgFill(nvg.context)
+                }
+
+                val rgb = palette[segment.textColour]
+                NanoVG.nvgRGBf(rgb.red, rgb.green, rgb.blue, nvg.colour)
+                NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                NanoVG.nvgText(nvg.context, x + sx0 - x0, y, segment.text)
+
+                if (segment.underlineColour != null) {
+                    val rgb = palette[segment.underlineColour]
+                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, underlineAlpha, nvg.colour)
+                    NanoVG.nvgBeginPath(nvg.context)
+                    NanoVG.nvgRect(nvg.context, x + sx0 - x0, y + font.lineHeight - 2f, sx1 - sx0, 2f)
+                    NanoVG.nvgClosePath(nvg.context)
+                    NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                    NanoVG.nvgFill(nvg.context)
+                }
+            }
+
+            y += font.lineHeight
+        }
     }
 
     override fun Region.draw(clip: Boolean, id: StaticIdentifier?, mount: MountPoint?, draw: DrawContext.() -> Unit) {

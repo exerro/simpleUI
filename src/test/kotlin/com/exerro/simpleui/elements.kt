@@ -181,20 +181,47 @@ fun main() {
             shadow(colour = theme.shadowColour)
             fill(theme.backgroundColour.withVariant(PaletteVariant.Lighter))
             region.withPadding(16.px).draw {
-                val ftext = FormattedText.builder {
-                    val l0 = "while".coloured(purple) + whitespace + "true".coloured(orange) + whitespace + "do".coloured(purple)
-                    val l1 = "print".coloured(teal) + "(".coloured(theme.textColour) +"\"Hello world!\"".coloured(orange) + ")".coloured(theme.textColour)
-                    val l2 = "end".coloured(purple)
-                    val l4 = "effect".coloured(purple) + whitespace + "Yield".coloured(teal) + "<".coloured(theme.textColour) + "'a".coloured(blue) + ">".coloured(theme.textColour) + whitespace + "{".coloured(theme.textColour)
-                    val l5 = "yield".coloured(teal) + "(".coloured(theme.textColour) + "value".coloured(red) + ":".coloured(theme.textColour) + whitespace + "'a".coloured(blue) + ")".coloured(theme.textColour) + ":".coloured(theme.textColour) + whitespace + "Unit".coloured(blue)
-                    val l6 = "}".coloured(theme.textColour)
-                    val luaPart = l0 + lineBreak(1) + l1 + lineBreak(-1) + l2
-                    val slPart = l4 + lineBreak(1) + l5 + lineBreak(-1) + l6
+                write(font = Font.monospace, horizontalAlignment = 0f, verticalAlignment = 0f) {
+                    // Lua stuff
+                    text("while", purple)
+                    whitespace()
+                    text("true", orange)
+                    whitespace()
+                    text("do", purple)
+                    lineBreak(1)
+                    text("print", teal)
+                    text("(", theme.textColour)
+                    text("\"Hello world!\"", orange)
+                    text(")", theme.textColour)
+                    lineBreak(-1)
+                    text("end", purple)
 
-                    luaPart + lineBreak + lineBreak + slPart
+                    lineBreak()
+                    lineBreak()
+
+                    // SL stuff
+                    text("effect", purple)
+                    whitespace()
+                    text("Yield", teal)
+                    text("<", theme.textColour)
+                    text("'a", blue)
+                    text(">", theme.textColour)
+                    whitespace()
+                    text("{", theme.textColour)
+                    lineBreak(1)
+                    text("yield", teal)
+                    text("(", theme.textColour)
+                    text("value", red)
+                    text(":", theme.textColour)
+                    whitespace()
+                    text("'a", blue)
+                    text(")", theme.textColour)
+                    text(":", theme.textColour)
+                    whitespace()
+                    text("Unit", blue)
+                    lineBreak(-1)
+                    text("}", theme.textColour)
                 }
-
-                write(ftext, horizontalAlignment = 0f, verticalAlignment = 0f, font = Font.monospace)
             }
         }
 

@@ -1,14 +1,14 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** An event emitted by a [Window]. */
 sealed interface WindowEvent
 
-@Undocumented
+/** Emitted when the window is closed. */
 object EWindowClosed: WindowEvent {
     override fun toString() = this::class.simpleName!!
 }
 
-@Undocumented
+/** Emitted when a key is pressed. */
 data class EKeyPressed(
     val name: String,
     val scancode: Int,
@@ -16,14 +16,15 @@ data class EKeyPressed(
     val modifiers: Set<KeyModifier>,
 ): WindowEvent
 
-@Undocumented
+/** Emitted when a key is released. */
 data class EKeyReleased(
     val name: String,
     val scancode: Int,
     val modifiers: Set<KeyModifier>,
 ): WindowEvent
 
-@Undocumented
+/** Emitted when text content is input by the user, e.g. by typing on a
+ *  keyboard. */
 data class ETextInput(
     val content: String,
 ): WindowEvent

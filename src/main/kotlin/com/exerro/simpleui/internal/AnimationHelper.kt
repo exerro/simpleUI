@@ -3,9 +3,9 @@ package com.exerro.simpleui.internal
 import com.exerro.simpleui.*
 import kotlin.math.sqrt
 
-@Undocumented
+@UndocumentedInternal
 class AnimationHelper {
-    @Undocumented
+    @UndocumentedInternal
     fun beginFrame(allowAnimations: Boolean) {
         this.allowAnimations = allowAnimations
         thisFrameTime = System.nanoTime()
@@ -13,7 +13,7 @@ class AnimationHelper {
         anyAnimating = false
     }
 
-    @Undocumented
+    @UndocumentedInternal
     fun evaluateRegion(
         region: Region,
         clipRegion: Region,
@@ -78,7 +78,7 @@ class AnimationHelper {
         }
     }
 
-    @Undocumented
+    @UndocumentedInternal
     fun endFrame(): Pair<Boolean, List<ExitDraw>> {
         val removedRegions = lastFrame.values.filter { r -> !thisFrame.any { it.id == r.id } }
 
@@ -119,7 +119,7 @@ class AnimationHelper {
 
     ////////////////////////////////////////////////////////////
 
-    @Undocumented
+    @UndocumentedInternal
     data class ExitDraw(
         val region: Region,
         val clipRegion: Region,
@@ -128,7 +128,7 @@ class AnimationHelper {
 
     ////////////////////////////////////////////////////////////
 
-    @Undocumented
+    @UndocumentedInternal
     private fun evaluateMountRegion(
         targetRegion: Region,
         clipRegion: Region,
@@ -145,19 +145,19 @@ class AnimationHelper {
         )
     }
 
-    @Undocumented
+    @UndocumentedInternal
     private fun lerpIn(t: Float, a: Float, b: Float) =
         a + sqrt(t) * (b - a)
 
-    @Undocumented
+    @UndocumentedInternal
     private fun lerpOut(t: Float, a: Float, b: Float) =
         a + (t * t) * (b - a)
 
-    @Undocumented
+    @UndocumentedInternal
     private fun lerpBetween(t: Float, a: Float, b: Float) =
         a + (3 * t * t - 2 * t * t * t) * (b - a)
 
-    @Undocumented
+    @UndocumentedInternal
     private fun lerpAny(t: Float, a: Region, b: Region, mode: PositionMode): Region {
         val lerp = when (mode) {
             PositionMode.Entrance -> this::lerpIn
@@ -174,28 +174,15 @@ class AnimationHelper {
 
     ////////////////////////////////////////////////////////////
 
-    @Undocumented
     private val animationDuration = 200000000L
-
-    @Undocumented
     private val thisFrame: MutableList<CachedRegionDraw> = mutableListOf()
-
-    @Undocumented
     private val removedEntities: MutableList<ExitDrawData> = mutableListOf()
-
-    @Undocumented
     private val lastFrame: MutableMap<StaticIdentifier, CachedRegionDraw> = mutableMapOf()
-
-    @Undocumented
     private var thisFrameTime: Long = 0L
-
-    @Undocumented
     private var anyAnimating = false
-
-    @Undocumented
     private var allowAnimations = false
 
-    @Undocumented
+    @UndocumentedInternal
     private data class CachedRegionDraw(
         val positionedAt: Long,
         val initialPosition: Region,
@@ -207,7 +194,7 @@ class AnimationHelper {
         val draw: DrawContext.() -> Unit,
     )
 
-    @Undocumented
+    @UndocumentedInternal
     data class ExitDrawData(
         val removedAt: Long,
         val initialPosition: Region,
@@ -216,7 +203,7 @@ class AnimationHelper {
         val draw: DrawContext.() -> Unit,
     )
 
-    @Undocumented
+    @UndocumentedInternal
     private enum class PositionMode {
         Entrance,
         Transition,
