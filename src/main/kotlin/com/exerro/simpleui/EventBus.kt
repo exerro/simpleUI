@@ -33,6 +33,20 @@ fun interface EventBus<out E> {
         /** Disconnect the associated callback from the
          *  [EventBus] it was registered to. */
         fun disconnect()
+
+        companion object {
+            /** Return a [Connection] that, when disconnected from, disconnects
+             *  from all of [connections]. */
+            fun join(connections: Iterable<Connection>) = Connection {
+                connections.forEach(Connection::disconnect)
+            }
+
+            /** Return a [Connection] that, when disconnected from, disconnects
+             *  from all of [connections]. */
+            fun join(vararg connections: Connection) = Connection {
+                connections.forEach(Connection::disconnect)
+            }
+        }
     }
 }
 
