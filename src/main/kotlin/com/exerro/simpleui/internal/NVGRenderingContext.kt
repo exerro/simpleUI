@@ -13,7 +13,6 @@ import kotlin.math.min
 /** NanoVG implementation of a [DrawContext]. */
 internal class NVGRenderingContext(
     private val nvg: NVGData,
-    override val id: StaticIdentifier?,
     override val region: Region,
     override val clipRegion: Region,
     private val isRoot: Boolean,
@@ -284,9 +283,8 @@ internal class NVGRenderingContext(
         }
     }
 
-    override fun Region.draw(clip: Boolean, id: StaticIdentifier?, mount: MountPoint?, draw: DrawContext.() -> Unit) {
-        val drawRegion = if (id == null) this else
-            nvg.animation.evaluateRegion(this, clipRegion, id, mount, draw)
+    override fun Region.draw(clip: Boolean, draw: DrawContext.() -> Unit) {
+        val drawRegion = this
         val subClipRegion = if (clip) clipRegion intersectionWith drawRegion else clipRegion
 
         if (clip) {
@@ -295,7 +293,7 @@ internal class NVGRenderingContext(
         }
 
         NVGRenderingContext(
-            nvg, id,
+            nvg,
             drawRegion,
             subClipRegion,
             false

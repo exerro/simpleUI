@@ -17,9 +17,6 @@ interface DrawContext {
     /** Area on-screen where content is visible. */
     val clipRegion: Region
 
-    /** Set to a user-defined identifier based on parameters given to [draw]. */
-    val id: StaticIdentifier?
-
     /** Fill the region with a [colour]. */
     fun fill(
         colour: Colour,
@@ -110,8 +107,6 @@ interface DrawContext {
      *  when drawing for the first or last time. */
     fun Region.draw(
         clip: Boolean = false,
-        id: StaticIdentifier? = null,
-        mount: MountPoint? = null,
         draw: DrawContext.() -> Unit
     )
 
@@ -120,8 +115,6 @@ interface DrawContext {
      *  being drawn. */
     fun List<Region>.draw(
         clip: Boolean = false,
-        id: StaticIdentifier? = null,
-        mount: MountPoint? = null,
         draw: DrawContext.(index: Int) -> Unit
-    ) = forEachIndexed { i, r -> r.draw(clip = clip, id, mount) { draw(i) } }
+    ) = forEachIndexed { i, r -> r.draw(clip = clip) { draw(i) } }
 }

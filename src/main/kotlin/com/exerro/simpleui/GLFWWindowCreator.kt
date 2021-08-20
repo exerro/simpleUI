@@ -1,6 +1,5 @@
 package com.exerro.simpleui
 
-import com.exerro.simpleui.internal.AnimationHelper
 import com.exerro.simpleui.internal.NVGData
 import com.exerro.simpleui.internal.NVGRenderingContext
 import org.lwjgl.BufferUtils
@@ -13,8 +12,6 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
 import java.util.*
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.locks.Lock
 import kotlin.concurrent.thread
 
 /** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
@@ -159,7 +156,7 @@ object GLFWWindowCreator: WindowCreator {
             sansBuffer.flip()
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
 
-            nvgData = NVGData(context, AnimationHelper(), colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
+            nvgData = NVGData(context, colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
         }
 
         ////////////////////////////////////////////////////////
@@ -177,7 +174,7 @@ object GLFWWindowCreator: WindowCreator {
                 }
             }
 
-            override fun draw(onDraw: DrawContext.() -> Unit) {
+            override fun draw(onDraw: DrawContext.() -> Boolean) {
                 worker.loop {
                     val width = IntArray(1)
                     val height = IntArray(1)
@@ -185,14 +182,7 @@ object GLFWWindowCreator: WindowCreator {
                     NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
                     GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
-                    nvgData.animation.beginFrame(allowAnimations = true)
-                    NVGRenderingContext(nvgData, null, r, r, true).onDraw()
-                    val (anyAnimating, exitAnimations) = nvgData.animation.endFrame()
-
-                    for (d in exitAnimations) {
-                        val ctx = NVGRenderingContext(nvgData, null, d.region, d.clipRegion, false)
-                        d.draw(ctx)
-                    }
+                    val anyAnimating = NVGRenderingContext(nvgData, r, r, true).onDraw()
 
                     NanoVG.nvgEndFrame(nvgData.context)
                     GLFW.glfwSwapBuffers(windowID)

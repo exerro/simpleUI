@@ -107,6 +107,8 @@ fun main() {
             beginUnderlining(blue)
             text(lorem, white)
         } }
+
+        false
     }
 
     while (!window.isClosed) GLFWWindowCreator.update()

@@ -440,7 +440,7 @@ fun main() {
         }
 
 
-        if (isSideVisible) right.draw(id = StaticIdentifier("sidebar"), mount = MountPoint.InPlace) {
+        if (isSideVisible) right.draw {
             shadow(colour = theme.shadowColour)
             fill(theme.backgroundColour)
 
@@ -472,6 +472,7 @@ fun main() {
             }
         }
 
+        false
     }
 
     window.events

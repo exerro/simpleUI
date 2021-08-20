@@ -51,6 +51,8 @@ fun main() {
                 r4.draw { fill(palette[c.second.withVariant(PaletteVariant.Lighter)]); write("lighter", palette[PaletteColour.White()]) }
             }
         }
+
+        false
     }
 
     window.events.connect(::println)
