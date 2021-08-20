@@ -146,38 +146,6 @@ fun main() {
             }
         }
 
-        if (isSideVisible) right.draw(id = StaticIdentifier("sidebar"), mount = MountPoint.InPlace) {
-            shadow(colour = theme.shadowColour)
-            fill(theme.backgroundColour)
-
-            val (rightHeader, rightContent) = right.splitVertically(at = 64.px)
-
-            region.draw(clip = true) {
-                rightHeader.draw {
-                    fill(theme.darkerBackgroundColour)
-                    region.withPadding(vertical = 16.px, horizontal = 32.px).draw {
-                        write("Header text", horizontalAlignment = 0f, colour = theme.textColour, font = Font.heading)
-                    }
-                }
-
-                rightContent.listVertically(48.px).take(10).draw { index ->
-                    val isSelected = index == sideIndexSelected
-                    val bgColour =
-                        if (isSelected) theme.lighterBackgroundColour else theme.backgroundColour
-
-                    fill(bgColour)
-
-                    if (isSelected) region.resizeTo(width = 48.px, horizontalAlignment = 0f).draw {
-                        write(">", colour = theme.textColour)
-                    }
-
-                    region.withPadding(left = 48.px).draw {
-                        write("An item ${index + 1} in a list", horizontalAlignment = 0f, colour = theme.textColour)
-                    }
-                }
-            }
-        }
-
         t0.draw {
             shadow(colour = theme.shadowColour)
             fill(theme.lighterBackgroundColour)
@@ -470,6 +438,40 @@ fun main() {
                 }
             }
         }
+
+
+        if (isSideVisible) right.draw(id = StaticIdentifier("sidebar"), mount = MountPoint.InPlace) {
+            shadow(colour = theme.shadowColour)
+            fill(theme.backgroundColour)
+
+            val (rightHeader, rightContent) = right.splitVertically(at = 64.px)
+
+            region.draw(clip = true) {
+                rightHeader.draw {
+                    fill(theme.darkerBackgroundColour)
+                    region.withPadding(vertical = 16.px, horizontal = 32.px).draw {
+                        write("Header text", horizontalAlignment = 0f, colour = theme.textColour, font = Font.heading)
+                    }
+                }
+
+                rightContent.listVertically(48.px).take(10).draw { index ->
+                    val isSelected = index == sideIndexSelected
+                    val bgColour =
+                        if (isSelected) theme.lighterBackgroundColour else theme.backgroundColour
+
+                    fill(bgColour)
+
+                    if (isSelected) region.resizeTo(width = 48.px, horizontalAlignment = 0f).draw {
+                        write(">", colour = theme.textColour)
+                    }
+
+                    region.withPadding(left = 48.px).draw {
+                        write("An item ${index + 1} in a list", horizontalAlignment = 0f, colour = theme.textColour)
+                    }
+                }
+            }
+        }
+
     }
 
     window.events
