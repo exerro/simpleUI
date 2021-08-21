@@ -26,12 +26,11 @@ fun interface EventBus<out E> {
         connect { e -> if (predicate(e)) onEvent(e) }
     }
 
-    /** A handle to a callback registered with an [EventBus],
-     *  used to disconnect that callback when it should no
-     *  longer be used. */
+    /** A handle to a callback registered with an [EventBus], used to disconnect
+     *  that callback when it should no longer be used. */
     fun interface Connection {
-        /** Disconnect the associated callback from the
-         *  [EventBus] it was registered to. */
+        /** Disconnect the associated callback from the [EventBus] it was
+         *  registered to. */
         fun disconnect()
 
         companion object {

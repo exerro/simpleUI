@@ -15,9 +15,8 @@ interface Window {
 
     /** Submit a render function to render the window both now
      *  and whenever the window's framebuffer is refreshed
-     *  (e.g. after resizing or restoring). The function returns
-     *  true if it should still be rendered next frame. */
-    fun draw(onDraw: DrawContext.() -> Boolean)
+     *  (e.g. after resizing or restoring). */
+    fun draw(onDraw: DrawContext.() -> Unit)
 
     /** Indicate that the window content should be redrawn. */
     fun redraw()

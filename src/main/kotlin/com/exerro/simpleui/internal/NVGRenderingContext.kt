@@ -16,7 +16,7 @@ internal class NVGRenderingContext(
     override val region: Region,
     override val clipRegion: Region,
     private val isRoot: Boolean,
-): DrawContext {
+): DrawContextImpl {
     override fun fill(colour: Colour) {
         if (isRoot) {
             GL46C.glClearColor(colour.red, colour.green, colour.blue, colour.alpha)
@@ -230,6 +230,14 @@ internal class NVGRenderingContext(
                 tl.popUnderlineColour()
             }
 
+            override fun beginStrikingThrough(colour: Colour) {
+                tl.pushStrikeThroughColour(colour)
+            }
+
+            override fun stopStrikingThrough() {
+                tl.popStrikeThroughColour()
+            }
+
             override fun beginHighlighting(colour: Colour) {
                 tl.pushHighlightColour(colour)
             }
@@ -277,14 +285,24 @@ internal class NVGRenderingContext(
                     NanoVG.nvgFillColor(nvg.context, nvg.colour)
                     NanoVG.nvgFill(nvg.context)
                 }
+
+                if (segment.strikeThroughColour != null) {
+                    val rgb = segment.strikeThroughColour
+                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, rgb.alpha, nvg.colour)
+                    NanoVG.nvgBeginPath(nvg.context)
+                    NanoVG.nvgRect(nvg.context, x + sx0 - x0, y + font.lineHeight * 0.54f, sx1 - sx0, 2f)
+                    NanoVG.nvgClosePath(nvg.context)
+                    NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                    NanoVG.nvgFill(nvg.context)
+                }
             }
 
             y += font.lineHeight
         }
     }
 
-    override fun Region.draw(clip: Boolean, draw: DrawContext.() -> Unit) {
-        val drawRegion = this
+    override fun draw(region: Region, clip: Boolean, draw: (DrawContextImpl) -> Unit) {
+        val drawRegion = region
         val subClipRegion = if (clip) clipRegion intersectionWith drawRegion else clipRegion
 
         if (clip) {
@@ -292,12 +310,12 @@ internal class NVGRenderingContext(
             NanoVG.nvgScissor(nvg.context, subClipRegion.x, subClipRegion.y, subClipRegion.width, subClipRegion.height)
         }
 
-        NVGRenderingContext(
+        draw(NVGRenderingContext(
             nvg,
             drawRegion,
             subClipRegion,
             false
-        ).draw()
+        ))
 
         if (clip) {
             NanoVG.nvgScissor(nvg.context, clipRegion.x, clipRegion.y, clipRegion.width, clipRegion.height)

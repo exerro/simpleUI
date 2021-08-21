@@ -3,7 +3,7 @@ package com.exerro.simpleui
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
 
 fun main() {
-    val window = GLFWWindowCreator.createWindow("Shadows")
+    val window = GLFWWindowCreator.createWindow("Text")
     val palette = Palette.Default
     val white = palette[PaletteColour.White()]
     val silver = palette[PaletteColour.Silver()]
@@ -52,6 +52,10 @@ fun main() {
             text("I am underlined and highlighted", white)
             stopHighlighting()
             stopUnderlining()
+            lineBreak()
+            beginStrikingThrough(white)
+            text("I am struck through", white)
+            stopStrikingThrough()
         } }
 
         textBoxContent[1].draw { write(
@@ -107,8 +111,6 @@ fun main() {
             beginUnderlining(blue)
             text(lorem, white)
         } }
-
-        false
     }
 
     while (!window.isClosed) GLFWWindowCreator.update()

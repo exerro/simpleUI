@@ -2,6 +2,7 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.internal.NVGData
 import com.exerro.simpleui.internal.NVGRenderingContext
+import com.exerro.simpleui.internal.convertDrawFunction
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -174,16 +175,22 @@ object GLFWWindowCreator: WindowCreator {
                 }
             }
 
-            override fun draw(onDraw: DrawContext.() -> Boolean) {
+            override fun draw(onDraw: DrawContext.() -> Unit) {
+                val fn = convertDrawFunction(onDraw)
+                var lastFrame = System.nanoTime()
+
                 worker.loop {
                     val width = IntArray(1)
                     val height = IntArray(1)
+                    val time = System.nanoTime()
                     GLFW.glfwGetFramebufferSize(windowID, width, height)
                     NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
                     GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
-                    val anyAnimating = NVGRenderingContext(nvgData, r, r, true).onDraw()
+                    val context = NVGRenderingContext(nvgData, r, r, true)
+                    val anyAnimating = fn(context, time - lastFrame)
 
+                    lastFrame = time
                     NanoVG.nvgEndFrame(nvgData.context)
                     GLFW.glfwSwapBuffers(windowID)
 

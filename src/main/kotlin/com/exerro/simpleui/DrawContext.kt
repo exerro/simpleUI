@@ -2,6 +2,7 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
+import com.exerro.simpleui.internal.DrawContextImpl
 
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
@@ -70,7 +71,7 @@ interface DrawContext {
         indentationSize: Int = 4,
         initialIndentation: Int = 0,
         wrap: Boolean = true,
-        writer: TextDrawContext.() -> Unit
+        writer: TextDrawContext.() -> Unit,
     )
 
     /** Write a simple string of text in the specified colour. */
@@ -81,12 +82,18 @@ interface DrawContext {
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
         wrap: Boolean = true,
+        underlineColour: Colour? = null,
+        highlightColour: Colour? = null,
+        strikeThroughColour: Colour? = null,
     ) = write(
         font = font,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         wrap = wrap
     ) {
+        underlineColour?.let { beginUnderlining(it) }
+        highlightColour?.let { beginHighlighting(it) }
+        strikeThroughColour?.let { beginStrikingThrough(it) }
         text(text, colour, splitAtSpaces = wrap)
     }
 
@@ -99,15 +106,10 @@ interface DrawContext {
 //    )
 
     /** Draw content within another region. When [clip] is true, all content
-     *  drawn within the callback [draw] is clipped to the region given. [id]
-     *  facilitates automatic animations - when drawing the same (logical)
-     *  region (not spatial, it can move), the same [id] should be given so the
-     *  renderer can track movements and animate appropriately. If [mount] is
-     *  given and not null, the content is animated in/out from that direction
-     *  when drawing for the first or last time. */
+     *  drawn within the callback [draw] is clipped to the region given. */
     fun Region.draw(
         clip: Boolean = false,
-        draw: DrawContext.() -> Unit
+        draw: DrawContext.() -> Unit,
     )
 
     /** Shorthand for drawing a list of regions. See [DrawContext.draw]. [draw]
@@ -115,6 +117,6 @@ interface DrawContext {
      *  being drawn. */
     fun List<Region>.draw(
         clip: Boolean = false,
-        draw: DrawContext.(index: Int) -> Unit
+        draw: DrawContext.(index: Int) -> Unit,
     ) = forEachIndexed { i, r -> r.draw(clip = clip) { draw(i) } }
 }

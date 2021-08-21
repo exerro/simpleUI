@@ -22,15 +22,17 @@ class MutableTextLine {
     @UndocumentedInternal
     fun pushText(text: String, colour: Colour) {
         segments.add(Segment(content.length, text, colour,
-            activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(), false))
+            activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(),
+            activeStrikeThroughColours.lastOrNull(), false))
         content.append(text)
     }
 
     @UndocumentedInternal
     fun pushWhitespace(length: Int) {
-        if (activeHighlightColours.isNotEmpty() || activeUnderlineColours.isNotEmpty()) {
+        if (activeHighlightColours.isNotEmpty() || activeUnderlineColours.isNotEmpty() || activeStrikeThroughColours.isNotEmpty()) {
             segments.add(Segment(content.length, " ", Greyscale(1f),
-                activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(), true))
+                activeHighlightColours.lastOrNull(), activeUnderlineColours.lastOrNull(),
+                activeStrikeThroughColours.lastOrNull(), true))
             content.append(" ".repeat(length))
         }
         else
@@ -53,6 +55,11 @@ class MutableTextLine {
     }
 
     @UndocumentedInternal
+    fun pushStrikeThroughColour(colour: Colour) {
+        activeStrikeThroughColours.add(colour)
+    }
+
+    @UndocumentedInternal
     fun popHighlightColour() {
         activeHighlightColours.removeLast()
     }
@@ -60,6 +67,11 @@ class MutableTextLine {
     @UndocumentedInternal
     fun popUnderlineColour() {
         activeUnderlineColours.removeLast()
+    }
+
+    @UndocumentedInternal
+    fun popStrikeThroughColour() {
+        activeStrikeThroughColours.removeLast()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -71,6 +83,7 @@ class MutableTextLine {
         val textColour: Colour,
         val highlightColour: Colour?,
         val underlineColour: Colour?,
+        val strikeThroughColour: Colour?,
         val isWhitespace: Boolean,
     )
 
@@ -87,6 +100,9 @@ class MutableTextLine {
 
     @UndocumentedInternal
     private val activeUnderlineColours = mutableListOf<Colour>()
+
+    @UndocumentedInternal
+    private val activeStrikeThroughColours = mutableListOf<Colour>()
 
     @UndocumentedInternal
     private val content = StringBuilder()

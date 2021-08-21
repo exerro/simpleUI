@@ -1,4 +1,4 @@
-package com.exerro.simpleui
+ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
@@ -471,11 +471,9 @@ fun main() {
                 }
             }
         }
-
-        false
     }
 
-    window.events
+    val c = window.events
         .filterIsInstance<EKeyPressed>()
         .filter { !it.isRepeat }
         .filter { it.name == "t" }

@@ -36,6 +36,14 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
+    /** Shorthand for [withPadding]. */
+    fun translateBy(
+        dx: Pixels = 0.px,
+        dy: Pixels = 0.px,
+    ) = Region(x + dx.apply(width), y + dy.apply(width), width, height)
+
+    ////////////////////////////////////////////////////////////////////////////
+
     /** Return a region with each edge moved inwards by the respective value. */
     fun withPadding(
         top: Pixels = 0.px,
@@ -116,6 +124,22 @@ data class Region internal constructor(
             width = height * aspectRatio,
         )
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    /** Align this region within another region according to the
+     *  [horizontal][horizontalAlignment] and [vertical][verticalAlignment]
+     *  alignments specified. */
+    fun alignWithin(
+        parent: Region,
+        horizontalAlignment: Alignment = 0.5f,
+        verticalAlignment: Alignment = 0.5f,
+    ) = Region(
+        x = parent.x + (parent.width - width) * horizontalAlignment,
+        y = parent.y + (parent.height - height) * verticalAlignment,
+        width = width,
+        height = height,
+    )
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -230,6 +254,10 @@ data class Region internal constructor(
         val h2 = height - h0 - h1
         return Triple(Region(x, y, width, h0), Region(x, y + h0, width, h1), Region(x, y + h0 + h1, width, h2))
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    companion object
 }
 
 /** Return a [Region] containing every region provided. */

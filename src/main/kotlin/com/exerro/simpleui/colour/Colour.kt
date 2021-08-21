@@ -75,4 +75,8 @@ interface Colour {
 
     /** Return the colour with no alterations. */
     fun identity() = this
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    companion object
 }

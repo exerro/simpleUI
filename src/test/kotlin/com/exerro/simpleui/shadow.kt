@@ -65,8 +65,6 @@ fun main() {
                 }
             }
         }
-
-        false
     }
 
     while (!window.isClosed) GLFWWindowCreator.update()

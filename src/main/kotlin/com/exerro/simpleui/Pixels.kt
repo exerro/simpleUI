@@ -14,6 +14,9 @@ data class Pixels(
 
     ////////////////////////////////////////////////////////////
 
+    operator fun unaryMinus() =
+        Pixels(-pixels, -relative)
+
     operator fun plus(other: Pixels) =
         Pixels(pixels + other.pixels, relative + other.relative)
 

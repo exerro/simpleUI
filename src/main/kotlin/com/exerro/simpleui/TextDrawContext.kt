@@ -23,16 +23,26 @@ interface TextDrawContext {
     /** Start underlining text in the given [colour]. Any text written after
      *  this call (or until the [stopUnderlining]) will be underlined in this
      *  [colour]. Colours stack, so underlining in blue then red, then stopping
-     *  underlining, will continue underlying in the previous colour blue. */
+     *  underlining, will continue underlying in the previous colour (blue). */
     fun beginUnderlining(colour: Colour)
 
     /** Stop underlining with the last-set underline colour. */
     fun stopUnderlining()
 
+    /** Start striking through text in the given [colour]. Any text written
+     *  after this call (or until the [stopStrikingThrough]) will be struck
+     *  through in this [colour]. Colours stack, so striking through in blue
+     *  then red, then stopping striking through, will continue striking through
+     *  in the previous colour (blue). */
+    fun beginStrikingThrough(colour: Colour)
+
+    /** Stop striking through the text with the last-set strikethrough colour. */
+    fun stopStrikingThrough()
+
     /** Start highlighting text in the given [colour]. Any text written after
      *  this call (or until the [stopHighlighting]) will be highlighted in this
      *  [colour]. Colours stack, so highlighting in blue then red, then stopping
-     *  highlighting, will continue highlighting in the previous colour blue. */
+     *  highlighting, will continue highlighting in the previous colour (blue). */
     fun beginHighlighting(colour: Colour)
 
     /** Stop highlighting with the last-set highlight colour. */
