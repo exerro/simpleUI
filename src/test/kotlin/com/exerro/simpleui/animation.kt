@@ -1,34 +1,22 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.extensions.animatedFrom
 import com.exerro.simpleui.extensions.animationTo
 import com.exerro.simpleui.extensions.withEasing
 
 fun main() {
     val window = GLFWWindowCreator.createWindow("Animation")
     var visible = true
-    var targetRegion = Region(0f, 0f, 100f, 100f)
-    val helper = AnimationHelper<Region>(
-        exit = { v -> Region
-            .animationTo(v.copy(x = -v.width))
-            .withEasing(Animation.Easing.OUT)
-               },
-        enter = { v -> Region
-            .animationTo(v)
-            .withEasing(Animation.Easing.IN)
-            .animatedFrom(v.copy(x = -v.width))
-                },
-    )
+    val target = AnimatedValue(Region(0f, 0f, 100f, 100f))
 
     fun redraw() = window.draw {
         fill(Colours.black)
 
-        val animatedRegion = if (visible) helper.animatedValue(targetRegion, Animation.Easing.BETWEEN) else helper.exit()
+        val (animatedRegion) = target
 
-//        animatedRegion?.draw {
-//            fill(Colours.white)
-//        }
+        animatedRegion.draw {
+            fill(Colours.white)
+        }
     }
 
     window.events
@@ -37,12 +25,22 @@ fun main() {
         .connect {
             if (it.name == "e") visible = !visible
 
-            targetRegion = Region(
-                x = rand(0, 500),
-                y = rand(0, 400),
-                width = rand(100, 200),
-                height = rand(100, 200),
-            )
+            if (visible) {
+                val enterTo = Region(
+                    x = rand(0, 500),
+                    y = rand(0, 400),
+                    width = rand(100, 200),
+                    height = rand(100, 200),
+                )
+                if (target.isFinished) target.reset(enterTo.copy(x = -enterTo.width))
+                target.reset(animation = Region.animationTo(enterTo) withEasing Animation.Easing.IN)
+            }
+            else {
+                target.reset(animation = Region.animationTo(
+                    target = target.currentValue.copy(x = -target.currentValue.width)
+                ) withEasing Animation.Easing.OUT)
+            }
+
             redraw()
         }
 

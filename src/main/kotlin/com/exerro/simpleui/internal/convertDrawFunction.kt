@@ -12,6 +12,12 @@ internal fun convertDrawFunction(
         override val region = impl.region
         override val clipRegion = impl.clipRegion
 
+        override fun <T> Animated<T>.component1(): T {
+            if (!isFinished) { update(delta) }
+            if (!isFinished) { animating = true }
+            return currentValue
+        }
+
         override fun fill(colour: Colour) {
             impl.fill(colour)
         }
@@ -48,11 +54,6 @@ internal fun convertDrawFunction(
             val d = convertDrawFunction(draw)
             impl.draw(this, clip) { animating = d(it, delta) || animating }
         }
-
-//        override fun AnimatedValue<Region>.draw(clip: Boolean, draw: DrawContext.() -> Unit) {
-//            update(delta).draw(clip, draw)
-//            animating = animating || !isFinished
-//        }
     }
 
     context.fn()

@@ -2,7 +2,6 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
-import com.exerro.simpleui.internal.DrawContextImpl
 
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
@@ -17,6 +16,12 @@ interface DrawContext {
 
     /** Area on-screen where content is visible. */
     val clipRegion: Region
+
+    /** Bind an animation locally, getting its value and updating the animation.
+     *  By binding the animation like this, the renderer knows that something
+     *  animated is being drawn and can queue further redraws to continuously
+     *  update the animation while it's running. */
+    operator fun <T> Animated<T>.component1(): T
 
     /** Fill the region with a [colour]. */
     fun fill(
@@ -96,14 +101,6 @@ interface DrawContext {
         strikeThroughColour?.let { beginStrikingThrough(it) }
         text(text, colour, splitAtSpaces = wrap)
     }
-
-//    @Undocumented
-//    fun <T> animated(
-//        from: T, to: T,
-//        interpolate: (t: Float, from: T, to: T) -> T,
-//        duration: Duration = Duration.seconds(0.25),
-//        draw: DrawContext.(value: T) -> Unit,
-//    )
 
     /** Draw content within another region. When [clip] is true, all content
      *  drawn within the callback [draw] is clipped to the region given. */
