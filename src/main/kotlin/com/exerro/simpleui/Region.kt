@@ -36,11 +36,51 @@ data class Region internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    /** Shorthand for [withPadding]. */
+    /** Return the region translated by [dx] and [dy]. */
     fun translateBy(
         dx: Pixels = 0.px,
         dy: Pixels = 0.px,
     ) = Region(x + dx.apply(width), y + dy.apply(width), width, height)
+
+    /** Return a region below the current one, optionally with a specified
+     *  height. */
+    fun below(height: Pixels = this.height.px) =
+        copy(y = y + this.height, height = height.apply(this.height))
+
+    /** Return a region above the current one, optionally with a specified
+     *  height. */
+    fun above(height: Pixels = this.height.px) =
+        copy(y = y - height.apply(this.height), height = height.apply(this.height))
+
+    /** Return a region to the left the current one, optionally with a specified
+     *  width. */
+    fun toLeft(width: Pixels = this.width.px) =
+        copy(x = x - width.apply(this.width), width = width.apply(this.width))
+
+    /** Return a region to the right of the current one, optionally with a
+     *  specified width. */
+    fun toRight(width: Pixels = this.width.px) =
+        copy(x = x + this.width, width = width.apply(this.width))
+
+    @Undocumented
+    fun below(other: Region, resize: Boolean = true): Region {
+        val v = other.y + other.height
+        return copy(y = v, height = if (resize) y + height - v else height)
+    }
+
+    @Undocumented
+    fun above(other: Region, resize: Boolean = true) =
+        copy(y = if (resize) y else other.y - height, height = if (resize) other.y - y else height)
+
+    @Undocumented
+    fun toLeftOf(other: Region, resize: Boolean = true) =
+        copy(x = if (resize) x else other.x - width, width = if (resize) other.x - x else width)
+
+    @Undocumented
+    fun toRightOf(other: Region, resize: Boolean = true): Region {
+        val v = other.x + other.width
+        return copy(x = v, width = if (resize) x + width - v else width)
+    }
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -134,11 +174,9 @@ data class Region internal constructor(
         parent: Region,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
-    ) = Region(
+    ) = copy(
         x = parent.x + (parent.width - width) * horizontalAlignment,
         y = parent.y + (parent.height - height) * verticalAlignment,
-        width = width,
-        height = height,
     )
 
     ////////////////////////////////////////////////////////////////////////////

@@ -45,10 +45,9 @@ internal fun convertDrawFunction(
             indentationSize: Int,
             initialIndentation: Int,
             wrap: Boolean,
+            skipRender: Boolean,
             writer: TextDrawContext.() -> Unit
-        ) {
-            impl.write(font, horizontalAlignment, verticalAlignment, indentationSize, initialIndentation, wrap, writer)
-        }
+        ) = impl.write(font, horizontalAlignment, verticalAlignment, indentationSize, initialIndentation, wrap, skipRender, writer)
 
         override fun Region.draw(clip: Boolean, draw: DrawContext.() -> Unit) {
             val d = convertDrawFunction(draw)

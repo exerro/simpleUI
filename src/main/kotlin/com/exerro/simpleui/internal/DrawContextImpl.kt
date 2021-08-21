@@ -65,8 +65,9 @@ internal interface DrawContextImpl {
         indentationSize: Int,
         initialIndentation: Int,
         wrap: Boolean,
+        skipRender: Boolean,
         writer: TextDrawContext.() -> Unit,
-    )
+    ): Region
 
 //    @Undocumented
 //    fun <T> animated(

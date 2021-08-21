@@ -8,6 +8,7 @@ import org.lwjgl.nanovg.NVGGlyphPosition
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.opengl.GL46C
+import kotlin.math.max
 import kotlin.math.min
 
 /** NanoVG implementation of a [DrawContext]. */
@@ -135,8 +136,9 @@ internal class NVGRenderingContext(
         indentationSize: Int,
         initialIndentation: Int,
         wrap: Boolean,
+        skipRender: Boolean,
         writer: TextDrawContext.() -> Unit
-    ) {
+    ): Region {
         val lines = mutableListOf<Pair<Int, List<Triple<MutableTextLine.Segment, Float, Float>>>>()
         val spaceBuffer = NVGGlyphPosition.calloc(2)
 
@@ -251,6 +253,17 @@ internal class NVGRenderingContext(
         ctx.lineBreak()
 
         var y = ry + (rh - font.lineHeight * lines.size) * verticalAlignment
+        val (minXs, maxXs) = lines.map { (indent, line) ->
+            val x0 = line.first().second
+            val x1 = line.last().third
+            val x = rx + (rw - x1 + x0) * horizontalAlignment + indent * pixelsPerIndentation
+            x to x + (x1 - x0)
+        } .unzip()
+        val drawnRegionX = minXs.minOrNull() ?: rx
+        val drawnRegionW = max(0f, (maxXs.maxOrNull() ?: rx) - drawnRegionX)
+        val drawnRegion = Region(drawnRegionX, y, drawnRegionW, font.lineHeight * lines.size)
+
+        if (skipRender) return drawnRegion
 
         for ((indent, line) in lines) {
             if (line.isEmpty()) { y += font.lineHeight; continue }
@@ -299,6 +312,8 @@ internal class NVGRenderingContext(
 
             y += font.lineHeight
         }
+
+        return drawnRegion
     }
 
     override fun draw(region: Region, clip: Boolean, draw: (DrawContextImpl) -> Unit) {

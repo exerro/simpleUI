@@ -32,7 +32,7 @@ object GLFWWindowCreator: WindowCreator {
             GLFW.glfwInit()
         }
 
-        // work out the width we wanna use based on the monitor
+        // work out the width we want to use based on the monitor
         val monitor = GLFW.glfwGetPrimaryMonitor()
         val (width, height) = when (monitor == MemoryUtil.NULL) {
             true -> 1080 to 720
@@ -72,8 +72,6 @@ object GLFWWindowCreator: WindowCreator {
 
         ////////////////////////////////////////////////////////
 
-        // TODO: hook window events
-
         GLFW.glfwSetWindowCloseCallback(windowID) {
             pushEvent(EWindowClosed)
             closeWindow()
@@ -86,12 +84,84 @@ object GLFWWindowCreator: WindowCreator {
         GLFW.glfwSetKeyCallback(windowID) { _, key, scancode, action, mods ->
             val repeat = action == GLFW.GLFW_REPEAT
             val pressed = action == GLFW.GLFW_PRESS || repeat
-            val name = GLFW.glfwGetKeyName(key, scancode) ?: when (key) {
-                GLFW.GLFW_KEY_UP -> "up"
-                GLFW.GLFW_KEY_DOWN -> "down"
+            val name = when (key) {
                 GLFW.GLFW_KEY_SPACE -> "space"
-                // TODO!
-                else -> "unknown"
+                GLFW.GLFW_KEY_APOSTROPHE -> "'"
+                GLFW.GLFW_KEY_COMMA -> ","
+                GLFW.GLFW_KEY_MINUS -> "-"
+                GLFW.GLFW_KEY_PERIOD -> "."
+                GLFW.GLFW_KEY_SLASH -> "/"
+                GLFW.GLFW_KEY_SEMICOLON -> ";"
+                GLFW.GLFW_KEY_EQUAL -> "="
+                GLFW.GLFW_KEY_GRAVE_ACCENT -> "`"
+                GLFW.GLFW_KEY_WORLD_1 -> "world-1"
+                GLFW.GLFW_KEY_WORLD_2 -> "world-2"
+                GLFW.GLFW_KEY_ESCAPE -> "escape"
+                GLFW.GLFW_KEY_ENTER -> "enter"
+                GLFW.GLFW_KEY_TAB -> "tab"
+                GLFW.GLFW_KEY_BACKSPACE -> "backspace"
+                GLFW.GLFW_KEY_INSERT -> "insert"
+                GLFW.GLFW_KEY_DELETE -> "delete"
+                GLFW.GLFW_KEY_RIGHT -> "right"
+                GLFW.GLFW_KEY_LEFT -> "left"
+                GLFW.GLFW_KEY_DOWN -> "down"
+                GLFW.GLFW_KEY_UP -> "up"
+                GLFW.GLFW_KEY_PAGE_UP -> "page-up"
+                GLFW.GLFW_KEY_PAGE_DOWN -> "page-down"
+                GLFW.GLFW_KEY_HOME -> "home"
+                GLFW.GLFW_KEY_END -> "end"
+                GLFW.GLFW_KEY_CAPS_LOCK -> "caps-lock"
+                GLFW.GLFW_KEY_SCROLL_LOCK -> "scroll-lock"
+                GLFW.GLFW_KEY_NUM_LOCK -> "num-lock"
+                GLFW.GLFW_KEY_PRINT_SCREEN -> "print-screen"
+                GLFW.GLFW_KEY_PAUSE -> "pause"
+                GLFW.GLFW_KEY_F1 -> "f1"
+                GLFW.GLFW_KEY_F2 -> "f2"
+                GLFW.GLFW_KEY_F3 -> "f3"
+                GLFW.GLFW_KEY_F4 -> "f4"
+                GLFW.GLFW_KEY_F5 -> "f5"
+                GLFW.GLFW_KEY_F6 -> "f6"
+                GLFW.GLFW_KEY_F7 -> "f7"
+                GLFW.GLFW_KEY_F8 -> "f8"
+                GLFW.GLFW_KEY_F9 -> "f9"
+                GLFW.GLFW_KEY_F10 -> "f10"
+                GLFW.GLFW_KEY_F11 -> "f11"
+                GLFW.GLFW_KEY_F12 -> "f12"
+                GLFW.GLFW_KEY_F13 -> "f13"
+                GLFW.GLFW_KEY_F14 -> "f14"
+                GLFW.GLFW_KEY_F15 -> "f15"
+                GLFW.GLFW_KEY_F16 -> "f16"
+                GLFW.GLFW_KEY_F17 -> "f17"
+                GLFW.GLFW_KEY_F18 -> "f18"
+                GLFW.GLFW_KEY_F19 -> "f19"
+                GLFW.GLFW_KEY_F20 -> "f20"
+                GLFW.GLFW_KEY_F21 -> "f21"
+                GLFW.GLFW_KEY_F22 -> "f22"
+                GLFW.GLFW_KEY_F23 -> "f23"
+                GLFW.GLFW_KEY_F24 -> "f24"
+                GLFW.GLFW_KEY_F25 -> "f25"
+                GLFW.GLFW_KEY_KP_0 -> "kp-0"
+                GLFW.GLFW_KEY_KP_1 -> "kp-1"
+                GLFW.GLFW_KEY_KP_2 -> "kp-2"
+                GLFW.GLFW_KEY_KP_3 -> "kp-3"
+                GLFW.GLFW_KEY_KP_4 -> "kp-4"
+                GLFW.GLFW_KEY_KP_5 -> "kp-5"
+                GLFW.GLFW_KEY_KP_6 -> "kp-6"
+                GLFW.GLFW_KEY_KP_7 -> "kp-7"
+                GLFW.GLFW_KEY_KP_8 -> "kp-8"
+                GLFW.GLFW_KEY_KP_9 -> "kp-9"
+                GLFW.GLFW_KEY_KP_ENTER -> "kp-enter"
+                GLFW.GLFW_KEY_KP_EQUAL -> "kp-equals"
+                GLFW.GLFW_KEY_LEFT_SHIFT -> "shift"
+                GLFW.GLFW_KEY_LEFT_CONTROL -> "ctrl"
+                GLFW.GLFW_KEY_LEFT_ALT -> "alt"
+                GLFW.GLFW_KEY_LEFT_SUPER -> "super"
+                GLFW.GLFW_KEY_RIGHT_SHIFT -> "right-shift"
+                GLFW.GLFW_KEY_RIGHT_CONTROL -> "right-ctrl"
+                GLFW.GLFW_KEY_RIGHT_ALT -> "right-alt"
+                GLFW.GLFW_KEY_RIGHT_SUPER -> "right-super"
+                GLFW.GLFW_KEY_MENU -> "menu"
+                else -> GLFW.glfwGetKeyName(key, scancode) ?: "unknown"
             }
             val modifiers = setOfNotNull(
                 KeyModifier.Control.takeIf { mods and GLFW.GLFW_MOD_CONTROL != 0 },
@@ -108,6 +178,9 @@ object GLFWWindowCreator: WindowCreator {
             val content = String(intArrayOf(codepoint), 0, 1)
             pushEvent(ETextInput(content))
         }
+
+        // TODO: hook window mouse events
+        // TODO: disable rendering when window not visible (e.g. minimised)
 
         ////////////////////////////////////////////////////////
 

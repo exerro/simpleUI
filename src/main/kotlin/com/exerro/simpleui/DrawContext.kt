@@ -76,8 +76,9 @@ interface DrawContext {
         indentationSize: Int = 4,
         initialIndentation: Int = 0,
         wrap: Boolean = true,
+        skipRender: Boolean = false,
         writer: TextDrawContext.() -> Unit,
-    )
+    ): Region
 
     /** Write a simple string of text in the specified colour. */
     fun write(
@@ -90,11 +91,13 @@ interface DrawContext {
         underlineColour: Colour? = null,
         highlightColour: Colour? = null,
         strikeThroughColour: Colour? = null,
+        skipRender: Boolean = false,
     ) = write(
         font = font,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
-        wrap = wrap
+        wrap = wrap,
+        skipRender = skipRender,
     ) {
         underlineColour?.let { beginUnderlining(it) }
         highlightColour?.let { beginHighlighting(it) }
