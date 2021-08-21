@@ -18,6 +18,9 @@ interface Window {
      *  (e.g. after resizing or restoring). */
     fun draw(onDraw: DrawContext.() -> Unit)
 
+    /** Indicate that the window content should be redrawn. */
+    fun redraw()
+
     /** Close the window. Note that no further [WindowEvent]s
      *  will be emitted on [events] and calling [draw] will have
      *  no effect. */

@@ -1,29 +1,32 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** An infinite list of [Region]s, evaluated lazily. */
 class LazyRegionList internal constructor(
     private val getNth: (Int) -> Region
 ): Iterable<Region> {
-    @Undocumented
+    /** Return the [index]th region. */
     operator fun get(index: Int) =
         cache.computeIfAbsent(index, getNth)
 
-    @Undocumented
+    /** Return a list of regions, including the [from]th region up until (and
+     *  not including) the [to]th region. E.g. get(1, 3) will be a list of
+     *  [get(1), get(2)]. */
     operator fun get(from: Int, to: Int) =
         (from until to).map { get(it) }
 
-    @Undocumented
+    /** Map regions using [fn]. */
     fun map(fn: (Region) -> Region) =
         LazyRegionList { n -> fn(get(n)) }
 
-    @Undocumented
+    /** Map each [Region] in this list to a list of regions, and flatten the
+     *  result into a new [LazyRegionList]. */
     fun flatMap(fn: (Region) -> List<Region>): LazyRegionList = LazyRegionList { n ->
         val r = fn(get(0))
         if (n < r.size) r[n]
         else drop(1).flatMap(fn)[n - r.size]
     }
 
-    @Undocumented
+    /** Ignore the first [count] regions from this list. */
     fun drop(count: Int) =
         LazyRegionList { n -> get(n + count) }
 
@@ -43,10 +46,11 @@ class LazyRegionList internal constructor(
         override fun next() = get(index++)
     }
 
-    @Undocumented
+    /** A private cache of regions to avoid re-calculating regions. */
     private val cache: MutableMap<Int, Region> = mutableMapOf()
 }
 
+/** Flatten a list of [LazyRegionList]s into a single [LazyRegionList]. */
 fun List<LazyRegionList>.flatten() = LazyRegionList { n ->
     this[n % size][n / size]
 }

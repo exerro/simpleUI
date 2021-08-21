@@ -1,10 +1,11 @@
 package com.exerro.simpleui
 
 fun main() {
-    val window = GLFWWindowCreator.createWindow("Hello World")
+    val window = GLFWWindowCreator.createWindow("Colours")
+    val palette = Palette.Default
 
     window.draw {
-        fill(PaletteColour.Black())
+        fill(palette[PaletteColour.Black()])
 
         val colours = listOf(
             "Red" to PaletteColour.Red(),
@@ -34,8 +35,8 @@ fun main() {
 
         topRegions.zip(colours).forEach { (r, c) ->
             r.draw {
-                roundedRectangle(4.px, c.second, c.second.withVariant(PaletteVariant.Darker), 2.px)
-                write(FormattedText.text(c.first.uppercase(), PaletteColour.Black()), Font.monospace)
+                roundedRectangle(4.px, palette[c.second], palette[c.second.withVariant(PaletteVariant.Darker)], 2.px)
+                write(c.first.uppercase(), palette[PaletteColour.Black()], font = Font.monospace)
             }
         }
 
@@ -43,11 +44,11 @@ fun main() {
             r.draw {
                 val (r0, r1, r2, r3, r4) = r.partitionVertically(5, 8.px)
 
-                r0.draw { fill(c.second.withVariant(PaletteVariant.Dimmer)); write("dimmer") }
-                r1.draw { fill(c.second.withVariant(PaletteVariant.Brighter)); write("brighter") }
-                r2.draw { fill(c.second.withVariant(PaletteVariant.Darker)); write("darker") }
-                r3.draw { fill(c.second); write(c.first.lowercase()) }
-                r4.draw { fill(c.second.withVariant(PaletteVariant.Lighter)); write("lighter") }
+                r0.draw { fill(palette[c.second.withVariant(PaletteVariant.Dimmer)]); write("dimmer", palette[PaletteColour.White()]) }
+                r1.draw { fill(palette[c.second.withVariant(PaletteVariant.Brighter)]); write("brighter", palette[PaletteColour.White()]) }
+                r2.draw { fill(palette[c.second.withVariant(PaletteVariant.Darker)]); write("darker", palette[PaletteColour.White()]) }
+                r3.draw { fill(palette[c.second]); write(c.first.lowercase(), palette[PaletteColour.White()]) }
+                r4.draw { fill(palette[c.second.withVariant(PaletteVariant.Lighter)]); write("lighter", palette[PaletteColour.White()]) }
             }
         }
     }

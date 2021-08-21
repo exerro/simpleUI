@@ -1,13 +1,12 @@
 package com.exerro.simpleui.internal
 
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedInternal
 import org.lwjgl.nanovg.NVGColor
 import java.nio.ByteBuffer
 
-@Undocumented
+@UndocumentedInternal
 internal class NVGData(
     val context: Long,
-    val animation: AnimationHelper,
     val colour: NVGColor,
     val colour2: NVGColor,
     val monoBuffer: ByteBuffer,

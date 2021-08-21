@@ -1,8 +1,8 @@
 package com.exerro.simpleui
 
-import com.exerro.simpleui.internal.AnimationHelper
 import com.exerro.simpleui.internal.NVGData
 import com.exerro.simpleui.internal.NVGRenderingContext
+import com.exerro.simpleui.internal.convertDrawFunction
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -13,18 +13,14 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
 import java.util.*
-import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.thread
 
-
-@Undocumented
+/** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
 object GLFWWindowCreator: WindowCreator {
-    @Undocumented
     override fun createWindow(
         title: String
     ): Window {
-        val renderQueue = createWorkerThread("Render [$title]")
-        var renderFunction: DrawContext.() -> Unit = {}
+        val worker = WorkerThread()
         val onEventList = mutableListOf<(WindowEvent) -> Unit>()
         var isClosed = false
         lateinit var nvgData: NVGData
@@ -68,46 +64,10 @@ object GLFWWindowCreator: WindowCreator {
             callbacks.forEach { it(event) }
         }
 
-        fun submitRedraw(contentChanged: Boolean): Unit = renderFunction.let { rf -> renderQueue.offer {
-            val width = IntArray(1)
-            val height = IntArray(1)
-            GLFW.glfwGetFramebufferSize(windowID, width, height)
-            NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
-            if (redraw(nvgData, palette, contentChanged, width[0], height[0], rf) && contentChanged && rf == renderFunction) submitRedraw(true)
-            NanoVG.nvgEndFrame(nvgData.context)
-            GLFW.glfwSwapBuffers(windowID)
-            true
-        } }
-
         fun closeWindow() {
             if (isClosed) return
             isClosed = true
-            renderQueue.offer {
-                val width = IntArray(1)
-                val height = IntArray(1)
-
-                GLFW.glfwGetFramebufferSize(windowID, width, height)
-                GL46C.glViewport(0, 0, width[0], height[0])
-                GL46C.glClearColor(0f, 0f, 0f, 1f)
-                GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
-                GLFW.glfwSwapBuffers(windowID)
-                nvgData.colour.free()
-                nvgData.colour2.free()
-
-                for (image in nvgData.imageCache.values) {
-                    NanoVG.nvgDeleteImage(nvgData.context, image)
-                }
-
-                NanoVGGL3.nvgDelete(nvgData.context)
-                GL.setCapabilities(null)
-                GLFW.glfwDestroyWindow(windowID)
-
-                // terminate GLFW if this was the last window
-                if (--windows == 0) GLFW.glfwTerminate()
-
-                // stop the render thread
-                false
-            }
+            worker.stop()
         }
 
         ////////////////////////////////////////////////////////
@@ -120,7 +80,7 @@ object GLFWWindowCreator: WindowCreator {
         }
 
         GLFW.glfwSetWindowRefreshCallback(windowID) {
-            submitRedraw(false)
+            worker.reloop()
         }
 
         GLFW.glfwSetKeyCallback(windowID) { _, key, scancode, action, mods ->
@@ -151,11 +111,35 @@ object GLFWWindowCreator: WindowCreator {
 
         ////////////////////////////////////////////////////////
 
-        renderQueue.offer {
+        worker.onFinish = {
+            val width = IntArray(1)
+            val height = IntArray(1)
+
+            GLFW.glfwGetFramebufferSize(windowID, width, height)
+            GL46C.glViewport(0, 0, width[0], height[0])
+            GL46C.glClearColor(0f, 0f, 0f, 1f)
+            GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
+            GLFW.glfwSwapBuffers(windowID)
+            nvgData.colour.free()
+            nvgData.colour2.free()
+
+            for (image in nvgData.imageCache.values) {
+                NanoVG.nvgDeleteImage(nvgData.context, image)
+            }
+
+            NanoVGGL3.nvgDelete(nvgData.context)
+            GL.setCapabilities(null)
+            GLFW.glfwDestroyWindow(windowID)
+
+            // terminate GLFW if this was the last window
+            if (--windows == 0) GLFW.glfwTerminate()
+        }
+
+        worker.start("SimpleUI Render Thread [$title]") {
             GLFW.glfwMakeContextCurrent(windowID)
             GL.createCapabilities()
             val context = NanoVGGL3.nvgCreate(0)
-            if (context == MemoryUtil.NULL) return@offer false
+            if (context == MemoryUtil.NULL) return@start
             val colour = NVGColor.calloc()
             val colour2 = NVGColor.calloc()
 
@@ -173,11 +157,8 @@ object GLFWWindowCreator: WindowCreator {
             sansBuffer.flip()
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
 
-            nvgData = NVGData(context, AnimationHelper(), colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
-            true
+            nvgData = NVGData(context, colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
         }
-
-        submitRedraw(true)
 
         ////////////////////////////////////////////////////////
 
@@ -195,8 +176,30 @@ object GLFWWindowCreator: WindowCreator {
             }
 
             override fun draw(onDraw: DrawContext.() -> Unit) {
-                renderFunction = onDraw
-                submitRedraw(true)
+                val fn = convertDrawFunction(onDraw)
+                var lastFrame = System.nanoTime()
+
+                worker.loop {
+                    val width = IntArray(1)
+                    val height = IntArray(1)
+                    val time = System.nanoTime()
+                    GLFW.glfwGetFramebufferSize(windowID, width, height)
+                    NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
+                    GL46C.glViewport(0, 0, width[0], height[0])
+                    val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
+                    val context = NVGRenderingContext(nvgData, r, r, true)
+                    val anyAnimating = fn(context, time - lastFrame)
+
+                    lastFrame = time
+                    NanoVG.nvgEndFrame(nvgData.context)
+                    GLFW.glfwSwapBuffers(windowID)
+
+                    anyAnimating
+                }
+            }
+
+            override fun redraw() {
+                worker.reloop()
             }
 
             override fun close() {
@@ -213,49 +216,52 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
-    private fun redraw(
-        nvg: NVGData,
-        palette: Palette,
-        contentChanged: Boolean,
-        width: Int,
-        height: Int,
-        fn: DrawContext.() -> Unit
-    ): Boolean {
-        GL46C.glViewport(0, 0, width, height)
-        val r = Region(0f, 0f, width.toFloat(), height.toFloat())
-        nvg.animation.beginFrame(allowAnimations = contentChanged)
-        NVGRenderingContext(nvg, palette, null, r, r, true).fn()
-        val (anyAnimating, exitAnimations) = nvg.animation.endFrame()
+    private class WorkerThread {
+        var onFinish: () -> Unit = {}
 
-        for (d in exitAnimations) {
-            val ctx = NVGRenderingContext(nvg, palette, null, d.region, d.clipRegion, false)
-            d.draw(ctx)
-        }
+        fun start(name: String, init: () -> Unit) {
+            thread = thread(start = true, name = name, isDaemon = true) {
+                init()
 
-        return anyAnimating
-    }
-
-    @Undocumented
-    private fun createWorkerThread(name: String, capacity: Int = 4): Queue<() -> Boolean> {
-        val queue = ArrayBlockingQueue<() -> Boolean>(capacity)
-
-        thread(start = true, name = name, isDaemon = true) {
-            while (true) {
-                try {
-                    if (!queue.take().invoke()) break
+                while (running) {
+                    try {
+                        if (dirty) { dirty = false; dirty = nextLoop() || dirty }
+                        Thread.sleep(8)
+                    }
+                    catch (e: InterruptedException) { /* do nothing */ }
+                    catch (e: Throwable) {
+                        e.printStackTrace(System.err)
+                    }
                 }
-                catch (e: Throwable) {
-                    e.printStackTrace(System.err)
-                }
+
+                onFinish()
             }
         }
 
-        return queue
+        fun loop(fn: () -> Boolean) {
+            nextLoop = fn
+            reloop()
+        }
+
+        fun reloop() {
+            dirty = true
+            thread.interrupt()
+        }
+
+        fun stop() {
+            running = false
+            thread.join()
+        }
+
+        private lateinit var thread: Thread
+        private var dirty = true
+        private var nextLoop: () -> Boolean = { false }
+        private var running = true
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    /** Number of windows visible. Used to terminate GLFW when the last window
+     *  is closed. */
     private var windows = 0
 }

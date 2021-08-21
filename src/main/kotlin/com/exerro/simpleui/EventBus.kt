@@ -15,27 +15,41 @@ fun interface EventBus<out E> {
      *  handled. */
     fun connect(onEvent: (E) -> Unit): Connection
 
-    @Undocumented
+    /** Map events (optionally to a new type) using [fn]. */
     fun <T> map(fn: (E) -> T) = EventBus<T> { onEvent ->
         connect { e -> onEvent(fn(e)) }
     }
 
-    @Undocumented
-    fun filter(fn: (E) -> Boolean) = EventBus<E> { onEvent ->
-        connect { e -> if (fn(e)) onEvent(e) }
+    /** Filter events using [predicate] such that anything connected to the
+     *  [EventBus] returned will match [predicate]. */
+    fun filter(predicate: (E) -> Boolean) = EventBus<E> { onEvent ->
+        connect { e -> if (predicate(e)) onEvent(e) }
     }
 
-    /** A handle to a callback registered with an [EventBus],
-     *  used to disconnect that callback when it should no
-     *  longer be used. */
+    /** A handle to a callback registered with an [EventBus], used to disconnect
+     *  that callback when it should no longer be used. */
     fun interface Connection {
-        /** Disconnect the associated callback from the
-         *  [EventBus] it was registered to. */
+        /** Disconnect the associated callback from the [EventBus] it was
+         *  registered to. */
         fun disconnect()
+
+        companion object {
+            /** Return a [Connection] that, when disconnected from, disconnects
+             *  from all of [connections]. */
+            fun join(connections: Iterable<Connection>) = Connection {
+                connections.forEach(Connection::disconnect)
+            }
+
+            /** Return a [Connection] that, when disconnected from, disconnects
+             *  from all of [connections]. */
+            fun join(vararg connections: Connection) = Connection {
+                connections.forEach(Connection::disconnect)
+            }
+        }
     }
 }
 
-@Undocumented
+/** Filter events to type [T]. */
 inline fun <reified T> EventBus<*>.filterIsInstance() = EventBus<T> { onEvent ->
     connect { e -> if (e is T) onEvent(e) }
 }

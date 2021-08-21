@@ -1,12 +1,13 @@
 package com.exerro.simpleui
 
-@Undocumented
+/** An object capable of creating and managing windows. */
 interface WindowCreator {
-    @Undocumented
+    /** Create a window with the given [title]. */
     fun createWindow(
         title: String
     ): Window
 
-    @Undocumented
+    /** Handle any updates or events for all open windows from this
+     *  [WindowCreator]. */
     fun update()
 }
