@@ -15,6 +15,6 @@ data class Font(
         val monospace = Font(lineHeight = 18f, isMonospaced = true)
 
         /** Default font used for heading text. */
-        val heading = Font(lineHeight = 28f, isMonospaced = true)
+        val heading = Font(lineHeight = 28f, isMonospaced = false)
     }
 }

@@ -253,7 +253,7 @@ internal class NVGRenderingContext(
         ctx.lineBreak()
 
         var y = ry + (rh - font.lineHeight * lines.size) * verticalAlignment
-        val (minXs, maxXs) = lines.map { (indent, line) ->
+        val (minXs, maxXs) = lines.filter { it.second.isNotEmpty() } .map { (indent, line) ->
             val x0 = line.first().second
             val x1 = line.last().third
             val x = rx + (rw - x1 + x0) * horizontalAlignment + indent * pixelsPerIndentation

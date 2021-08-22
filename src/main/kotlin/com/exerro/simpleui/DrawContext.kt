@@ -10,6 +10,7 @@ import com.exerro.simpleui.colour.Greyscale
  *  Initially, [region] represents the window content area. To draw in a
  *  different [Region], the [region] field can be used to derive a sub-region
  *  then use [draw] to draw within that instead. */
+@DrawContextDSL
 interface DrawContext {
     /** Area on-screen where content is drawn. */
     val region: Region

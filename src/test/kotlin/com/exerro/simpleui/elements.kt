@@ -411,7 +411,7 @@ fun main() {
 
             region.resizeTo(width = region.height.px * 1.5f, horizontalAlignment = 1f).draw(clip = true) {
                 region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 1f).draw {
-                    roundedRectangle(cornerRadius = 50.percent, colour = theme.darkerBackgroundColour)
+                    roundedRectangle(cornerRadius = 50.percent, colour = theme.lighterBackgroundColour)
                 }
 
                 region.resizeTo(height = 50.percent).withAspectRatio(1f).draw {

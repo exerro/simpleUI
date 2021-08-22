@@ -3,6 +3,7 @@ package com.exerro.simpleui
 import com.exerro.simpleui.colour.Colour
 
 /** A context used to provide text rendering capabilities. */
+@DrawContextDSL
 interface TextDrawContext {
     /** Begin a new line, indented relative to the current line by
      *  [relativeIndentation] "virtual tabs". */
