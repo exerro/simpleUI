@@ -2,6 +2,8 @@
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.extensions.text
+import com.exerro.simpleui.extensions.whitespace
 import kotlin.math.max
 
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."

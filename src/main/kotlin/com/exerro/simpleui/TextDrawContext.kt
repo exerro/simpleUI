@@ -4,19 +4,19 @@ import com.exerro.simpleui.colour.Colour
 
 /** A context used to provide text rendering capabilities. */
 @DrawContextDSL
-interface TextDrawContext {
+interface TextDrawContext<Tag> {
     /** Begin a new line, indented relative to the current line by
      *  [relativeIndentation] "virtual tabs". */
     fun lineBreak(relativeIndentation: Int = 0)
 
     /** Write [length] spaces. Note that this is slightly more efficient than
-     *  using [text] since nothing will be rendered unless there is active
+     *  using [textTagged] since nothing will be rendered unless there is active
      *  highlighting or underlining. */
-    fun whitespace(length: Int = 1)
+    fun whitespaceTagged(length: Int = 1, tag: Tag)
 
     /** Write [text] in the given [colour]. If [splitAtSpaces] is true, [text]
      *  will be split at space characters to allow word wrapping. */
-    fun text(text: String, colour: Colour, splitAtSpaces: Boolean = true)
+    fun textTagged(text: String, colour: Colour, tag: Tag, splitAtSpaces: Boolean = true)
 
     @Undocumented
     fun verticalCursor(colour: Colour)

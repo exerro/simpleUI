@@ -1,5 +1,8 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.extensions.text
+import com.exerro.simpleui.extensions.whitespace
+
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
 private const val shortLorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. "
 
@@ -114,9 +117,11 @@ fun main() {
         } }
 
         textBoxContent[6].draw {
-            val r = write {
+            val textBuffer = write {
                 text("Short text", white)
             }
+            val r = Region(0f, 0f, textBuffer.maximumWidth, textBuffer.totalHeight)
+                .alignWithin(region, horizontalAlignment = 0.5f, verticalAlignment = 0.5f)
 
             region.above(r).draw {
                 write("I am above", silver, verticalAlignment = 1f)

@@ -2,7 +2,6 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.internal.NVGData
 import com.exerro.simpleui.internal.NVGRenderingContext
-import com.exerro.simpleui.internal.convertDrawFunction
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -12,7 +11,6 @@ import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
-import java.util.*
 import kotlin.concurrent.thread
 
 /** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
@@ -249,7 +247,6 @@ object GLFWWindowCreator: WindowCreator {
             }
 
             override fun draw(onDraw: DrawContext.() -> Unit) {
-                val fn = convertDrawFunction(onDraw)
                 var lastFrame = System.nanoTime()
 
                 worker.loop {
@@ -260,14 +257,14 @@ object GLFWWindowCreator: WindowCreator {
                     NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
                     GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
-                    val context = NVGRenderingContext(nvgData, r, r, true)
-                    val anyAnimating = fn(context, time - lastFrame)
+                    val context = NVGRenderingContext(nvgData, r, r, true, time - lastFrame)
+                    context.onDraw()
 
                     lastFrame = time
                     NanoVG.nvgEndFrame(nvgData.context)
                     GLFW.glfwSwapBuffers(windowID)
 
-                    anyAnimating
+                    context.hasDynamicContent
                 }
             }
 

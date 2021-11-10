@@ -2,6 +2,7 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
+import com.exerro.simpleui.extensions.text
 
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
@@ -69,6 +70,32 @@ interface DrawContext {
         isResource: Boolean = true,
     )
 
+    /** TODO */
+    fun <Tag> generateTextBufferTagged(
+        font: Font = Font.default,
+        horizontalAlignment: Alignment = 0.5f,
+        indentationSize: Int = 4,
+        initialIndentation: Int = 0,
+        wrap: Boolean = true,
+        writer: TextDrawContext<Tag>.() -> Unit,
+    ): TextBuffer<Tag>
+
+    /** TODO */
+    fun generateTextBuffer(
+        font: Font = Font.default,
+        horizontalAlignment: Alignment = 0.5f,
+        indentationSize: Int = 4,
+        initialIndentation: Int = 0,
+        wrap: Boolean = true,
+        writer: TextDrawContext<Unit>.() -> Unit,
+    ): TextBuffer<Unit> = generateTextBufferTagged(font, horizontalAlignment, indentationSize, initialIndentation, wrap, writer)
+
+    /** TODO */
+    fun <Tag> writeTextBuffer(
+        buffer: TextBuffer<Tag>,
+        verticalAlignment: Alignment,
+    ): TextBuffer<Tag>
+
     /** Write complex formatted text, using [writer]. */
     fun write(
         font: Font = Font.default,
@@ -77,9 +104,11 @@ interface DrawContext {
         indentationSize: Int = 4,
         initialIndentation: Int = 0,
         wrap: Boolean = true,
-        skipRender: Boolean = false,
-        writer: TextDrawContext.() -> Unit,
-    ): Region
+        writer: TextDrawContext<Unit>.() -> Unit,
+    ): TextBuffer<Unit> = writeTextBuffer(generateTextBuffer(
+        writer = writer, horizontalAlignment = horizontalAlignment,
+        indentationSize = indentationSize, initialIndentation = initialIndentation, wrap = wrap, font = font,
+    ), verticalAlignment = verticalAlignment)
 
     /** Write a simple string of text in the specified colour. */
     fun write(
@@ -92,13 +121,11 @@ interface DrawContext {
         underlineColour: Colour? = null,
         highlightColour: Colour? = null,
         strikeThroughColour: Colour? = null,
-        skipRender: Boolean = false,
     ) = write(
         font = font,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         wrap = wrap,
-        skipRender = skipRender,
     ) {
         underlineColour?.let { beginUnderlining(it) }
         highlightColour?.let { beginHighlighting(it) }
