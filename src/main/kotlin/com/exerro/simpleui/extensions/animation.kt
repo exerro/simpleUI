@@ -1,7 +1,7 @@
 package com.exerro.simpleui.extensions
 
-import com.exerro.simpleui.AnimatedValue
-import com.exerro.simpleui.Animation
+import com.exerro.simpleui.animation.AnimatedValue
+import com.exerro.simpleui.animation.Animation
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours

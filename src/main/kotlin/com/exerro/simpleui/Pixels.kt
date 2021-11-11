@@ -28,6 +28,13 @@ data class Pixels(
 
     operator fun div(divisor: Float) =
         Pixels(pixels / divisor, relative / divisor)
+
+    override fun toString() = when {
+        relative == 0f && pixels == 0f -> "0"
+        relative == 0f -> "${pixels}px"
+        pixels == 0f -> "${relative * 100}%"
+        else -> "${relative * 100}% + ${pixels}px"
+    }
 }
 
 val Double.px get() = Pixels(this.toFloat(), 0f)

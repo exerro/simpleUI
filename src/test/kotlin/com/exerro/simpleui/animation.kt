@@ -1,5 +1,7 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.animation.AnimatedValue
+import com.exerro.simpleui.animation.Animation
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.extensions.animationTo
 import com.exerro.simpleui.extensions.withEasing
@@ -9,10 +11,13 @@ fun main() {
     var visible = true
     val target = AnimatedValue(Region(0f, 0f, 100f, 100f))
 
-    fun redraw() = window.draw {
+    fun redraw() = window.draw { deltaTime ->
         fill(Colours.black)
 
-        val (animatedRegion) = target
+        if (!target.isFinished) { target.update(deltaTime.inWholeNanoseconds) }
+        if (!target.isFinished) dynamicContent()
+
+        val animatedRegion = target.currentValue
 
         animatedRegion.draw {
             fill(Colours.white)

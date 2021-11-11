@@ -1,5 +1,7 @@
 package com.exerro.simpleui
 
+import kotlin.time.Duration
+
 /** An abstraction over a native window. Can pass draw functions
  *  and respond to events. */
 interface Window {
@@ -16,7 +18,7 @@ interface Window {
     /** Submit a render function to render the window both now
      *  and whenever the window's framebuffer is refreshed
      *  (e.g. after resizing or restoring). */
-    fun draw(onDraw: DrawContext.() -> Unit)
+    fun draw(onDraw: DrawContext.(deltaTime: Duration) -> Unit)
 
     /** Indicate that the window content should be redrawn. */
     fun redraw()

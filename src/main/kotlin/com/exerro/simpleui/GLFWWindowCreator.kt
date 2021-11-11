@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
 import kotlin.concurrent.thread
+import kotlin.time.Duration
 
 /** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
 object GLFWWindowCreator: WindowCreator {
@@ -42,7 +43,7 @@ object GLFWWindowCreator: WindowCreator {
         }
 
         // create the window, with a few hints
-        GLFW.glfwWindowHint(GLFW.GLFW_SCALE_TO_MONITOR, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_SCALE_TO_MONITOR, GLFW.GLFW_TRUE)
         GLFW.glfwWindowHint(GLFW.GLFW_MAXIMIZED, GLFW.GLFW_TRUE)
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE)
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE)
@@ -183,11 +184,11 @@ object GLFWWindowCreator: WindowCreator {
         ////////////////////////////////////////////////////////
 
         worker.onFinish = {
-            val width = IntArray(1)
-            val height = IntArray(1)
+            val w = IntArray(1)
+            val h = IntArray(1)
 
-            GLFW.glfwGetFramebufferSize(windowID, width, height)
-            GL46C.glViewport(0, 0, width[0], height[0])
+            GLFW.glfwGetFramebufferSize(windowID, w, h)
+            GL46C.glViewport(0, 0, w[0], h[0])
             GL46C.glClearColor(0f, 0f, 0f, 1f)
             GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
             GLFW.glfwSwapBuffers(windowID)
@@ -246,7 +247,7 @@ object GLFWWindowCreator: WindowCreator {
                 }
             }
 
-            override fun draw(onDraw: DrawContext.() -> Unit) {
+            override fun draw(onDraw: DrawContext.(deltaTime: Duration) -> Unit) {
                 var lastFrame = System.nanoTime()
 
                 worker.loop {
@@ -258,7 +259,7 @@ object GLFWWindowCreator: WindowCreator {
                     GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
                     val context = NVGRenderingContext(nvgData, r, r, true, time - lastFrame)
-                    context.onDraw()
+                    context.onDraw(Duration.nanoseconds(time - lastFrame))
 
                     lastFrame = time
                     NanoVG.nvgEndFrame(nvgData.context)

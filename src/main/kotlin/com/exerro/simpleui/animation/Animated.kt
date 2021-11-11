@@ -1,4 +1,4 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.animation
 
 /** An animated value. */
 interface Animated<T> {

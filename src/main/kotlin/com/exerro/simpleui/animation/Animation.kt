@@ -1,5 +1,6 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.animation
 
+import com.exerro.simpleui.Undocumented
 import kotlin.math.sqrt
 import kotlin.time.Duration
 

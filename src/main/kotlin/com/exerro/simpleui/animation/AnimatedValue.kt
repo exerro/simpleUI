@@ -1,4 +1,6 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.animation
+
+import com.exerro.simpleui.Undocumented
 
 @Undocumented
 class AnimatedValue<T> internal constructor(

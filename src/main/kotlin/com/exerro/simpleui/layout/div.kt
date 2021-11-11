@@ -84,7 +84,7 @@ fun DefinedLayoutContext.vdiv(
             val fixedSize = if (i == allocatedChildren.lastIndex) 100.percent - lastY.px else size
             val sizeValue = fixedSize.apply(availableHeight)
             val sizeRounded = round(sizeValue)
-            val c = child(sizeRounded, availableHeight, sizeRounded, availableHeight)
+            val c = child(availableWidth, sizeRounded, availableWidth, sizeRounded)
 
             region.copy(y = region.y + lastY, height = sizeRounded).draw { c.draw(this) }
 

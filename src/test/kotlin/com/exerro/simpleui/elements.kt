@@ -2,8 +2,6 @@
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.extensions.text
-import com.exerro.simpleui.extensions.whitespace
 import kotlin.math.max
 
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
@@ -45,6 +43,43 @@ fun main() {
     var primaryColour: Colour = Colours.teal
     var isSideVisible = false
     var sideIndexSelected = 0
+
+    val codeTextBuffer = TextBufferBuilder {
+        val white = palette[PaletteColour.White()]
+        val red = palette[PaletteColour.Red()]
+        val pink = palette[PaletteColour.Pink()]
+        val teal = palette[PaletteColour.Teal()]
+        val blue = palette[PaletteColour.Blue()]
+        val purple = palette[PaletteColour.Purple()]
+
+        emitText("effect", purple)
+        emitWhitespace()
+        emitText("Yield", teal)
+        emitText("<", white)
+        emitText("'a", blue)
+        emitText(">", white)
+        emitWhitespace()
+        emitText("{", white)
+        emitLineBreak(1)
+        beginDecoration(TextBuffer.Decoration.Highlight, white.withAlpha(0.1f))
+        emitText("yield", teal)
+        emitText("(", white)
+        beginDecoration(TextBuffer.Decoration.Highlight, teal.withAlpha(0.4f))
+        emitText("value", pink)
+        stopDecoration(TextBuffer.Decoration.Highlight)
+        emitText(":", white)
+        emitWhitespace()
+        emitText("'a", blue)
+        emitText(")", white)
+        emitText(":", white)
+        emitWhitespace()
+        beginDecoration(TextBuffer.Decoration.Underline, red)
+        emitText("Unit", blue)
+        stopDecoration(TextBuffer.Decoration.Underline)
+        stopDecoration(TextBuffer.Decoration.Highlight)
+        emitLineBreak(-1)
+        emitText("}", white)
+    }
 
     fun draw() = window.draw {
         val rows = region.withPadding(16.px).listVertically(64.px, spacing = 16.px)
@@ -152,7 +187,7 @@ fun main() {
             shadow(colour = theme.shadowColour)
             fill(theme.lighterBackgroundColour)
             region.withPadding(8.px).draw(clip = true) {
-                write(lorem, wrap = true, colour = theme.textColour, horizontalAlignment = 0f, verticalAlignment = 0f)
+                write(lorem, colour = theme.textColour, horizontalAlignment = 0f, verticalAlignment = 0f, wordWrap = true)
             }
         }
 
@@ -160,53 +195,7 @@ fun main() {
             shadow(colour = theme.shadowColour)
             fill(theme.lighterBackgroundColour)
             region.withPadding(16.px).draw {
-                write(font = Font.monospace, horizontalAlignment = 0f, verticalAlignment = 0f) {
-                    val red = palette[PaletteColour.Red()]
-                    val orange = palette[PaletteColour.Orange()]
-                    val teal = palette[PaletteColour.Teal()]
-                    val blue = palette[PaletteColour.Blue()]
-                    val purple = palette[PaletteColour.Purple()]
-
-                    // Lua stuff
-                    text("while", purple)
-                    whitespace()
-                    text("true", orange)
-                    whitespace()
-                    text("do", purple)
-                    lineBreak(1)
-                    text("print", teal)
-                    text("(", theme.textColour)
-                    text("\"Hello world!\"", orange)
-                    text(")", theme.textColour)
-                    lineBreak(-1)
-                    text("end", purple)
-
-                    lineBreak()
-                    lineBreak()
-
-                    // SL stuff
-                    text("effect", purple)
-                    whitespace()
-                    text("Yield", teal)
-                    text("<", theme.textColour)
-                    text("'a", blue)
-                    text(">", theme.textColour)
-                    whitespace()
-                    text("{", theme.textColour)
-                    lineBreak(1)
-                    text("yield", teal)
-                    text("(", theme.textColour)
-                    text("value", red)
-                    text(":", theme.textColour)
-                    whitespace()
-                    text("'a", blue)
-                    text(")", theme.textColour)
-                    text(":", theme.textColour)
-                    whitespace()
-                    text("Unit", blue)
-                    lineBreak(-1)
-                    text("}", theme.textColour)
-                }
+                write(codeTextBuffer, font = Font.monospace, horizontalAlignment = 0f, verticalAlignment = 0f)
             }
         }
 
@@ -475,7 +464,7 @@ fun main() {
         }
     }
 
-    val c = window.events
+    window.events
         .filterIsInstance<EKeyPressed>()
         .filter { !it.isRepeat }
         .filter { it.name == "t" }

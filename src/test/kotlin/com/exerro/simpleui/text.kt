@@ -1,10 +1,8 @@
 package com.exerro.simpleui
 
-import com.exerro.simpleui.extensions.text
-import com.exerro.simpleui.extensions.whitespace
+import com.exerro.simpleui.colour.Colours
 
 private const val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. Mauris suscipit erat ut finibus bibendum. Sed maximus sollicitudin vulputate. Nam dictum luctus orci ac varius. In in varius erat, sed dictum justo. Quisque efficitur quis metus ac tincidunt. Nulla eu lacinia velit, nec elementum libero. Donec pulvinar mauris et nunc suscipit, congue fringilla nunc auctor. Donec eu velit dapibus, bibendum velit at, malesuada mi. Suspendisse potenti."
-private const val shortLorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non magna orci. Nullam varius lectus eros, nec porta justo pellentesque non. "
 
 fun main() {
     val window = GLFWWindowCreator.createWindow("Text")
@@ -25,103 +23,129 @@ fun main() {
         fill(charcoal)
 
         val (top, _, bottom) = region.withPadding(32.px).splitVertically(at1 = 50.percent - 16.px, at2 = 50.percent + 16.px)
-        val textBoxes = listOf(top.listHorizontally(384.px, spacing = 32.px), bottom.listHorizontally(384.px, spacing = 32.px)).flatten()
-        val textBoxContent = textBoxes.map { it.withPadding(16.px) }
+        val textBoxes = listOf(top.listHorizontally(384.px, spacing = 32.px), bottom.listHorizontally(384.px, spacing = 32.px))
+            .flatten()
+            .map { it.rounded() }
+        val textBoxContentAreas = textBoxes.map { it.withPadding(16.px) }
+
+        val textBuffer0 = TextBufferBuilder {
+            emitText("Hello world!", white)
+            emitLineBreak()
+            emitText("Line two", blue)
+            emitLineBreak()
+            beginDecoration(TextBuffer.Decoration.Highlight, green)
+            emitText("Line three", yellow)
+            stopDecoration(TextBuffer.Decoration.Highlight)
+            emitLineBreak()
+            beginDecoration(TextBuffer.Decoration.Underline, purple)
+            emitText("Line four", orange)
+            stopDecoration(TextBuffer.Decoration.Underline)
+            emitLineBreak()
+            emitText("Line five", red)
+            emitLineBreak()
+            beginDecoration(TextBuffer.Decoration.Highlight, silver.withAlpha(0.4f))
+            beginDecoration(TextBuffer.Decoration.Underline, silver)
+            emitText("I am underlined and highlighted", white)
+            stopDecoration(TextBuffer.Decoration.Highlight)
+            stopDecoration(TextBuffer.Decoration.Underline)
+            emitLineBreak()
+            beginDecoration(TextBuffer.Decoration.Strikethrough, white)
+            emitText("I am struck through", white)
+            stopDecoration(TextBuffer.Decoration.Strikethrough)
+        }
+
+        val textBuffer1 = TextBufferBuilder {
+            emitText("effect", purple)
+            emitWhitespace()
+            emitText("Yield", teal)
+            emitText("<", white)
+            emitText("'a", blue)
+            emitText(">", white)
+            emitWhitespace()
+            emitText("{", white)
+            emitLineBreak(1)
+            beginDecoration(TextBuffer.Decoration.Highlight, white.withAlpha(0.1f))
+            emitText("yield", teal)
+            emitText("(", white)
+            beginDecoration(TextBuffer.Decoration.Highlight, teal.withAlpha(0.4f))
+            emitText("value", pink)
+            stopDecoration(TextBuffer.Decoration.Highlight)
+            emitText(":", white)
+            emitWhitespace()
+            emitText("'a", blue)
+            emitText(")", white)
+            emitText(":", white)
+            emitWhitespace()
+            beginDecoration(TextBuffer.Decoration.Underline, red)
+            emitText("Unit", blue)
+            stopDecoration(TextBuffer.Decoration.Underline)
+            stopDecoration(TextBuffer.Decoration.Highlight)
+            emitLineBreak(-1)
+            emitText("}", white)
+        }
+
+        val textBuffer2 = TextBufferBuilder(lorem, white, splitSegments = true)
+
+        val textBuffer4 = TextBufferBuilder {
+            beginDecoration(TextBuffer.Decoration.Highlight, Colours.blue.withAlpha(0.4f))
+            emitTextSegments(lorem, white)
+        }
+
+        val textBuffer5 = TextBufferBuilder {
+            beginDecoration(TextBuffer.Decoration.Underline, Colours.blue)
+            emitTextSegments(lorem, white)
+        }
+
+        val textBuffer6 = TextBufferBuilder {
+            beginDecoration(TextBuffer.Decoration.Highlight, Colours.red)
+            emitText("Short")
+            stopDecoration(TextBuffer.Decoration.Highlight)
+            emitWhitespace()
+            beginDecoration(TextBuffer.Decoration.Highlight, Colours.red)
+            emitText("text")
+            stopDecoration(TextBuffer.Decoration.Highlight)
+        }
 
         textBoxes.take(10).draw {
             shadow()
             fill(palette[PaletteColour.Charcoal(PaletteVariant.Darker)])
         }
 
-        textBoxContent[0].draw { write(
-            horizontalAlignment = 0f, verticalAlignment = 0f,
-            wrap = false
-        ) {
-            text("Hello world!", white)
-            lineBreak()
-            text("Line two", blue)
-            lineBreak()
-            beginHighlighting(green)
-            text("Line three", yellow)
-            stopHighlighting()
-            lineBreak()
-            beginUnderlining(purple)
-            text("Line four", orange)
-            stopUnderlining()
-            lineBreak()
-            text("Line five", red)
-            lineBreak()
-            beginHighlighting(silver.withAlpha(0.4f))
-            beginUnderlining(silver)
-            text("I am underlined and highlighted", white)
-            stopHighlighting()
-            stopUnderlining()
-            lineBreak()
-            beginStrikingThrough(white)
-            text("I am struck through", white)
-            stopStrikingThrough()
-        } }
+        textBoxContentAreas[0].draw { write(
+            buffer = textBuffer0,
+            horizontalAlignment = 0f,
+            verticalAlignment = 0f
+        ) }
 
-        textBoxContent[1].draw { write(
+        textBoxContentAreas[1].draw { write(
+            buffer = textBuffer1,
             font = Font.monospace,
-            horizontalAlignment = 0f, verticalAlignment = 0f
-        ) {
+            horizontalAlignment = 0f,
+            verticalAlignment = 0f
+        ) }
 
-            text("effect", purple)
-            whitespace()
-            text("Yield", teal)
-            text("<", white)
-            text("'a", blue)
-            text(">", white)
-            whitespace()
-            text("{", white)
-            lineBreak(1)
-            beginHighlighting(white.withAlpha(0.1f))
-            text("yield", teal)
-            text("(", white)
-            beginHighlighting(teal.withAlpha(0.4f))
-            text("value", pink)
-            stopHighlighting()
-            text(":", white)
-            whitespace()
-            text("'a", blue)
-            text(")", white)
-            text(":", white)
-            whitespace()
-            beginUnderlining(red)
-            text("Unit", blue)
-            stopUnderlining()
-            stopHighlighting()
-            lineBreak(-1)
-            text("}", white)
-        } }
+        textBoxContentAreas[2].draw { write(
+            buffer = wordWrap(textBuffer2),
+            horizontalAlignment = 0f,
+            verticalAlignment = 0f,
+        )}
 
-        textBoxContent[2].draw { write(
-            horizontalAlignment = 0f, verticalAlignment = 0f,
-        ) {
-            text(lorem, white)
-        } }
+        textBoxContentAreas[3].draw { write(
+            buffer = wordWrap(textBuffer2),
+        )}
 
-        textBoxContent[3].draw { write {
-            text(lorem, white)
-        } }
+        textBoxContentAreas[4].draw { write(
+            buffer = wordWrap(textBuffer4),
+        )}
 
-        textBoxContent[4].draw { write {
-            beginHighlighting(blue)
-            text(lorem, white)
-        } }
+        textBoxContentAreas[5].draw { write(
+            buffer = wordWrap(textBuffer5),
+        )}
 
-        textBoxContent[5].draw { write {
-            beginUnderlining(blue)
-            text(lorem, white)
-        } }
+        textBoxContentAreas[6].draw {
+            val r = textBufferBounds(textBuffer6)
 
-        textBoxContent[6].draw {
-            val textBuffer = write {
-                text("Short text", white)
-            }
-            val r = Region(0f, 0f, textBuffer.maximumWidth, textBuffer.totalHeight)
-                .alignWithin(region, horizontalAlignment = 0.5f, verticalAlignment = 0.5f)
+            write(textBuffer6)
 
             region.above(r).draw {
                 write("I am above", silver, verticalAlignment = 1f)

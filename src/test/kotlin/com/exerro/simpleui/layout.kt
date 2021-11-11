@@ -19,6 +19,7 @@ fun main() {
             hdiv(30.percent) {
                 stack {
                     drawElement { fill(Colours.black) }
+
                     vdiv(64.px) {
                         withPadding(vertical = 16.px, horizontal = 32.px) {
                             withSize(width = 50.percent, horizontalAlignment = 0f) {

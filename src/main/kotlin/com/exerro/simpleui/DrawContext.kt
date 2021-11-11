@@ -2,7 +2,7 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
-import com.exerro.simpleui.extensions.text
+import kotlin.time.Duration
 
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
@@ -13,17 +13,21 @@ import com.exerro.simpleui.extensions.text
  *  then use [draw] to draw within that instead. */
 @DrawContextDSL
 interface DrawContext {
-    /** Area on-screen where content is drawn. */
+    /** Area on-screen where content is drawn relative to. */
     val region: Region
 
     /** Area on-screen where content is visible. */
     val clipRegion: Region
 
-    /** Bind an animation locally, getting its value and updating the animation.
-     *  By binding the animation like this, the renderer knows that something
-     *  animated is being drawn and can queue further redraws to continuously
-     *  update the animation while it's running. */
-    operator fun <T> Animated<T>.component1(): T
+    /** Register that dynamic content has been drawn in this region, allowing
+     *  the rendering implementation to queue another draw. Use this for
+     *  animations and content which changes with each render.
+     *  Can optionally pass [changesIn] to specify when the content will change.
+     *  When [changesIn] is null, the content is assumed to change
+     *  "immediately" e.g. for high refresh rate continuous animations. */
+    fun dynamicContent(
+        changesIn: Duration? = null
+    )
 
     /** Fill the region with a [colour]. */
     fun fill(
@@ -70,68 +74,49 @@ interface DrawContext {
         isResource: Boolean = true,
     )
 
-    /** TODO */
-    fun <Tag> generateTextBufferTagged(
+    /** Return a copy of [buffer] word-wrapped to fit the [availableWidth]. */
+    fun <Colour> wordWrap(
+        buffer: TextBuffer<Colour>,
         font: Font = Font.default,
-        horizontalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
-        initialIndentation: Int = 0,
-        wrap: Boolean = true,
-        writer: TextDrawContext<Tag>.() -> Unit,
-    ): TextBuffer<Tag>
+        availableWidth: Float = region.width,
+    ): TextBuffer<Colour>
 
-    /** TODO */
-    fun generateTextBuffer(
-        font: Font = Font.default,
-        horizontalAlignment: Alignment = 0.5f,
-        indentationSize: Int = 4,
-        initialIndentation: Int = 0,
-        wrap: Boolean = true,
-        writer: TextDrawContext<Unit>.() -> Unit,
-    ): TextBuffer<Unit> = generateTextBufferTagged(font, horizontalAlignment, indentationSize, initialIndentation, wrap, writer)
-
-    /** TODO */
-    fun <Tag> writeTextBuffer(
-        buffer: TextBuffer<Tag>,
-        verticalAlignment: Alignment,
-    ): TextBuffer<Tag>
-
-    /** Write complex formatted text, using [writer]. */
-    fun write(
+    /** Return a [Region] which will span the area used when rendering [buffer]
+     *  using [write] with the same parameters. Note: this includes any space
+     *  used for indentation. */
+    fun textBufferBounds(
+        buffer: TextBuffer<*>,
         font: Font = Font.default,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
-        initialIndentation: Int = 0,
-        wrap: Boolean = true,
-        writer: TextDrawContext<Unit>.() -> Unit,
-    ): TextBuffer<Unit> = writeTextBuffer(generateTextBuffer(
-        writer = writer, horizontalAlignment = horizontalAlignment,
-        indentationSize = indentationSize, initialIndentation = initialIndentation, wrap = wrap, font = font,
-    ), verticalAlignment = verticalAlignment)
+    ): Region
 
-    /** Write a simple string of text in the specified colour. */
+    /** Draw a [buffer] of text to the screen. */
+    fun write(
+        buffer: TextBuffer<Colour>,
+        font: Font = Font.default,
+        horizontalAlignment: Alignment = 0.5f,
+        verticalAlignment: Alignment = 0.5f,
+        indentationSize: Int = 4,
+    )
+
+    /** Create a [TextBuffer] representing [text], [colour] and [wordWrap] and
+     *  draw that to the screen using [write]. When [wordWrap] is false, a
+     *  single text segment is added to the buffer. Otherwise, the text is
+     *  added to the buffer using [TextBufferBuilder.emitTextSegments]
+     *  (splitting on newlines and spaces) and word wrapped before the buffer
+     *  is passed to [write]. */
     fun write(
         text: String,
         colour: Colour,
         font: Font = Font.default,
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
-        wrap: Boolean = true,
-        underlineColour: Colour? = null,
-        highlightColour: Colour? = null,
-        strikeThroughColour: Colour? = null,
-    ) = write(
-        font = font,
-        horizontalAlignment = horizontalAlignment,
-        verticalAlignment = verticalAlignment,
-        wrap = wrap,
-    ) {
-        underlineColour?.let { beginUnderlining(it) }
-        highlightColour?.let { beginHighlighting(it) }
-        strikeThroughColour?.let { beginStrikingThrough(it) }
-        text(text, colour, splitAtSpaces = wrap)
-    }
+        indentationSize: Int = 4,
+        wordWrap: Boolean = false,
+    )
 
     /** Draw content within another region. When [clip] is true, all content
      *  drawn within the callback [draw] is clipped to the region given. */
