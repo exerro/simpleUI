@@ -1,10 +1,10 @@
 package com.exerro.simpleui
 
-import com.exerro.simpleui.animation.AnimatedValue
-import com.exerro.simpleui.animation.Animation
+import com.exerro.simpleui.experimental.animation.AnimatedValue
+import com.exerro.simpleui.experimental.animation.Animation
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.extensions.animationTo
-import com.exerro.simpleui.extensions.withEasing
+import com.exerro.simpleui.experimental.animationTo
+import com.exerro.simpleui.experimental.withEasing
 
 fun main() {
     val window = GLFWWindowCreator.createWindow("Animation")

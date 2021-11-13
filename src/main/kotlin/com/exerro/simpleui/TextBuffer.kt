@@ -1,19 +1,27 @@
 package com.exerro.simpleui
 
-@Undocumented
+import kotlin.time.TimeMark
+
+/** A buffer of decorated text. Contains a list of [lines][Line], each of which
+ *  contains coloured text segments, decorations (e.g. highlighting/underlining),
+ *  and cursors. */
 data class TextBuffer<out Colour>(
     val lines: List<Line<Colour>>
 ) {
-    @Undocumented
+    /** A line of text with an indentation. Contains
+     *  [coloured text segments][ContentSegment],
+     *  [decorations][DecorationSegment] such as highlighted blocks/underlining,
+     *  and [cursors][Cursor]. */
     data class Line<out Colour>(
         val indentation: Int,
         val contentSegments: List<ContentSegment<Colour>>,
         val decorationSegments: Set<DecorationSegment<Colour>>,
+        val cursors: Set<Cursor<Colour>>,
     )
 
-    @Undocumented
+    /** A section of text, either [whitespace][Whitespace] or [text][Text]. */
     sealed interface ContentSegment<out Colour> {
-        @Undocumented
+        /** Length of this segment in characters. */
         val length: Int
 
         /** A segment of no text content, equal to [length] space characters. */
@@ -40,6 +48,15 @@ data class TextBuffer<out Colour>(
         val offset: Int,
         val length: Int,
         val colour: Colour,
+    )
+
+    /** A cursor offset into the text by [offset] characters. If [resetAt] is
+     *  not null, it represents the time when this cursor was "reset" e.g. moved
+     *  or initialised, and is used to calculate cursor blinking. */
+    data class Cursor<out Colour>(
+        val offset: Int,
+        val colour: Colour,
+        val resetAt: TimeMark?,
     )
 
     /** Enumeration of possible text decorations. Text decoration is some

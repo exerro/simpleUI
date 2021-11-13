@@ -1,34 +1,34 @@
-package com.exerro.simpleui.animation
+package com.exerro.simpleui.experimental.animation
 
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedInternal
 
-@Undocumented
+@UndocumentedInternal
 class AnimatedValue<T> internal constructor(
     initialValue: T,
     animation: Animation<T>? = null,
     clock: Long = 0L,
 ): Animated<T> {
-    @Undocumented
+    @UndocumentedInternal
     var clock = clock; private set
 
-    @Undocumented
+    @UndocumentedInternal
     var initialValue = initialValue; private set
 
-    @Undocumented
+    @UndocumentedInternal
     override var currentValue = initialValue; private set
 
-    @Undocumented
+    @UndocumentedInternal
     var animation = animation; private set
 
-    @Undocumented
+    @UndocumentedInternal
     override val isFinished get() = clock >= duration
 
     ////////////////////////////////////////////////////////////
 
-    @Undocumented
+    @UndocumentedInternal
     override fun update(dt: Long) = seek(clock + dt)
 
-    @Undocumented
+    @UndocumentedInternal
     fun seek(time: Long) {
         val a = animation ?: return
         clock = time
@@ -37,7 +37,7 @@ class AnimatedValue<T> internal constructor(
         currentValue = a.interpolator(a.easing.fix(t), initialValue, a.to) ?: currentValue
     }
 
-    @Undocumented
+    @UndocumentedInternal
     fun reset(animation: Animation<T>? = this.animation, clock: Long = 0L) {
         this.animation = animation
         this.clock = clock
@@ -45,7 +45,7 @@ class AnimatedValue<T> internal constructor(
         duration = animation?.duration?.inWholeNanoseconds ?: 0L
     }
 
-    @Undocumented
+    @UndocumentedInternal
     fun reset(value: T) {
         animation = null
         clock = 0L
@@ -56,6 +56,6 @@ class AnimatedValue<T> internal constructor(
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @Undocumented
+    @UndocumentedInternal
     private var duration = animation?.duration?.inWholeNanoseconds ?: 0L
 }

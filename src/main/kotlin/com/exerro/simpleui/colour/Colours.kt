@@ -161,8 +161,8 @@ object Colours {
         pureBlack,
     )
 
-    /** All the pre-defined colours. */
-    val all = greyscale + listOf(
+    /** All the non-greyscale pre-defined colours. */
+    val colours = listOf(
         red,
         orange,
         yellow,
@@ -172,6 +172,9 @@ object Colours {
         purple,
         pink
     )
+
+    /** All the pre-defined colours. */
+    val all = greyscale + colours
 
     private fun Float.calculateRGBComponent(temp1: Float, temp2: Float) = when {
         this < 1/6f -> temp1 + (temp2 - temp1) * 6 * this

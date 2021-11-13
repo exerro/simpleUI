@@ -1,5 +1,9 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.experimental.Palette
+import com.exerro.simpleui.experimental.PaletteColour
+import com.exerro.simpleui.experimental.PaletteVariant
+
 fun main() {
     val window = GLFWWindowCreator.createWindow("Shadows")
     val palette = Palette.Default

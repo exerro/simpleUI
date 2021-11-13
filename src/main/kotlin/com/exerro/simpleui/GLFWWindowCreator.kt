@@ -1,7 +1,8 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.experimental.Palette
 import com.exerro.simpleui.internal.NVGData
-import com.exerro.simpleui.internal.NVGRenderingContext
+import com.exerro.simpleui.internal.NVGDrawContext
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -13,6 +14,8 @@ import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
 import kotlin.concurrent.thread
 import kotlin.time.Duration
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /** Implementation of [WindowCreator] using a GLFW+NanoVG backend. */
 object GLFWWindowCreator: WindowCreator {
@@ -240,6 +243,13 @@ object GLFWWindowCreator: WindowCreator {
                 get() = palette
                 set(value) { palette = value }
 
+            override val timeSource = object: TimeSource {
+                override fun markNow() = object: TimeMark() {
+                    private val createdAt = System.nanoTime()
+                    override fun elapsedNow() = Duration.nanoseconds(System.nanoTime() - createdAt)
+                }
+            }
+            override val createdAt = timeSource.markNow()
             override val events = EventBus<WindowEvent> { onEvent ->
                 synchronized(onEventList) { onEventList.add(onEvent) }
                 EventBus.Connection {
@@ -258,7 +268,7 @@ object GLFWWindowCreator: WindowCreator {
                     NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
                     GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
-                    val context = NVGRenderingContext(nvgData, r, r, true, time - lastFrame)
+                    val context = NVGDrawContext(nvgData, r, r, true)
                     context.onDraw(Duration.nanoseconds(time - lastFrame))
 
                     lastFrame = time

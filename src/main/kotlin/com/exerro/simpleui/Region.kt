@@ -62,21 +62,30 @@ data class Region internal constructor(
     fun toRight(width: Pixels = this.width.px) =
         copy(x = x + this.width, width = width.apply(this.width))
 
-    @Undocumented
+    /** Return a copy of this region, moved vertically below [other]. If
+     *  [resize] is true, the bottoms of this region and the returned region
+     *  will align. Otherwise, the returned region will have the same height. */
     fun below(other: Region, resize: Boolean = true): Region {
         val v = other.y + other.height
         return copy(y = v, height = if (resize) y + height - v else height)
     }
 
-    @Undocumented
+    /** Return a copy of this region, moved vertically above [other]. If
+     *  [resize] is true, the tops of this region and the returned region
+     *  will align. Otherwise, the returned region will have the same height. */
     fun above(other: Region, resize: Boolean = true) =
         copy(y = if (resize) y else other.y - height, height = if (resize) other.y - y else height)
 
-    @Undocumented
+    /** Return a copy of this region, moved horizontally to the left of [other].
+     *  If [resize] is true, the left of this region and the returned region
+     *  will align. Otherwise, the returned region will have the same width. */
     fun toLeftOf(other: Region, resize: Boolean = true) =
         copy(x = if (resize) x else other.x - width, width = if (resize) other.x - x else width)
 
-    @Undocumented
+    /** Return a copy of this region, moved horizontally to the right of
+     *  [other]. If [resize] is true, the right of this region and the returned
+     *  region will align. Otherwise, the returned region will have the same
+     *  width. */
     fun toRightOf(other: Region, resize: Boolean = true): Region {
         val v = other.x + other.width
         return copy(x = v, width = if (resize) x + width - v else width)

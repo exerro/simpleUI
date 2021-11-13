@@ -1,36 +1,36 @@
-package com.exerro.simpleui.animation
+package com.exerro.simpleui.experimental.animation
 
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedInternal
 import kotlin.math.sqrt
 import kotlin.time.Duration
 
-@Undocumented
+@UndocumentedInternal
 data class Animation<T>(
-    @Undocumented
+    @UndocumentedInternal
     val to: T,
-    @Undocumented
+    @UndocumentedInternal
     val duration: Duration = Duration.Companion.milliseconds(250),
-    @Undocumented
+    @UndocumentedInternal
     val easing: Easing = Easing.LINEAR,
-    @Undocumented
+    @UndocumentedInternal
     val interpolator: (Float, T, T) -> T,
 ) {
-    @Undocumented
+    @UndocumentedInternal
     fun interface Easing {
-        @Undocumented
+        @UndocumentedInternal
         fun fix(t: Float): Float
 
         companion object {
-            @Undocumented
+            @UndocumentedInternal
             val LINEAR = Easing { t -> t }
 
-            @Undocumented
+            @UndocumentedInternal
             val IN = Easing { t -> sqrt(t) }
 
-            @Undocumented
+            @UndocumentedInternal
             val OUT = Easing { t -> t * t }
 
-            @Undocumented
+            @UndocumentedInternal
             val BETWEEN = Easing { t -> 3 * t * t - 2 * t * t * t }
         }
     }

@@ -8,24 +8,20 @@ import org.lwjgl.nanovg.NVGGlyphPosition
 import org.lwjgl.nanovg.NVGPaint
 import org.lwjgl.nanovg.NanoVG
 import org.lwjgl.opengl.GL46C
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.*
 import kotlin.time.Duration
 
 /** NanoVG implementation of a [DrawContext]. */
-internal class NVGRenderingContext(
+internal class NVGDrawContext(
     private val nvg: NVGData,
     override val region: Region,
     override val clipRegion: Region,
     private val isRoot: Boolean,
-    private val delta: Long,
 ): DrawContext {
     override fun dynamicContent(changesIn: Duration?) {
-        val currentDynamicTime = dynamicTime
+        val currentDynamicTime = dynamicUpdateDelay
         hasDynamicContent = true
-        dynamicTime = when {
+        dynamicUpdateDelay = when {
             currentDynamicTime == null -> null
             changesIn == null -> null
             else -> minOf(currentDynamicTime, changesIn)
@@ -131,13 +127,16 @@ internal class NVGRenderingContext(
                 NanoVG.nvgCreateImage(nvg.context, path, 0)
             }
         }
-        val rgb = tint ?: RGBA(1f, 1f, 1f)
+        val rgba = tint ?: RGBA(1f, 1f, 1f)
         val paint = NVGPaint.calloc()
-        NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, 1f, nvg.colour)
+
+        NanoVG.nvgRGBAf(rgba.red, rgba.green, rgba.blue, rgba.alpha, nvg.colour)
         NanoVG.nvgImagePattern(nvg.context, rx, ry, rw, rh, 0f, image, 1f, paint)
+        paint.innerColor(nvg.colour)
         NanoVG.nvgBeginPath(nvg.context)
         NanoVG.nvgRect(nvg.context, rx, ry, rw, rh)
         NanoVG.nvgClosePath(nvg.context)
+        // TODO: NanoVG.nvgFillColor(nvg.context, nvg.colour)
         NanoVG.nvgFillPaint(nvg.context, paint)
         NanoVG.nvgFill(nvg.context)
         paint.free()
@@ -248,6 +247,9 @@ internal class NVGRenderingContext(
 
         for (line in buffer.lines) {
             val (totalWidth, characterBounds) = generateCharacterBounds(concatenateSegments(line.contentSegments))
+
+            if (characterBounds.isEmpty()) continue
+
             val thisIndentationWidth = indentationWidth * line.indentation
             val thisIndentationOffset = thisIndentationWidth * (1 - horizontalAlignment * 2)
             val x = floor(rx + (rw - totalWidth) * horizontalAlignment + thisIndentationOffset) - characterBounds[0].first
@@ -259,11 +261,11 @@ internal class NVGRenderingContext(
             }
 
             fun drawDecoration(segment: TextBuffer.DecorationSegment<Colour>) {
-                println(segment)
                 val rgba = segment.colour
                 val (sy, sh) = getDecorationBounds(segment.decoration, y, lineHeight)
                 val sx = characterBounds[segment.offset].first
                 val sw = characterBounds[segment.offset + segment.length - 1].second - sx
+
                 NanoVG.nvgRGBAf(rgba.red, rgba.green, rgba.blue, rgba.alpha, nvg.colour)
                 NanoVG.nvgBeginPath(nvg.context)
                 NanoVG.nvgRect(nvg.context, x + sx, sy, sw, sh)
@@ -277,9 +279,9 @@ internal class NVGRenderingContext(
             }
 
             for (segment in line.contentSegments) {
-                if (segment is TextBuffer.ContentSegment.Text) {
-                    val rgb = segment.colour
-                    NanoVG.nvgRGBAf(rgb.red, rgb.green, rgb.blue, rgb.alpha, nvg.colour)
+                if (segment is TextBuffer.ContentSegment.Text && segment.text.isNotEmpty()) {
+                    val rgba = segment.colour
+                    NanoVG.nvgRGBAf(rgba.red, rgba.green, rgba.blue, rgba.alpha, nvg.colour)
                     NanoVG.nvgFillColor(nvg.context, nvg.colour)
                     NanoVG.nvgText(nvg.context, x + characterBounds[characterOffset].first, y, segment.text)
                 }
@@ -292,6 +294,42 @@ internal class NVGRenderingContext(
 
             for (segment in line.decorationSegments.filter { !it.decoration.background }) {
                 drawDecoration(segment)
+            }
+
+            for (cursor in line.cursors) {
+                val isVisible = when (cursor.resetAt) {
+                    null -> true
+                    else -> {
+                        val time = cursor.resetAt.elapsedNow()
+                        val blinkRateNanos = cursorBlinkRate.inWholeNanoseconds
+                        val timeModBlinkRate = time.inWholeNanoseconds % (blinkRateNanos * 2L)
+
+                        if (timeModBlinkRate < blinkRateNanos) {
+                            dynamicContent(Duration.nanoseconds(blinkRateNanos - timeModBlinkRate))
+                            true
+                        }
+                        else {
+                            dynamicContent(Duration.nanoseconds(blinkRateNanos * 2 - timeModBlinkRate))
+                            false
+                        }
+                    }
+                }
+
+                if (!isVisible) continue
+
+                val cx = round(when (cursor.offset) {
+                    0 -> characterBounds[0].first - 1
+                    characterBounds.size -> characterBounds[cursor.offset - 1].second
+                    else -> (characterBounds[cursor.offset].first + characterBounds[cursor.offset - 1].second) / 2f - 1
+                })
+
+                val rgba = cursor.colour
+                NanoVG.nvgRGBAf(rgba.red, rgba.green, rgba.blue, rgba.alpha, nvg.colour)
+                NanoVG.nvgBeginPath(nvg.context)
+                NanoVG.nvgRect(nvg.context, x + cx, y + 2f, 2f, lineHeight - 4f)
+                NanoVG.nvgClosePath(nvg.context)
+                NanoVG.nvgFillColor(nvg.context, nvg.colour)
+                NanoVG.nvgFill(nvg.context)
             }
 
             y += lineHeight
@@ -314,26 +352,26 @@ internal class NVGRenderingContext(
         indentationSize = indentationSize
     )
 
-    override fun Region.draw(clip: Boolean, draw: (DrawContext) -> Unit) {
+    override fun <T> Region.draw(clip: Boolean, draw: (DrawContext) -> T): T {
         val drawRegion = this
         val subClipRegion = if (clip) clipRegion intersectionWith drawRegion else clipRegion
+        val subContext = NVGDrawContext(nvg, drawRegion, subClipRegion, false)
 
         if (clip) {
-            if (subClipRegion.width == 0f || subClipRegion.height == 0f) return
+//            if (subClipRegion.width == 0f || subClipRegion.height == 0f) return
             NanoVG.nvgScissor(nvg.context, subClipRegion.x, subClipRegion.y, subClipRegion.width, subClipRegion.height)
         }
 
-        draw(NVGRenderingContext(
-            nvg,
-            drawRegion,
-            subClipRegion,
-            false,
-            delta,
-        ))
+        val result = draw(subContext)
 
         if (clip) {
             NanoVG.nvgScissor(nvg.context, clipRegion.x, clipRegion.y, clipRegion.width, clipRegion.height)
         }
+
+        if (subContext.hasDynamicContent)
+            dynamicContent(subContext.dynamicUpdateDelay)
+
+        return result
     }
 
     init {
@@ -446,6 +484,7 @@ internal class NVGRenderingContext(
         return (endX - startX) to characterBounds
     }
 
+    @UndocumentedInternal
     private fun setupFont(font: Font) {
         NanoVG.nvgTextAlign(nvg.context, NanoVG.NVG_ALIGN_LEFT or NanoVG.NVG_ALIGN_TOP)
         NanoVG.nvgFontSize(nvg.context, font.lineHeight)
@@ -471,10 +510,11 @@ internal class NVGRenderingContext(
         TextBuffer.Decoration.Highlight -> floor(y) to ceil(lineHeight)
     }
 
-    internal var dynamicTime = null as Duration?
+    internal var dynamicUpdateDelay = null as Duration?
     internal var hasDynamicContent = false
     private val rx = region.x
     private val ry = region.y
     private val rw = region.width
     private val rh = region.height
+    private val cursorBlinkRate = Duration.seconds(0.5)
 }

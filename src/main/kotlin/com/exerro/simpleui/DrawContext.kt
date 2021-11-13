@@ -10,7 +10,14 @@ import kotlin.time.Duration
  *  [roundedRectangle].
  *  Initially, [region] represents the window content area. To draw in a
  *  different [Region], the [region] field can be used to derive a sub-region
- *  then use [draw] to draw within that instead. */
+ *  then use [draw] to draw within that instead.
+ *
+ *  **Warning**: unless explicitly stated otherwise, using context members after
+ *  a frame has been drawn will lead to undefined behaviour. An example of this
+ *  might be keeping a reference to the context in a callback passed elsewhere.
+ *  By the time that callback is invoked, the window may no longer even exist
+ *  and calling graphics methods will likely result in low-level crashes, or at
+ *  least unexpected behaviour. */
 @DrawContextDSL
 interface DrawContext {
     /** Area on-screen where content is drawn relative to. */
@@ -120,10 +127,10 @@ interface DrawContext {
 
     /** Draw content within another region. When [clip] is true, all content
      *  drawn within the callback [draw] is clipped to the region given. */
-    fun Region.draw(
+    fun <T> Region.draw(
         clip: Boolean = false,
-        draw: DrawContext.() -> Unit,
-    )
+        draw: DrawContext.() -> T,
+    ): T
 
     /** Shorthand for drawing a list of regions. See [DrawContext.draw]. [draw]
      *  callback receives an additional parameter for the index of the region

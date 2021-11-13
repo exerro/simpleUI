@@ -17,8 +17,9 @@ fun main() {
         // Take the region representing the screen, and resize to 256x32px. By
         // default, resizing down like this leaves the resultant region centred.
         region.resizeTo(256.px, 32.px).draw {
-            // Draw a shadow for this region and fill it with teal.
+            // Draw an outline shadow for this region.
             shadow()
+            // Fill the region with a teal background.
             fill(Colours.teal)
             // Write "Hello world!" in white. By default, text is centred.
             write("Hello world!", Colours.white)

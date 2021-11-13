@@ -1,6 +1,9 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.experimental.Palette
 import kotlin.time.Duration
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /** An abstraction over a native window. Can pass draw functions
  *  and respond to events. */
@@ -14,6 +17,12 @@ interface Window {
 
     /** Returns true once the window is closed. */
     val isClosed: Boolean
+
+    /** A [TimeSource] implementation used to get [TimeMark]s. */
+    val timeSource: TimeSource
+
+    /** [TimeMark] representing when the window was created. */
+    val createdAt: TimeMark
 
     /** Submit a render function to render the window both now
      *  and whenever the window's framebuffer is refreshed

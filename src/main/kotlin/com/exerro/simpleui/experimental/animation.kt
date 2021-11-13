@@ -1,7 +1,7 @@
-package com.exerro.simpleui.extensions
+package com.exerro.simpleui.experimental
 
-import com.exerro.simpleui.animation.AnimatedValue
-import com.exerro.simpleui.animation.Animation
+import com.exerro.simpleui.experimental.animation.AnimatedValue
+import com.exerro.simpleui.experimental.animation.Animation
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours

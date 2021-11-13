@@ -2,17 +2,22 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
+import kotlin.time.TimeMark
 
-@Undocumented
+/** Used to create [TextBuffer]s in a nice way. */
 @DrawContextDSL
 interface TextBufferBuilder<Colour> {
-    @Undocumented
+    /** Default text colour of this builder. */
     val defaultColour: Colour
 
-    @Undocumented
+    /** Emit a coloured text segment. If [colour] is null, [defaultColour] is
+     *  used. */
     fun emitText(text: String, colour: Colour? = null)
 
-    @Undocumented
+    /** Emit a multitude of text segments by splitting the [text] at newlines
+     *  and spaces and emitting line breaks and whitespace as appropriate.
+     *  This can be used to facilitate word-wrapping, since word-wrapping wraps
+     *  on segment boundaries. */
     fun emitTextSegments(text: String, colour: Colour? = null) {
         for ((lineNumber, line) in text.split('\n').withIndex()) {
             if (lineNumber > 0) emitLineBreak()
@@ -23,24 +28,35 @@ interface TextBufferBuilder<Colour> {
         }
     }
 
-    @Undocumented
+    /** Emit [length] characters of whitespace. [length] defaults to 1. */
     fun emitWhitespace(length: Int = 1)
 
-    @Undocumented
+    /** Emit a line break, adjusting the indentation of the next line by
+     *  [relativeIndentation] (relative to this line). [relativeIndentation]
+     *  defaults to 0 (same indentation for the next line). */
     fun emitLineBreak(relativeIndentation: Int = 0)
 
-    @Undocumented
+    /** Emit a cursor at the current position in the text. If [colour] is null,
+     *  [defaultColour] is used. [resetAt] is used to facilitate cursor blinking
+     *  and represents when the cursor was "reset" (e.g. moved, created). */
+    fun emitCursor(colour: Colour? = null, resetAt: TimeMark? = null)
+
+    /** Begin a type decoration from the next character. Decorations can stack
+     *  and multiple of any type can be active at any given time, although only
+     *  the most recent decoration of a given type is visually active at a time. */
     fun beginDecoration(decoration: TextBuffer.Decoration, colour: Colour? = null)
 
-    @Undocumented
+    /** Complete and stop the last decoration of the same type that was begun. */
     fun stopDecoration(decoration: TextBuffer.Decoration)
 
-    @Undocumented
+    /** A default implementation of a [TextBufferBuilder]. See also: [invoke]. */
     class Implementation<Colour>(
         override val defaultColour: Colour,
         initialIndentation: Int = 0,
     ): TextBufferBuilder<Colour> {
-        @Undocumented
+        /** Complete the buffer and return it. Note: this is safe to call
+         *  multiple times, if further modifications are made. This method does
+         *  not reset the accumulated buffer when called. */
         fun build(): TextBuffer<Colour> {
             return TextBuffer(lines + buildLine())
         }
@@ -60,6 +76,10 @@ interface TextBufferBuilder<Colour> {
         override fun emitLineBreak(relativeIndentation: Int) {
             lines.add(buildAndResetLine())
             indentation += relativeIndentation
+        }
+
+        override fun emitCursor(colour: Colour?, resetAt: TimeMark?) {
+            activeLineCursors.add(TextBuffer.Cursor(thisLineLength, colour ?: defaultColour, resetAt))
         }
 
         override fun beginDecoration(decoration: TextBuffer.Decoration, colour: Colour?) {
@@ -105,6 +125,7 @@ interface TextBufferBuilder<Colour> {
                 indentation = indentation,
                 contentSegments = activeLineContent.toList(), // copy the list
                 decorationSegments = activeLineDecorations.toSet(), // copy the set
+                cursors = activeLineCursors.toSet(), // copy the set
             )
         }
 
@@ -114,6 +135,7 @@ interface TextBufferBuilder<Colour> {
 
             activeLineContent.clear()
             activeLineDecorations.clear()
+            activeLineCursors.clear()
             thisLineLength = 0
 
             for (decoration in TextBuffer.Decoration.values())
@@ -125,6 +147,7 @@ interface TextBufferBuilder<Colour> {
         private val lines = mutableListOf<TextBuffer.Line<Colour>>()
         private val activeLineContent = mutableListOf<TextBuffer.ContentSegment<Colour>>()
         private val activeLineDecorations = mutableSetOf<TextBuffer.DecorationSegment<Colour>>()
+        private val activeLineCursors = mutableSetOf<TextBuffer.Cursor<Colour>>()
         private val activeDecorationColours = TextBuffer.Decoration.values().associateWith { mutableListOf<Colour>() }
         private val activeDecorationOffsets = TextBuffer.Decoration.values().associateWith { 0 } .toMutableMap()
         private var thisLineLength = 0
@@ -132,7 +155,7 @@ interface TextBufferBuilder<Colour> {
     }
 
     companion object {
-        @Undocumented
+        /** Construct a [TextBuffer] using [builder]. */
         operator fun <Colour> invoke(
             defaultColour: Colour,
             initialIndentation: Int = 0,
@@ -146,7 +169,7 @@ interface TextBufferBuilder<Colour> {
             return builderInstance.build()
         }
 
-        @Undocumented
+        /** Construct a [TextBuffer] using [builder]. */
         operator fun invoke(
             initialIndentation: Int = 0,
             builder: TextBufferBuilder<Colour>.() -> Unit,
@@ -156,7 +179,9 @@ interface TextBufferBuilder<Colour> {
             builder = builder,
         )
 
-        @Undocumented
+        /** Construct a [TextBuffer] using [text] and [colour]. If
+         *  [splitSegments] is true, the text is split on newlines and spaces,
+         *  enabling word wrapping. Otherwise, a single segment is produced. */
         operator fun <Colour> invoke(
             text: String,
             colour: Colour,
@@ -166,7 +191,9 @@ interface TextBufferBuilder<Colour> {
             else emitText(text)
         }
 
-        @Undocumented
+        /** Construct a [TextBuffer] using [text]. If [splitSegments] is true,
+         *  the text is split on newlines and spaces, enabling word wrapping.
+         *  Otherwise, a single segment is produced. */
         operator fun invoke(
             text: String,
             splitSegments: Boolean = true,

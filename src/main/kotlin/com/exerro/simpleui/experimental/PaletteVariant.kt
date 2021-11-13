@@ -1,4 +1,4 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.experimental
 
 /** Variations to the [Default] colour of a [PaletteColour]. [Lighter] and
  *  [Darker] effectively control HSL lightness, where [Brighter] and [Dimmer]
