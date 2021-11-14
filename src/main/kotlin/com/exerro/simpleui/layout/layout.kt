@@ -1,9 +1,9 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 
-@Undocumented
+@UndocumentedExperimental
 fun DrawContext.layout(init: DefinedLayoutContext.() -> Unit) {
     val region = region
     val context = object: DefinedLayoutContext {

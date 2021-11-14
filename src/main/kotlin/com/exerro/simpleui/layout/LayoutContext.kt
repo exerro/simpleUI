@@ -2,27 +2,27 @@ package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.DrawContextDSL
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 
 @DslMarker
 annotation class LayoutBuilder
 
-@Undocumented
+@UndocumentedExperimental
 typealias DefinedLayoutContext = LayoutContext<Float, Float, Nothing?, Nothing?>
 
-@Undocumented
+@UndocumentedExperimental
 typealias UndefinedLayoutContext = LayoutContext<Nothing?, Nothing?, Float, Float>
 
-@Undocumented
+@UndocumentedExperimental
 @LayoutBuilder
 @DrawContextDSL
 interface LayoutContext<
-        Width: Float?,
-        Height: Float?,
-        ChildWidth: Float?,
-        ChildHeight: Float?,
+        out Width: Float?,
+        out Height: Float?,
+        in ChildWidth: Float?,
+        in ChildHeight: Float?,
 > {
-    @Undocumented
+    @UndocumentedExperimental
     fun includeChild(
         init: (
             allocatedWidth: Width,
@@ -32,8 +32,8 @@ interface LayoutContext<
         ) -> Child<ChildWidth, ChildHeight>,
     )
 
-    @Undocumented
-    data class Child<Width: Float?, Height: Float?>(
+    @UndocumentedExperimental
+    data class Child<out Width: Float?, out Height: Float?>(
         val width: Width,
         val height: Height,
         val draw: DrawContext.() -> Unit

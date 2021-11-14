@@ -47,13 +47,16 @@ fun main() {
             emitText("Line five", red)
             emitLineBreak()
             beginDecoration(TextBuffer.Decoration.Highlight, silver.withAlpha(0.4f))
+            emitText("I am ", white)
             beginDecoration(TextBuffer.Decoration.Underline, silver)
-            emitText("I am underlined and highlighted", white)
-            stopDecoration(TextBuffer.Decoration.Highlight)
+            emitText("underlined", white)
             stopDecoration(TextBuffer.Decoration.Underline)
+            emitText(" and highlighted", white)
+            stopDecoration(TextBuffer.Decoration.Highlight)
             emitLineBreak()
+            emitText("I am ", white)
             beginDecoration(TextBuffer.Decoration.Strikethrough, white)
-            emitText("I am struck through", white)
+            emitText("struck through", white)
             stopDecoration(TextBuffer.Decoration.Strikethrough)
         }
 
@@ -124,7 +127,8 @@ fun main() {
             buffer = textBuffer1,
             font = Font.monospace,
             horizontalAlignment = 0f,
-            verticalAlignment = 0f
+            verticalAlignment = 0f,
+            indentationSize = 4,
         ) }
 
         textBoxContentAreas[2].draw { write(

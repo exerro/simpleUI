@@ -1,10 +1,10 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 
-@Undocumented
+@UndocumentedExperimental
 fun <W: Float?, H: Float?, CW: Float?, CH: Float?> LayoutContext<W, H, CW, CH>.withPadding(
     top: Pixels = 0.px,
     right: Pixels = 0.px,
@@ -31,14 +31,14 @@ fun <W: Float?, H: Float?, CW: Float?, CH: Float?> LayoutContext<W, H, CW, CH>.w
     }
 } .init()
 
-@Undocumented
+@UndocumentedExperimental
 fun <W: Float?, H: Float?, CW: Float?, CH: Float?> LayoutContext<W, H, CW, CH>.withPadding(
     horizontal: Pixels = 0.px,
     vertical: Pixels = 0.px,
     init: LayoutContext<W, H, CW, CH>.() -> Unit
 ) = withPadding(top = vertical, right = horizontal, bottom = vertical, left = horizontal, init = init)
 
-@Undocumented
+@UndocumentedExperimental
 fun <W: Float?, H: Float?, CW: Float?, CH: Float?> LayoutContext<W, H, CW, CH>.withPadding(
     all: Pixels,
     init: LayoutContext<W, H, CW, CH>.() -> Unit

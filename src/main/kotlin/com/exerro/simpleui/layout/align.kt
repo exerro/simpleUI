@@ -1,32 +1,10 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.Alignment
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 
-@Undocumented
-fun DefinedLayoutContext.align(
-    horizontalAlignment: Alignment,
-    verticalAlignment: Alignment,
-    init: UndefinedLayoutContext.() -> Unit,
-) = object: UndefinedLayoutContext {
-    override fun includeChild(init: (Nothing?, Nothing?, Float, Float) -> LayoutContext.Child<Float, Float>) {
-        this@align.includeChild { allocatedWidth, allocatedHeight, _, _ ->
-            val child = init(null, null, allocatedWidth, allocatedHeight)
-
-            LayoutContext.Child(null, null) {
-                region.resizeTo(
-                    width = child.width.px,
-                    height = child.height.px,
-                    horizontalAlignment = horizontalAlignment,
-                    verticalAlignment = verticalAlignment,
-                ).draw(draw = child.draw)
-            }
-        }
-    }
-} .init ()
-
-@Undocumented
+@UndocumentedExperimental
 fun <H: Float?, CH: Float?> LayoutContext<Float, H, Nothing?, CH>.halign(
     horizontalAlignment: Alignment,
     init: LayoutContext<Nothing?, H, Float, CH>.() -> Unit,
@@ -47,7 +25,7 @@ fun <H: Float?, CH: Float?> LayoutContext<Float, H, Nothing?, CH>.halign(
     }
 } .init ()
 
-@Undocumented
+@UndocumentedExperimental
 fun <W: Float?, CW: Float?> LayoutContext<W, Float, CW, Nothing?>.valign(
     verticalAlignment: Alignment,
     init: LayoutContext<W, Nothing?, CW, Float>.() -> Unit,

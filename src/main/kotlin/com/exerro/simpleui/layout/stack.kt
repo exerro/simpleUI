@@ -1,8 +1,8 @@
 package com.exerro.simpleui.layout
 
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 
-@Undocumented
+@UndocumentedExperimental
 fun DefinedLayoutContext.stack(
     init: DefinedLayoutContext.() -> Unit,
 ) = includeChild { allocatedWidth, allocatedHeight, availableWidth, availableHeight ->

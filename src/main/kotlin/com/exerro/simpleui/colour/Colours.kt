@@ -1,5 +1,6 @@
 package com.exerro.simpleui.colour
 
+import com.exerro.simpleui.Undocumented
 import com.exerro.simpleui.internal.cycle
 import com.exerro.simpleui.internal.isRoughlyZero
 import kotlin.math.max
@@ -82,6 +83,13 @@ object Colours {
         lightness = a.lightness * (1 - ratio) + b.lightness * ratio,
         alpha = a.alpha * (1 - ratio) + b.alpha * ratio
     )
+
+    @Undocumented
+    fun random(): Colour =
+        RGBA(Math.random(), Math.random(), Math.random())
+
+    /** No colour. */
+    val transparent = RGBA(0f, 0f, 0f, 0f)
 
     /** Standard red colour. */
 //    val red = RGBA(0.8, 0.3, 0.3)

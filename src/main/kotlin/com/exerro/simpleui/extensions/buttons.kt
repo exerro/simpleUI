@@ -1,10 +1,22 @@
 package com.exerro.simpleui.extensions
 
-import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.colour.Colour
+import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.percent
-import com.exerro.simpleui.px
+import com.exerro.simpleui.ui.Style
+
+@UndocumentedExperimental
+enum class ButtonType {
+    Default,
+    Primary,
+    Disabled,
+    Error,
+}
+
+@UndocumentedExperimental
+object ButtonCornerRadius: Style.Key<Pixels>(
+    6.px,
+    defaultAccessible = 0.px,
+)
 
 /** Draw a standard button, with [text] being drawn in the centre. [focused]
  *  describes whether this button has focus (e.g. keyboard focus). An icon can
@@ -13,30 +25,50 @@ import com.exerro.simpleui.px
  *  **Note:** The standard size for buttons is (192px, 32px). */
 fun DrawContext.button(
     text: String,
-    backgroundColour: Colour,
-    highlightColour: Colour = Colours.teal,
-    textColour: Colour = Colours.white,
-    shadowColour: Colour = Colours.black,
+    style: Style,
+    type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
     icon: String? = null,
     iconIsResource: Boolean = true,
 ) {
-    shadow(cornerRadius = 6.px, colour = shadowColour, radius = 10.px)
-    roundedRectangle(cornerRadius = 6.px, colour = backgroundColour)
-    write(text, textColour)
+    val buttonHeight = region.height
+    val cornerRadius = style[ButtonCornerRadius]
+    val focusUnderlineThickness = style[Style.FocusUnderlineThickness].px
+    val shadowRadius = style[Style.ShadowRadius].px
+    val shadowOffset = style[Style.ShadowOffset].px
+    val backgroundColourKey = when (type) {
+        ButtonType.Default -> Style.ElementBackgroundColour
+        ButtonType.Primary -> Style.PrimaryBackgroundColour
+        ButtonType.Disabled -> Style.DisabledBackgroundColour
+        ButtonType.Error -> Style.ErrorBackgroundColour
+    }
+    val textColourKey = when (type) {
+        ButtonType.Default -> Style.ForegroundColour
+        ButtonType.Primary -> Style.PrimaryForegroundColour
+        ButtonType.Disabled -> Style.DisabledForegroundColour
+        ButtonType.Error -> Style.ErrorForegroundColour
+    }
+    val focusColourKey = when (type) {
+        ButtonType.Default -> Style.PrimaryBackgroundColour
+        else -> textColourKey
+    }
+
+    shadow(cornerRadius = cornerRadius, colour = style[Style.ShadowColour], radius = shadowRadius, offset = shadowOffset)
+    roundedRectangle(cornerRadius = cornerRadius, colour = style[backgroundColourKey])
+    write(text, style[textColourKey])
 
     if (focused) {
-        region.resizeTo(height = 2.px, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
-            region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
-                roundedRectangle(cornerRadius = 6.px, colour = highlightColour)
+        region.resizeTo(height = focusUnderlineThickness, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
+            region.resizeTo(height = buttonHeight.px, verticalAlignment = 0f).draw {
+                roundedRectangle(cornerRadius = cornerRadius, colour = style[focusColourKey])
             }
         }
     }
 
-    if (icon != null) {
-        val iconRegion = region.resizeTo(width = region.height.px, horizontalAlignment = 0f)
-        iconRegion.withPadding(6.px).draw { image(icon, textColour, iconIsResource) }
-    }
+    if (icon != null) region
+        .resizeTo(width = region.height.px, horizontalAlignment = 0f)
+        .withPadding(6.px)
+        .draw { image(icon, style[textColourKey], iconIsResource) }
 }
 
 /** Draw a standard icon button, with [icon] being drawn in the centre.
@@ -45,24 +77,42 @@ fun DrawContext.button(
  *  **Note:** The standard size for icon buttons is (48px, 48px). */
 fun DrawContext.iconButton(
     icon: String,
-    backgroundColour: Colour,
-    highlightColour: Colour = Colours.teal,
-    iconColour: Colour = Colours.white,
-    shadowColour: Colour = Colours.black,
+    style: Style,
+    type: ButtonType,
     focused: Boolean = false,
     iconIsResource: Boolean = true,
 ) {
-    shadow(cornerRadius = 50.percent, colour = shadowColour, radius = 10.px)
-    roundedRectangle(cornerRadius = 50.percent, colour = backgroundColour)
+    val focusUnderlineThickness = style[Style.FocusUnderlineThickness].px
+    val shadowRadius = style[Style.ShadowRadius].px
+    val shadowOffset = style[Style.ShadowOffset].px
+    val backgroundColourKey = when (type) {
+        ButtonType.Default -> Style.ElementBackgroundColour
+        ButtonType.Primary -> Style.PrimaryBackgroundColour
+        ButtonType.Disabled -> Style.DisabledBackgroundColour
+        ButtonType.Error -> Style.ErrorBackgroundColour
+    }
+    val textColourKey = when (type) {
+        ButtonType.Default -> Style.ForegroundColour
+        ButtonType.Primary -> Style.PrimaryForegroundColour
+        ButtonType.Disabled -> Style.DisabledForegroundColour
+        ButtonType.Error -> Style.ErrorForegroundColour
+    }
+    val focusColourKey = when (type) {
+        ButtonType.Default -> Style.PrimaryBackgroundColour
+        else -> textColourKey
+    }
+
+    shadow(cornerRadius = 50.percent, colour = style[Style.ShadowColour], radius = shadowRadius, offset = shadowOffset)
+    roundedRectangle(cornerRadius = 50.percent, colour = style[backgroundColourKey])
 
     if (focused) {
         val thisRegion = region
-        region.resizeTo(height = 5.px, width = 100.percent, verticalAlignment = 1f).draw(clip = true) {
+        region.resizeTo(height = 20.percent, width = 100.percent, verticalAlignment = 1f).rounded().draw(clip = true) {
             thisRegion.withPadding(1.px).draw {
-                roundedRectangle(cornerRadius = 50.percent, colour = backgroundColour, borderColour = highlightColour, borderWidth = 2.px)
+                roundedRectangle(cornerRadius = 50.percent, colour = Colours.transparent, borderColour = style[focusColourKey], borderWidth = focusUnderlineThickness)
             }
         }
     }
 
-    region.withPadding(12.px).draw { image(icon, iconColour, iconIsResource) }
+    region.withPadding(12.px).draw { image(icon, style[textColourKey], iconIsResource) }
 }

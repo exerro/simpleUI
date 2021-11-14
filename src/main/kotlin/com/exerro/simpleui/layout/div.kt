@@ -1,12 +1,12 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import kotlin.math.round
 
-@Undocumented
+@UndocumentedExperimental
 fun DefinedLayoutContext.hdiv(
     vararg partitions: Pixels,
     spacing: Pixels = 0.px,
@@ -50,7 +50,7 @@ fun DefinedLayoutContext.hdiv(
     }
 }
 
-@Undocumented
+@UndocumentedExperimental
 fun DefinedLayoutContext.vdiv(
     vararg partitions: Pixels,
     spacing: Pixels = 0.px,

@@ -1,10 +1,10 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 
-@Undocumented
+@UndocumentedExperimental
 fun <W: Float?, H: Float?, CW: Float?, CH: Float?> LayoutContext<W, H, CW, CH>.withTranslation(
     dx: Pixels = 0.px,
     dy: Pixels = 0.px,

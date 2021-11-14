@@ -1,11 +1,11 @@
 package com.exerro.simpleui.layout
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 import kotlin.math.round
 
-@Undocumented
+@UndocumentedExperimental
 fun LayoutContext<Float, Nothing?, Nothing?, Float>.vflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
@@ -37,7 +37,7 @@ fun LayoutContext<Float, Nothing?, Nothing?, Float>.vflow(
     }
 }
 
-@Undocumented
+@UndocumentedExperimental
 fun LayoutContext<Nothing?, Float, Float, Nothing?>.hflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,

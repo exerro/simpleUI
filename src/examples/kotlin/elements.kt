@@ -1,7 +1,7 @@
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.colour.RGBA
+import com.exerro.simpleui.ui.Style
 import com.exerro.simpleui.extensions.*
 import kotlin.time.TimeMark
 
@@ -21,13 +21,18 @@ data class ElementModel(
     val primaryColour: Colour,
     val movedAt: TimeMark,
 ) {
-    val backgroundColour: Colour get() = if (darkTheme) RGBA(0x18, 0x19, 0x19) else RGBA(0xe8, 0xe9, 0xe9)
-    val elementBackgroundColour: Colour get() = if (darkTheme) RGBA(0x1e, 0x1f, 0x1f) else RGBA(0xf1, 0xf2, 0xf2)
-    val alternateBackgroundColour: Colour get() = if (darkTheme) backgroundColour.darken(0.05f) else backgroundColour.darken(0.05f)
-    val shadowColour: Colour get() = if (darkTheme) Colours.pureBlack else Colours.lightGrey.withAlpha(0.8f)
-    val textColour: Colour get() = if (darkTheme) Colours.white else Colours.black
-    val alternateTextColour: Colour get() = if (darkTheme) Colours.lightGrey else Colours.grey
-    val disabledColour: Colour get() = if (darkTheme) Colours.grey else Colours.lightGrey
+    val baseStyle get() = if (darkTheme) Style.Accessible else Style.Light
+    val style get() = Style.combine(
+        baseStyle,
+        Style.fromMap(mapOf(Style.PrimaryBackgroundColour to primaryColour), baseStyle.attributes)
+    )
+    val backgroundColour: Colour get() = style[Style.BackgroundColour]
+    val elementBackgroundColour: Colour get() = style[Style.ElementBackgroundColour]
+    val alternateBackgroundColour: Colour get() = style[Style.AlternateBackgroundColour]
+    val shadowColour: Colour get() = style[Style.ShadowColour]
+    val textColour: Colour get() = style[Style.ForegroundColour]
+    val alternateTextColour: Colour get() = style[Style.AlternateForegroundColour]
+    val disabledColour: Colour get() = style[Style.DisabledBackgroundColour]
 }
 
 /** Draw the model and rows of elements to the window. */
@@ -49,11 +54,11 @@ fun Window.drawModel(model: ElementModel, rows: List<Row>) = draw {
         val rowItems = rowContent.listHorizontally(192.px, spacing = 32.px)
 
         rowHeader.draw {
-            write(rows[y].name, model.alternateTextColour, horizontalAlignment = 0f, font = Font.heading)
+            write(rows[y].name, model.style[Style.HeaderForegroundColour], horizontalAlignment = 0f, font = Font.heading)
         }
 
-        if (y > 0) rowHeader.above(16.px).resizeTo(height = 1.px).rounded().draw {
-            fill(model.disabledColour)
+        if (y > 0) rowHeader.above(16.px).resizeTo(height = model.style[Style.SeparatorThickness].px).rounded().draw {
+            fill(model.style[Style.SeparatorColour])
         }
 
         for ((x, drawElement) in row.elements.withIndex()) {
@@ -72,7 +77,7 @@ fun main() {
     var currentModel = ElementModel(
         focusedRow = 0,
         focusedColumn = 0,
-        darkTheme = true,
+        darkTheme = false,
         primaryColour = Colours.teal,
         movedAt = window.createdAt,
     )
@@ -89,37 +94,49 @@ fun main() {
     // Add buttons
     addElement(0, 0) { model, focused ->
         region.resizeTo(height = 32.px).draw {
-            button("CONFIRM", model.primaryColour, highlightColour = Colours.white, textColour = Colours.white, shadowColour = model.shadowColour, focused = focused)
+            button("CONFIRM", model.style, type = ButtonType.Primary, focused = focused)
         }
     }
 
     addElement(0, 1) { model, focused ->
         region.resizeTo(height = 32.px).draw {
-            button("CANCEL", Colours.red, highlightColour = Colours.white, textColour = Colours.white, shadowColour = model.shadowColour, focused = focused)
+            button("CANCEL", model.style, type = ButtonType.Error, focused = focused)
         }
     }
 
     addElement(0, 2) { model, focused ->
         region.resizeTo(height = 32.px).draw {
-            button("DISABLED", model.disabledColour, highlightColour = Colours.white, textColour = Colours.white, shadowColour = model.shadowColour, focused = focused)
+            button("DISABLED", model.style, type = ButtonType.Disabled, focused = focused)
         }
     }
 
     addElement(0, 3) { model, focused ->
         region.resizeTo(height = 32.px).draw {
-            button("ACTION", model.elementBackgroundColour, model.primaryColour, model.textColour, model.shadowColour, focused = focused)
+            button("ACTION", model.style, type = ButtonType.Default, focused = focused)
         }
     }
 
     addElement(0, 4) { model, focused ->
         region.resizeTo(height = 32.px).draw {
-            button("SEARCH", model.elementBackgroundColour, model.primaryColour, model.textColour, model.shadowColour, focused = focused, icon = "images/search.png")
+            button("SEARCH", model.style, type = ButtonType.Default, focused = focused, icon = "images/search.png")
         }
     }
 
     addElement(0, 5) { model, focused ->
-        region.resizeTo(width = 48.px, horizontalAlignment = 0f).draw {
-            iconButton("images/search.png", model.elementBackgroundColour, highlightColour = model.primaryColour, model.textColour, model.shadowColour, focused = focused)
+        val b0 = region.resizeTo(width = 48.px, horizontalAlignment = 0f)
+        val b1 = b0.toRight(32.px).toRight(48.px)
+        val b2 = b1.toRight(32.px).toRight(48.px)
+
+        b0.draw {
+            iconButton("images/search.png", style = model.style, type = ButtonType.Primary, focused = focused)
+        }
+
+        b1.draw {
+            iconButton("images/search.png", style = model.style, type = ButtonType.Disabled, focused = focused)
+        }
+
+        b2.draw {
+            iconButton("images/search.png", style = model.style, type = ButtonType.Default, focused = focused)
         }
     }
 
