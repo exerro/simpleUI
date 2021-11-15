@@ -1,8 +1,9 @@
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.ui.Style
 import com.exerro.simpleui.extensions.*
+import com.exerro.simpleui.ui.Style
+import com.exerro.simpleui.ui.get
 import kotlin.time.TimeMark
 
 /** Element data for a row of elements. [name] is a label for the row, [height]
@@ -21,7 +22,7 @@ data class ElementModel(
     val primaryColour: Colour,
     val movedAt: TimeMark,
 ) {
-    val baseStyle get() = if (darkTheme) Style.Accessible else Style.Light
+    val baseStyle get() = if (darkTheme) Style.Dark else Style.Light
     val style get() = Style.combine(
         baseStyle,
         Style.fromMap(mapOf(Style.PrimaryBackgroundColour to primaryColour), baseStyle.attributes)
@@ -31,8 +32,6 @@ data class ElementModel(
     val alternateBackgroundColour: Colour get() = style[Style.AlternateBackgroundColour]
     val shadowColour: Colour get() = style[Style.ShadowColour]
     val textColour: Colour get() = style[Style.ForegroundColour]
-    val alternateTextColour: Colour get() = style[Style.AlternateForegroundColour]
-    val disabledColour: Colour get() = style[Style.DisabledBackgroundColour]
 }
 
 /** Draw the model and rows of elements to the window. */
@@ -70,7 +69,7 @@ fun Window.drawModel(model: ElementModel, rows: List<Row>) = draw {
 /** Demonstrates a simple application with a single window with "Hello world"
  *  written in the centre. */
 fun main() {
-    // Create a window, titled "HelloWorld".
+    // Create a window, titled "Elements".
     val window = GLFWWindowCreator.createWindow("Elements")
 
     // Keep track of mutable state
@@ -83,7 +82,7 @@ fun main() {
     )
 
     // Define the rows in the stuff we're drawing
-    val rowData = listOf("Buttons" to 48.px, "Text inputs" to 48.px, "Sliders" to 24.px, "Dropdowns" to 128.px, "Toggles" to 192.px)
+    val rowData = listOf("Dropdowns" to 128.px)
     val rows = rowData.map { (name, height) -> Row(name, height + 8.px + Font.heading.lineHeight.px, mutableListOf()) }
 
     // Add a utility function to simplify adding elements
@@ -91,128 +90,8 @@ fun main() {
         rows[row].elements.add(column, draw)
     }
 
-    // Add buttons
-    addElement(0, 0) { model, focused ->
-        region.resizeTo(height = 32.px).draw {
-            button("CONFIRM", model.style, type = ButtonType.Primary, focused = focused)
-        }
-    }
-
-    addElement(0, 1) { model, focused ->
-        region.resizeTo(height = 32.px).draw {
-            button("CANCEL", model.style, type = ButtonType.Error, focused = focused)
-        }
-    }
-
-    addElement(0, 2) { model, focused ->
-        region.resizeTo(height = 32.px).draw {
-            button("DISABLED", model.style, type = ButtonType.Disabled, focused = focused)
-        }
-    }
-
-    addElement(0, 3) { model, focused ->
-        region.resizeTo(height = 32.px).draw {
-            button("ACTION", model.style, type = ButtonType.Default, focused = focused)
-        }
-    }
-
-    addElement(0, 4) { model, focused ->
-        region.resizeTo(height = 32.px).draw {
-            button("SEARCH", model.style, type = ButtonType.Default, focused = focused, icon = "images/search.png")
-        }
-    }
-
-    addElement(0, 5) { model, focused ->
-        val b0 = region.resizeTo(width = 48.px, horizontalAlignment = 0f)
-        val b1 = b0.toRight(32.px).toRight(48.px)
-        val b2 = b1.toRight(32.px).toRight(48.px)
-
-        b0.draw {
-            iconButton("images/search.png", style = model.style, type = ButtonType.Primary, focused = focused)
-        }
-
-        b1.draw {
-            iconButton("images/search.png", style = model.style, type = ButtonType.Disabled, focused = focused)
-        }
-
-        b2.draw {
-            iconButton("images/search.png", style = model.style, type = ButtonType.Default, focused = focused)
-        }
-    }
-
-    // Add text inputs
-    addElement(1, 0) { model, focused ->
-        val textBuffer = TextBufferBuilder {
-            if (focused) emitCursor(model.primaryColour, model.movedAt)
-            emitText("Placeholder...", model.alternateTextColour)
-        }
-
-        region.resizeTo(height = 48.px).draw {
-            textInput(textBuffer, model.elementBackgroundColour, model.primaryColour, model.shadowColour, focused)
-        }
-    }
-
-    addElement(1, 1) { model, focused ->
-        val textBuffer = TextBufferBuilder(defaultColour = model.textColour) {
-            emitText("I")
-            if (focused) beginDecoration(TextBuffer.Decoration.Highlight, Colours.red.withAlpha(0.4f))
-            emitText("nva")
-            if (focused) stopDecoration(TextBuffer.Decoration.Highlight)
-            if (focused) emitCursor(Colours.red)
-            emitText("lid")
-        }
-
-        region.resizeTo(height = 48.px).draw {
-            textInput(textBuffer, model.elementBackgroundColour, Colours.red, model.shadowColour, focused)
-        }
-    }
-
-    addElement(1, 2) { model, focused ->
-        val textBuffer = TextBufferBuilder {
-            emitText("Disabled", model.textColour)
-        }
-
-        region.resizeTo(height = 48.px).draw {
-            textInput(textBuffer, model.elementBackgroundColour, model.disabledColour, model.shadowColour, focused)
-        }
-    }
-
-    addElement(1, 3) { model, focused ->
-        val textBuffer = TextBufferBuilder {
-            emitText("Something", model.textColour)
-            if (focused) emitCursor(model.primaryColour, model.movedAt)
-        }
-
-        region.resizeTo(height = 48.px).draw {
-            textInput(textBuffer, model.elementBackgroundColour, model.primaryColour, model.shadowColour, focused = focused, icon = "images/search.png", iconColour = model.textColour)
-        }
-    }
-
-    // Add sliders
-    addElement(2, 0) { model, focused ->
-        slider(0.3f, model.elementBackgroundColour, model.primaryColour.takeIf { focused }, model.shadowColour)
-    }
-
-    addElement(2, 1) { model, _ ->
-        region.resizeTo(height = 24.px).draw {
-            progress(0.3f, model.elementBackgroundColour, model.primaryColour, null, model.shadowColour)
-        }
-    }
-
-    addElement(2, 2) { model, _ ->
-        region.resizeTo(height = 24.px).draw {
-            progress(0.6f, model.elementBackgroundColour, model.primaryColour, Colours.white, model.shadowColour)
-        }
-    }
-
-    addElement(2, 3) { model, _ ->
-        region.resizeTo(height = 24.px).draw {
-            progress(0.2f, model.elementBackgroundColour, model.primaryColour, Colours.white, model.shadowColour)
-        }
-    }
-
     // Add dropdowns
-    addElement(3, 0) { model, focused ->
+    addElement(0, 0) { model, focused ->
         region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
             dropdown("Option 1", emptyList(), model.elementBackgroundColour, model.primaryColour, model.shadowColour, focused, iconColour = model.textColour) {
                 region.withPadding(left = 16.px).draw {
@@ -222,103 +101,15 @@ fun main() {
         }
     }
 
-    addElement(3, 1) { model, focused ->
+    addElement(0, 1) { model, focused ->
         region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
             dropdown("Option 1", listOf("Option 1", "Option 2", "Option 3"), model.elementBackgroundColour, model.primaryColour, model.textColour, model.shadowColour, focused, 1, iconColour = model.textColour)
         }
     }
 
-    addElement(3, 2) { model, focused ->
+    addElement(0, 2) { model, focused ->
         region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
             dropdown("Option 1", listOf("Option 1", "Option 2", "Option 3"), model.elementBackgroundColour, model.primaryColour, model.textColour, model.shadowColour, focused, 0, iconColour = model.textColour)
-        }
-    }
-
-    // Add toggles
-    // TODO: these need standardising
-    addElement(4, 0) { model, focused ->
-        region.listVertically(24.px, spacing = 8.px).take(6).draw { index ->
-            val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
-            val textBuffer = TextBufferBuilder("Radio button ${"$index".repeat(index)}", model.textColour)
-            val textBufferRegion = label.withPadding(4.px).draw { textBufferBounds(textBuffer, horizontalAlignment = 0f) }
-
-            if (focused && index == 3) {
-                listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {
-                    shadow(model.shadowColour, cornerRadius = 8.px)
-                    roundedRectangle(8.px, model.elementBackgroundColour)
-                }
-            }
-
-            button.withPadding(4.px).draw {
-                shadow(model.shadowColour, cornerRadius = 50.percent)
-                ellipse(model.elementBackgroundColour)
-                if (index == 2) region.withPadding(4.px).draw { ellipse(model.primaryColour) }
-            }
-
-            label.withPadding(4.px).draw {
-                write(textBuffer, horizontalAlignment = 0f)
-            }
-        }
-    }
-
-    // TODO: these need standardising
-    addElement(4, 1) { model, focused ->
-        region.listVertically(24.px, spacing = 8.px).take(6).draw { index ->
-            val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
-            val textBuffer = TextBufferBuilder("Checkbox ${"$index".repeat(index)}", model.textColour)
-            val textBufferRegion = label.withPadding(4.px).draw { textBufferBounds(textBuffer, horizontalAlignment = 0f) }
-
-            if (focused && index == 4) {
-                listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {
-                    shadow(model.shadowColour, cornerRadius = 8.px)
-                    roundedRectangle(8.px, model.elementBackgroundColour)
-                }
-            }
-
-            button.withPadding(4.px).draw {
-                shadow(model.shadowColour, cornerRadius = 2.px)
-                roundedRectangle(2.px, model.elementBackgroundColour)
-                if (index % 2 == 1) region.withPadding(4.px).draw { fill(model.primaryColour) }
-            }
-
-            label.withPadding(4.px).draw {
-                write(textBuffer, horizontalAlignment = 0f)
-            }
-        }
-    }
-
-    // TODO: these need standardising and adding a focus graphic
-    addElement(4, 2) { model, _ ->
-        region.listVertically(24.px, spacing = 8.px).take(6).draw { index ->
-            val r = region.resizeTo(width = 96.px, horizontalAlignment = 0f)
-            val (left, right) = r.withPadding(horizontal = 4.px).splitHorizontally()
-            val isOn = index % 3 == 1
-            val drawAnything = index % 2 == 0
-
-            if (drawAnything) r.draw {
-                shadow(cornerRadius = 50.percent, colour = model.shadowColour)
-                roundedRectangle(50.percent, model.elementBackgroundColour)
-            }
-
-            if (drawAnything) r.withPadding(4.px).resizeTo(width = 50.percent, horizontalAlignment = if (isOn) 0f else 1f).draw {
-                roundedRectangle(50.percent, model.primaryColour)
-            }
-
-            if (drawAnything) left.draw(clip = true) {
-                left.resizeTo(region.width.px + region.height.px, horizontalAlignment = 0f).draw {
-//                    roundedRectangle(50.percent, if (isOn) primaryColour else model.lighterBackgroundColour)
-                }
-
-                region.withPadding(4.px).draw { write("ON", colour = if (isOn) Colours.white else model.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
-            }
-
-            if (drawAnything) right.draw(clip = true) {
-                right.resizeTo(region.width.px + region.height.px, horizontalAlignment = 1f).draw {
-//                    roundedRectangle(50.percent, if (!isOn) primaryColour else model.lighterBackgroundColour)
-                }
-
-                region.withPadding(4.px).draw { write("OFF", colour = if (!isOn) Colours.white else model.textColour, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
-            }
         }
     }
 

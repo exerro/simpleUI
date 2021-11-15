@@ -5,8 +5,8 @@ import com.exerro.simpleui.px
 /** Demonstrates a simple application with a single window with "Hello world"
  *  written in the centre. */
 fun main() {
-    // Create a window, titled "HelloWorld".
-    val window = GLFWWindowCreator.createWindow("HelloWorld")
+    // Create a window, titled "Hello World".
+    val window = GLFWWindowCreator.createWindow("Hello World")
 
     // Draw to this window. The function provided here may be called many times,
     // for example after the window resizes, or during some animation.

@@ -4,18 +4,19 @@ import com.exerro.simpleui.Alignment
 import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
-import com.exerro.simpleui.ui.ParentContext
-import com.exerro.simpleui.ui.ResolvedChild
-import com.exerro.simpleui.ui.modifier
+import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <ParentHeight: Float?, ChildHeight: Float?> ParentContext<Float, ParentHeight, Nothing?, ChildHeight>.withHorizontalAlignment(
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.withHorizontalAlignment(
     horizontalAlignment: Alignment,
-) = modifier<Float, ParentHeight, Nothing?, ChildHeight, Float, ChildHeight> { _, _, _, _, (childWidth, childHeight, draw: DrawContext.() -> Unit) ->
-    ResolvedChild(null, childHeight) {
-        region.resizeTo(
-            width = childWidth.px,
-            horizontalAlignment = horizontalAlignment,
-        ).draw(draw = draw)
+) = modifier<Model, Float, ParentHeight, Nothing?, ChildHeight, Nothing?, ParentHeight, Float, ChildHeight>(
+    { _, h, aw, ah -> ModifiedSizes(null, h, aw, ah) },
+    { _, _, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
+        ResolvedComponent(null, childHeight, eventHandlers) {
+            region.resizeTo(
+                width = childWidth.px,
+                horizontalAlignment = horizontalAlignment,
+            ).draw(draw = draw)
+        }
     }
-}
+)

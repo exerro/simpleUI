@@ -1,8 +1,28 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.DrawContext
+import com.exerro.simpleui.EKeyPressed
 import com.exerro.simpleui.UndocumentedExperimental
-import com.exerro.simpleui.WindowEvent
+
+@UndocumentedExperimental
+fun ComponentContext<*, *, *, *, *>.bind(keybind: ActionKeybind, behaviour: () -> Boolean) = connectEventHandler { event ->
+    if (event !is EKeyPressed) return@connectEventHandler false
+    val handled = keybind.keyName == event.name && keybind.modifiers == event.modifiers && (keybind.allowRepeats || !event.isRepeat)
+
+    handled && behaviour()
+}
+
+@UndocumentedExperimental
+fun ComponentContext<*, *, *, *, *>.bind(action: Action, behaviour: () -> Boolean) = connectEventHandler { event ->
+    if (event !is EKeyPressed) return@connectEventHandler false
+    val keybinds = model.keybinds[action]
+    val handled = keybinds.any {
+        it.keyName == event.name && it.modifiers == event.modifiers && (it.allowRepeats || !event.isRepeat)
+    }
+
+    handled && behaviour()
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @UndocumentedExperimental
 data class ModifiedSizes<Width: Float?, Height: Float?>(
@@ -13,87 +33,95 @@ data class ModifiedSizes<Width: Float?, Height: Float?>(
 )
 
 @UndocumentedExperimental
-fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, ChildWidth, ChildHeight>.noChildren(
-    declareWidth: ChildWidth,
-    declareHeight: ChildHeight
-) = children<Nothing?, Nothing?, Nothing?, Nothing?>({}) { _, _, _, _, drawFunctions, _ ->
-    ResolvedChild(declareWidth, declareHeight) {
+fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.noChildren(
+    resolveComponent: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> ResolvedComponent<ChildWidth, ChildHeight>
+) = children<Nothing?, Nothing?, Nothing?, Nothing?>({}) { w, h, aw, ah, drawFunctions, eventHandlers, _ ->
+    resolveComponent(w, h, aw, ah, drawFunctions, eventHandlers)
+}
+
+@UndocumentedExperimental
+inline fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.noChildren(
+    crossinline resolveChildSize: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float) -> Pair<ChildWidth, ChildHeight>
+) = children<Nothing?, Nothing?, Nothing?, Nothing?>({}) { w, h, aw, ah, drawFunctions, eventHandlers, _ ->
+    val (cw, ch) = resolveChildSize(w, h, aw, ah)
+    ResolvedComponent(cw, ch, eventHandlers) {
         for (f in drawFunctions) f(this)
     }
 }
 
 @UndocumentedExperimental
-fun ComponentContext<*, *, Nothing?, Nothing?>.noChildren() =
-    noChildren(null, null)
+fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareSize(
+    width: ChildWidth,
+    height: ChildHeight
+) = noChildren { _, _, _, _ -> width to height }
 
 @UndocumentedExperimental
 @JvmName("noChildrenW")
-fun ComponentContext<*, *, Float, Nothing?>.noChildren(declareWidth: Float) =
-    noChildren(declareWidth, null)
+fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareWidth(width: ChildWidth): ComponentReturn =
+    noChildren { _, _, _, _ -> width to null }
 
 @UndocumentedExperimental
 @JvmName("noChildrenH")
-fun ComponentContext<*, *, Nothing?, Float>.noChildren(declareHeight: Float) =
-    noChildren(null, declareHeight)
+fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareHeight(height: ChildHeight) =
+    noChildren { _, _, _, _ -> null to height }
 
 @UndocumentedExperimental
-fun <OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ParentContext<OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
+fun ComponentContext<*, *, *, Nothing?, Nothing?>.noChildren() =
+    noChildren { _, _, _, _ -> null to null }
+
+@UndocumentedExperimental
+@JvmName("noChildrenWD")
+fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareDefaultSize(
+    width: Float,
+    height: Float,
+) = noChildren { w, h, _, _ -> (if (w == null) width else null) as ChildWidth to (if (h == null) height else null) as ChildHeight }
+
+@UndocumentedExperimental
+@JvmName("noChildrenWD")
+fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareDefaultWidth(
+    width: Float
+) = noChildren { w, _, _, _ -> (if (w == null) width else null) as ChildWidth to null }
+
+@UndocumentedExperimental
+@JvmName("noChildrenHD")
+fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareDefaultHeight(
+    height: Float
+) = noChildren { _, h, _, _ -> null to (if (h == null) height else null) as ChildHeight }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@UndocumentedExperimental
+fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ParentContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
     modifyParentSize: (OldParentWidth, OldParentHeight, Float, Float) -> ModifiedSizes<NewParentWidth, NewParentHeight>,
-    modify: (OldParentWidth, OldParentHeight, Float, Float, ModifiedSizes<NewParentWidth, NewParentHeight>, ResolvedChild<NewChildWidth, NewChildHeight>) -> ResolvedChild<OldChildWidth, OldChildHeight>
-): ParentContext<NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+    modify: (OldParentWidth, OldParentHeight, Float, Float, ModifiedSizes<NewParentWidth, NewParentHeight>, ResolvedComponent<NewChildWidth, NewChildHeight>) -> ResolvedComponent<OldChildWidth, OldChildHeight>
+): ParentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
     val parentContext = this
-    return object : ParentContext<NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+    return object : ParentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+        override val model: Model get() = parentContext.model
+        override fun setModel(model: Model) = parentContext.setModel(model)
+
         override fun rawComponent(
             elementType: String,
             trackingId: Any?,
-            init: ComponentContext<NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight>.() -> ChildReturn
+            init: ComponentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight>.() -> ComponentReturn
         ) = parentContext.rawComponent(elementType, trackingId) {
             val pContext = this
 
-            object: ComponentContext<NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+            object: ComponentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
                 override val thisComponentId get() = pContext.thisComponentId
+                override val model: Model get() = pContext.model
+                override fun setModel(model: Model) = pContext.setModel(model)
                 override fun refresh() = pContext.refresh()
                 override fun <ParentHeight : HookState> getHookStateOrRegister(newHook: () -> ParentHeight) = pContext.getHookStateOrRegister(newHook)
-                override fun onDraw(draw: DrawContext.() -> Unit) = pContext.onDraw(draw)
-                override fun connectEventHandler(handler: (WindowEvent) -> Unit) = pContext.connectEventHandler(handler)
+                override fun onDraw(draw: ComponentDrawFunction) = pContext.onDraw(draw)
+                override fun connectEventHandler(handler: ComponentEventHandler) = pContext.connectEventHandler(handler)
 
                 override fun <SubParentWidth : Float?, SubParentHeight : Float?, SubChildWidth : Float?, SubChildHeight : Float?> children(
-                    getChildren: ParentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
-                    resolveChildren: (NewParentWidth, NewParentHeight, Float, Float, List<DrawContext.() -> Unit>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedChild<SubChildWidth, SubChildHeight>>) -> ResolvedChild<NewChildWidth, NewChildHeight>
-                ) = pContext.children(getChildren) { width, height, availableWidth, availableHeight, drawFunctions, children ->
+                    getChildren: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+                    resolveComponent: (NewParentWidth, NewParentHeight, Float, Float, List<ComponentDrawFunction>, List<ComponentEventHandler>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>) -> ResolvedComponent<NewChildWidth, NewChildHeight>
+                ) = pContext.children(getChildren) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
                     val m = modifyParentSize(width, height, availableWidth, availableHeight)
-                    modify(width, height, availableWidth, availableHeight, m, resolveChildren(m.width, m.height, m.availableWidth, m.availableHeight, drawFunctions, children))
-                }
-            } .init()
-        }
-    }
-}
-
-@UndocumentedExperimental
-fun <OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ParentContext<OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
-    modify: (OldParentWidth, OldParentHeight, Float, Float, ResolvedChild<NewChildWidth, NewChildHeight>) -> ResolvedChild<OldChildWidth, OldChildHeight>
-): ParentContext<Nothing?, Nothing?, NewChildWidth, NewChildHeight> {
-    val parentContext = this
-    return object : ParentContext<Nothing?, Nothing?, NewChildWidth, NewChildHeight> {
-        override fun rawComponent(
-            elementType: String,
-            trackingId: Any?,
-            init: ComponentContext<Nothing?, Nothing?, NewChildWidth, NewChildHeight>.() -> ChildReturn
-        ) = parentContext.rawComponent(elementType, trackingId) {
-            val pContext = this
-
-            object: ComponentContext<Nothing?, Nothing?, NewChildWidth, NewChildHeight> {
-                override val thisComponentId get() = pContext.thisComponentId
-                override fun refresh() = pContext.refresh()
-                override fun <ParentHeight : HookState> getHookStateOrRegister(newHook: () -> ParentHeight) = pContext.getHookStateOrRegister(newHook)
-                override fun onDraw(draw: DrawContext.() -> Unit) = pContext.onDraw(draw)
-                override fun connectEventHandler(handler: (WindowEvent) -> Unit) = pContext.connectEventHandler(handler)
-
-                override fun <SubParentWidth : Float?, SubParentHeight : Float?, SubChildWidth : Float?, SubChildHeight : Float?> children(
-                    getChildren: ParentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
-                    handleChildren: (Nothing?, Nothing?, Float, Float, List<DrawContext.() -> Unit>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedChild<SubChildWidth, SubChildHeight>>) -> ResolvedChild<NewChildWidth, NewChildHeight>
-                ) = pContext.children(getChildren) { width, height, availableWidth, availableHeight, drawFunctions, children ->
-                    modify(width, height, availableWidth, availableHeight, handleChildren(null, null, availableWidth, availableHeight, drawFunctions, children))
+                    modify(width, height, availableWidth, availableHeight, m, resolveComponent(m.width, m.height, m.availableWidth, m.availableHeight, drawFunctions, eventHandlers, children))
                 }
             } .init()
         }

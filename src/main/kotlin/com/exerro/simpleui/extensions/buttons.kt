@@ -3,6 +3,7 @@ package com.exerro.simpleui.extensions
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.ui.Style
+import com.exerro.simpleui.ui.get
 
 @UndocumentedExperimental
 enum class ButtonType {
@@ -11,12 +12,6 @@ enum class ButtonType {
     Disabled,
     Error,
 }
-
-@UndocumentedExperimental
-object ButtonCornerRadius: Style.Key<Pixels>(
-    6.px,
-    defaultAccessible = 0.px,
-)
 
 /** Draw a standard button, with [text] being drawn in the centre. [focused]
  *  describes whether this button has focus (e.g. keyboard focus). An icon can
@@ -32,7 +27,7 @@ fun DrawContext.button(
     iconIsResource: Boolean = true,
 ) {
     val buttonHeight = region.height
-    val cornerRadius = style[ButtonCornerRadius]
+    val cornerRadius = style[Style.ButtonCornerRadius]
     val focusUnderlineThickness = style[Style.FocusUnderlineThickness].px
     val shadowRadius = style[Style.ShadowRadius].px
     val shadowOffset = style[Style.ShadowOffset].px

@@ -1,46 +1,51 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.UndocumentedExperimental
-import com.exerro.simpleui.percent
-import com.exerro.simpleui.px
-import com.exerro.simpleui.ui.ResolvedChild
+import com.exerro.simpleui.*
+import com.exerro.simpleui.ui.ResolvedComponent
 import com.exerro.simpleui.ui.ParentContext
+import com.exerro.simpleui.ui.UIModel
+import com.exerro.simpleui.ui.internal.divCalculateOverflow
+import com.exerro.simpleui.ui.internal.joinEventHandlers
 import kotlin.math.round
 
-@UndocumentedExperimental
-fun ParentContext<Float, Float, Nothing?, Nothing?>.hdiv(
+/** An hdiv partitions space horizontally. [partitions] specify specific widths
+ *  for the first N children. Space for remaining children (more than the number
+ *  of explicit partitions) is divided evenly. [spacing] defines spacing between
+ *  children, relative to the available width of the hdiv. [reversed] allows
+ *  the order of children to be reversed. If children define the height of the
+ *  hdiv, the maximum height of any child is reported to the parent, and
+ *  children are aligned within this height according to [verticalAlignment]. */
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.hdiv(
     vararg partitions: Pixels,
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
-    init: ParentContext<Float, Float, Nothing?, Nothing?>.() -> Unit
+    verticalAlignment: Alignment = 0.5f,
+    init: ParentContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.() -> Unit
 ) = rawComponent("hdiv") {
-    children(init) { width, height, _, availableHeight, drawFunctions, children ->
-        val overflowAllocation = if (children.size <= partitions.size) 0.px
-        else run {
-            val partitionTotalSize = partitions.fold(0.px) { a, b -> a + b }
-            val spacingSize = spacing * (children.size - 1).toFloat()
-            val overflowedChildren = (children.size - partitions.size).toFloat()
-            (100.percent - partitionTotalSize - spacingSize) / overflowedChildren
-        }
+    children(init) { width, height, _, availableHeight, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(width)
-        val sizes = partitions.toList() + (partitions.size until children.size).map { overflowAllocation }
-        val allocatedChildren = (if (reversed) children.reversed() else children).zip(sizes)
+        val overflowAllocation = divCalculateOverflow(partitions, children.size, spacing).apply(width)
+        val appliedWidths = partitions.map { it.apply(width) } + (partitions.size until children.size).map { overflowAllocation }
+        val allocatedChildren = if (reversed) children.zip(appliedWidths).reversed() else children.zip(appliedWidths)
+        val appliedChildren = allocatedChildren.map { (child, allocatedWidth) ->
+            child(allocatedWidth, height, allocatedWidth, availableHeight)
+        }
+        val childHeight = (if (height == null) if (appliedChildren.isNotEmpty()) appliedChildren.maxOf { it.height as Float } else 0f else null) as ChildHeight
 
-        ResolvedChild(null, null) {
+        ResolvedComponent(null, childHeight, joinEventHandlers(eventHandlers, appliedChildren)) {
             var lastX = 0f
 
             for (f in drawFunctions) f(this)
 
-            allocatedChildren.forEachIndexed { i, (child, size) ->
-                val fixedSize = if (i == allocatedChildren.lastIndex) 100.percent - lastX.px else size
-                val sizeValue = fixedSize.apply(width)
-                val sizeRounded = round(sizeValue)
-                val c = child(sizeRounded, height, sizeRounded, availableHeight)
+            appliedChildren.forEachIndexed { i, c ->
+                val allocatedWidth = if (i == children.lastIndex && children.size > partitions.size) width - lastX else round(appliedWidths[i])
 
-                region.copy(x = region.x + lastX, width = sizeRounded).draw { c.draw(this) }
+                region
+                    .resizeTo(height = (c.height ?: region.height).px, verticalAlignment = verticalAlignment)
+                    .copy(x = region.x + lastX, width = allocatedWidth)
+                    .draw(draw = c.draw)
 
-                lastX += round(sizeValue + spacingValue)
+                lastX += round(appliedWidths[i] + spacingValue)
             }
         }
     }

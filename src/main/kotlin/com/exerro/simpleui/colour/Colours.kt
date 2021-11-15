@@ -88,6 +88,13 @@ object Colours {
     fun random(): Colour =
         RGBA(Math.random(), Math.random(), Math.random())
 
+    // TODO: really nice cream/beige #efe8c5
+    // TODO: really nice reddish brown: #6e362f
+    // TODO: pastel yellow: eedc8e
+    // TODO: burgundy: 552a3f
+    // TODO: yellow: c6b848
+    // TODO: pink: d37dad
+
     /** No colour. */
     val transparent = RGBA(0f, 0f, 0f, 0f)
 

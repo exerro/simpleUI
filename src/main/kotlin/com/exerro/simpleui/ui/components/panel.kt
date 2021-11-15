@@ -6,7 +6,7 @@ import com.exerro.simpleui.ui.ParentDefinedContext
 import com.exerro.simpleui.ui.noChildren
 
 @UndocumentedExperimental
-fun ParentDefinedContext.panel(
+fun ParentDefinedContext<*>.panel(
     colour: Colour
 ) = rawComponent("panel") {
     onDraw { fill(colour) }

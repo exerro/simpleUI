@@ -1,20 +1,17 @@
 package com.exerro.simpleui.ui.modifiers
 
 import com.exerro.simpleui.*
-import com.exerro.simpleui.ui.ModifiedSizes
-import com.exerro.simpleui.ui.ParentContext
-import com.exerro.simpleui.ui.ResolvedChild
-import com.exerro.simpleui.ui.modifier
+import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <ParentHeight: Float?, ChildHeight: Float?> ParentContext<Nothing?, ParentHeight, Float, ChildHeight>.withWidth(
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.withWidth(
     width: Pixels,
-) = modifier<Nothing?, ParentHeight, Float, ChildHeight, Float, ParentHeight, Nothing?, ChildHeight>(
+) = modifier<Model, Nothing?, ParentHeight, Float, ChildHeight, Float, ParentHeight, Nothing?, ChildHeight>(
     { _, h, availableWidth, availableHeight ->
         val newWidth = width.apply(availableWidth)
         ModifiedSizes(newWidth, h, newWidth, availableHeight)
     },
-    { _, _, _, _, m, (_, childHeight, draw: DrawContext.() -> Unit) ->
-        ResolvedChild(m.width, childHeight, draw)
+    { _, _, _, _, m, (_, childHeight, eventHandlers, draw) ->
+        ResolvedComponent(m.width, childHeight, eventHandlers, draw)
     }
 )

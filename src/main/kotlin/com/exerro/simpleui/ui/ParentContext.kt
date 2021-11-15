@@ -3,14 +3,9 @@ package com.exerro.simpleui.ui
 import com.exerro.simpleui.UndocumentedExperimental
 
 @UndocumentedExperimental
-typealias ParentDefinedContext = ParentContext<Float, Float, Nothing?, Nothing?>
-
-@UndocumentedExperimental
-typealias ComponentDefinedContext = ParentContext<Nothing?, Nothing?, Float, Float>
-
-@UndocumentedExperimental
 @UIContextType
 interface ParentContext<
+        Model: UIModel,
         /** Width provided by parent to children. */
         ParentWidth: Float?,
         /** Height provided by parent to children. */
@@ -19,20 +14,20 @@ interface ParentContext<
         ChildWidth: Float?,
         /** Height provided by children to parent. */
         ChildHeight: Float?,
-> {
-    // val style: Style
-
+>: SharedContext<Model> {
     @UndocumentedExperimental
+    @BuilderInference
     fun rawComponent(
         elementType: String = "generic",
         trackingId: Any? = null,
-        init: ComponentContext<ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ChildReturn
-    ): ChildReturn
+        init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
+    ): ComponentReturn
 
     @UndocumentedExperimental
+    @BuilderInference
     fun component(
         elementType: String = "generic",
         trackingId: Any? = null,
-        init: BasicComponentContext<ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ChildReturn
+        init: BasicComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
     ) = rawComponent(elementType, trackingId) { BasicComponentContext(this).init() }
 }

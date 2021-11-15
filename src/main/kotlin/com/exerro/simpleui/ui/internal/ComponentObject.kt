@@ -1,32 +1,35 @@
 package com.exerro.simpleui.ui.internal
 
-import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.UndocumentedInternal
-import com.exerro.simpleui.WindowEvent
 import com.exerro.simpleui.ui.*
 
 @UndocumentedInternal
 internal data class ComponentObject<
+        Model: UIModel,
         ParentWidth: Float?,
         ParentHeight: Float?,
         ChildWidth: Float?,
         ChildHeight: Float?,
 >(
+    private val getModel: () -> Model,
+    private val setModel: (Model) -> Unit,
     private val thisComponentType: String,
     private val thisComponentId: Any?,
-    private val generator: ComponentContext<ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ChildReturn,
-    private val parentNotifyChanged: (completed: Boolean) -> Unit,
+    private val generator: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn,
+    private val parentNotifyRefreshed: (completed: Boolean) -> Unit,
     private val hooks: HookManager = HookManager(),
-    private var children: List<ComponentObject<*, *, *, *>> = emptyList(),
+    private var children: List<ComponentObject<Model, *, *, *, *>> = emptyList(),
 ) {
-    private val eventHandlers = mutableListOf<(WindowEvent) -> Unit>()
-    lateinit var resolveChildren: (ParentWidth, ParentHeight, Float, Float) -> ResolvedChild<ChildWidth, ChildHeight>; private set
+    lateinit var resolveChildren: (ParentWidth, ParentHeight, Float, Float) -> ResolvedComponent<ChildWidth, ChildHeight>; private set
 
     @UndocumentedInternal
-    fun createContext() = object: ComponentContext<ParentWidth, ParentHeight, ChildWidth, ChildHeight> {
-        private val onDrawFunctions = mutableListOf<DrawContext.() -> Unit>()
+    fun createContext() = object: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight> {
+        private val onDrawFunctions = mutableListOf<ComponentDrawFunction>()
+        private val eventHandlers = mutableListOf<ComponentEventHandler>()
 
         override val thisComponentId = this@ComponentObject.thisComponentId
+        override val model get() = getModel()
+        override fun setModel(model: Model) = this@ComponentObject.setModel(model)
 
         override fun <H : HookState> getHookStateOrRegister(newHook: () -> H) =
             hooks.getHookStateOrNew(newHook)
@@ -35,28 +38,32 @@ internal data class ComponentObject<
             this@ComponentObject.refresh()
         }
 
-        override fun onDraw(draw: DrawContext.() -> Unit) {
+        override fun onDraw(draw: ComponentDrawFunction) {
             onDrawFunctions.add(draw)
         }
 
-        override fun connectEventHandler(handler: (WindowEvent) -> Unit) {
+        override fun connectEventHandler(handler: ComponentEventHandler) {
             eventHandlers.add(handler)
         }
 
         override fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
-            getChildren: ParentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
-            resolveChildren: (ParentWidth, ParentHeight, Float, Float, List<DrawContext.() -> Unit>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedChild<SubChildWidth, SubChildHeight>>) -> ResolvedChild<ChildWidth, ChildHeight>
-        ): ChildReturn {
-            val standaloneDrawFunctions = onDrawFunctions.toList()
-            val deferredChildren = mutableListOf<Triple<String, Any?, ComponentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ChildReturn>>()
-            val context = object: ParentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
+            getChildren: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+            resolveComponent: (ParentWidth, ParentHeight, Float, Float, List<ComponentDrawFunction>, List<ComponentEventHandler>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>) -> ResolvedComponent<ChildWidth, ChildHeight>
+        ): ComponentReturn {
+            val thisDrawFunctions = onDrawFunctions.toList()
+            val thisEventHandlers = eventHandlers.toList()
+            val deferredChildren = mutableListOf<Triple<String, Any?, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentReturn>>()
+            val context = object: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
+                override val model get() = getModel()
+                override fun setModel(model: Model) = this@ComponentObject.setModel(model)
+
                 override fun rawComponent(
                     elementType: String,
                     trackingId: Any?,
-                    init: ComponentContext<SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ChildReturn
-                ): ChildReturn {
+                    init: ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentReturn
+                ): ComponentReturn {
                     deferredChildren.add(Triple(elementType, trackingId, init))
-                    return ChildReturn.INSTANCE
+                    return ComponentReturn.INSTANCE
                 }
             }
 
@@ -73,7 +80,7 @@ internal data class ComponentObject<
                 }
 
                 val newComponent = ComponentObject(
-                    type, id, fn, parentNotifyChanged,
+                    getModel, setModel, type, id, fn, parentNotifyRefreshed,
                     hooks = existingComponent?.hooks ?: HookManager(),
                     children = existingComponent?.children ?: emptyList(),
                 )
@@ -84,19 +91,18 @@ internal data class ComponentObject<
 
             this@ComponentObject.children = childObjects
             this@ComponentObject.resolveChildren = { width, height, availableWidth, availableHeight ->
-                resolveChildren(width, height, availableWidth, availableHeight, standaloneDrawFunctions, childObjects.map { it.resolveChildren })
+                resolveComponent(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers, childObjects.map { it.resolveChildren })
             }
 
-            return ChildReturn.INSTANCE
+            return ComponentReturn.INSTANCE
         }
     }
 
     @UndocumentedInternal
     fun refresh() {
-        parentNotifyChanged(false)
-        eventHandlers.clear()
+        parentNotifyRefreshed(false)
         hooks.reset()
         createContext().generator()
-        parentNotifyChanged(true)
+        parentNotifyRefreshed(true)
     }
 }
