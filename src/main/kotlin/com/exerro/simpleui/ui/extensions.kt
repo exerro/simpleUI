@@ -91,12 +91,12 @@ fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChi
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @UndocumentedExperimental
-fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ParentContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
+fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
     modifyParentSize: (OldParentWidth, OldParentHeight, Float, Float) -> ModifiedSizes<NewParentWidth, NewParentHeight>,
     modify: (OldParentWidth, OldParentHeight, Float, Float, ModifiedSizes<NewParentWidth, NewParentHeight>, ResolvedComponent<NewChildWidth, NewChildHeight>) -> ResolvedComponent<OldChildWidth, OldChildHeight>
-): ParentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+): ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
     val parentContext = this
-    return object : ParentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+    return object : ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
         override val model: Model get() = parentContext.model
         override fun setModel(model: Model) = parentContext.setModel(model)
 
@@ -117,7 +117,7 @@ fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWi
                 override fun connectEventHandler(handler: ComponentEventHandler) = pContext.connectEventHandler(handler)
 
                 override fun <SubParentWidth : Float?, SubParentHeight : Float?, SubChildWidth : Float?, SubChildHeight : Float?> children(
-                    getChildren: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+                    getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
                     resolveComponent: (NewParentWidth, NewParentHeight, Float, Float, List<ComponentDrawFunction>, List<ComponentEventHandler>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>) -> ResolvedComponent<NewChildWidth, NewChildHeight>
                 ) = pContext.children(getChildren) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
                     val m = modifyParentSize(width, height, availableWidth, availableHeight)

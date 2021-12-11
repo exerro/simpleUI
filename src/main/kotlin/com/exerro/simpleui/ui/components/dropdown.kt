@@ -26,7 +26,7 @@ import kotlin.math.round
 
 @UndocumentedExperimental
 fun <T, Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
-ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdown(
+ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdown(
     initialSelectedOption: T,
     options: List<T>,
     focused: Boolean = false,
@@ -40,7 +40,7 @@ ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdow
     toggleVisibleAction: Action = SelectEntity,
     selectNextOptionAction: Action = MoveFocusDown, // TODO
     selectPreviousOptionAction: Action = MoveFocusUp, // TODO
-    renderOption: BasicComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentReturn
+    renderOption: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentReturn
 ) = rawComponent("dropdown") {
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, handleVaryingInitialValue = true)
     val (isExpanded, setExpandedState) = useState(false)
@@ -75,12 +75,12 @@ ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdow
     children<ParentWidth, ParentHeight, ChildWidth, ChildHeight>(
         getChildren = {
             (if (trackOptions) tracked("selected") else this)
-                .rawComponent { BasicComponentContext(this).renderOption(selectedOption) }
+                .rawComponent { DeferredComponentContext(this).renderOption(selectedOption) }
 
             if (isExpanded) {
                 for ((index, option) in options.withIndex()) {
                     (if (trackOptions) tracked(index) else this)
-                        .rawComponent { BasicComponentContext(this).renderOption(option) }
+                        .rawComponent { DeferredComponentContext(this).renderOption(option) }
                 }
             }
         },

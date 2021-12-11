@@ -33,7 +33,7 @@ interface ComponentContext<
     @UndocumentedExperimental
     // TODO: add extra configuration for controlling child tracking
     fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
-        getChildren: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+        getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
         resolveComponent: (
             width: ParentWidth,
             height: ParentHeight,

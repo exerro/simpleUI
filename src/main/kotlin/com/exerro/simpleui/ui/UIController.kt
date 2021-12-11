@@ -6,13 +6,14 @@ import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.WindowEvent
 import com.exerro.simpleui.extensions.PushableEventBus
 import com.exerro.simpleui.ui.internal.ComponentObject
+import com.exerro.simpleui.ui.internal.PersistentComponentData
+import com.exerro.simpleui.ui.internal.RootComponentData
 
 @UndocumentedExperimental
 class UIController<Model: UIModel> private constructor(
     private val co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>,
     val events: EventBus<Event>,
-    private val getModelFunction: () -> Model,
-    private val setModelFunction: (Model) -> Unit,
+    private val root: RootComponentData<Model>,
 ) {
     private var eventHandlers: List<ComponentEventHandler> = emptyList()
 
@@ -37,12 +38,12 @@ class UIController<Model: UIModel> private constructor(
 
     @UndocumentedExperimental
     fun updateModel(update: (Model) -> Model) {
-        setModelFunction(update(getModelFunction()))
+        root.setModel(update(root.getModel()))
     }
 
     @UndocumentedExperimental
     fun setModel(model: Model) {
-        setModelFunction(model)
+        root.setModel(model)
     }
 
     @UndocumentedExperimental
@@ -54,27 +55,32 @@ class UIController<Model: UIModel> private constructor(
     companion object {
         operator fun <Model: UIModel> invoke(
             initialModel: Model,
-            init: BasicComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
+            init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
         ): UIController<Model> {
             lateinit var co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>
             var currentModel = initialModel
             var refreshingCounter = 0
             val eventBus = PushableEventBus<Event>()
-            val getModel = { currentModel }
-            val setModel = { model: Model ->
-                currentModel = model
-                co.refresh()
+            val rootComponentData = object: RootComponentData<Model> {
+                override fun getModel() = currentModel
+
+                override fun setModel(model: Model) {
+                    currentModel = model
+                    co.refresh()
+                }
+
+                override fun parentNotifyRefreshed(completed: Boolean) {
+                    if (completed) { if (--refreshingCounter == 0) eventBus.push(Event.Refreshed) }
+                    else ++refreshingCounter
+                }
+
             }
 
-            co = ComponentObject(getModel, setModel, "<root>", null, {
-                BasicComponentContext(this).init()
-            }, { completed ->
-                if (completed) { if (--refreshingCounter == 0) eventBus.push(Event.Refreshed) }
-                else ++refreshingCounter
-                Unit
-            })
+            co = ComponentObject(rootComponentData, PersistentComponentData(null, "<root>")) {
+                DeferredComponentContext(this).init()
+            }
 
-            return UIController(co, eventBus, getModel, setModel)
+            return UIController(co, eventBus, rootComponentData)
         }
     }
 }

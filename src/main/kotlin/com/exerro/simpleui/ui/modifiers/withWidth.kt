@@ -4,7 +4,7 @@ import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.withWidth(
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.withWidth(
     width: Pixels,
 ) = modifier<Model, Nothing?, ParentHeight, Float, ChildHeight, Float, ParentHeight, Nothing?, ChildHeight>(
     { _, h, availableWidth, availableHeight ->

@@ -11,14 +11,10 @@ internal data class ComponentObject<
         ChildWidth: Float?,
         ChildHeight: Float?,
 >(
-    private val getModel: () -> Model,
-    private val setModel: (Model) -> Unit,
-    private val thisComponentType: String,
-    private val thisComponentId: Any?,
-    private val generator: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn,
-    private val parentNotifyRefreshed: (completed: Boolean) -> Unit,
-    private val hooks: HookManager = HookManager(),
+    private val root: RootComponentData<Model>,
+    private val persistent: PersistentComponentData,
     private var children: List<ComponentObject<Model, *, *, *, *>> = emptyList(),
+    private val generator: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn,
 ) {
     lateinit var resolveChildren: (ParentWidth, ParentHeight, Float, Float) -> ResolvedComponent<ChildWidth, ChildHeight>; private set
 
@@ -27,12 +23,12 @@ internal data class ComponentObject<
         private val onDrawFunctions = mutableListOf<ComponentDrawFunction>()
         private val eventHandlers = mutableListOf<ComponentEventHandler>()
 
-        override val thisComponentId = this@ComponentObject.thisComponentId
-        override val model get() = getModel()
-        override fun setModel(model: Model) = this@ComponentObject.setModel(model)
+        override val thisComponentId = persistent.id
+        override val model get() = root.getModel()
+        override fun setModel(model: Model) = root.setModel(model)
 
         override fun <H : HookState> getHookStateOrRegister(newHook: () -> H) =
-            hooks.getHookStateOrNew(newHook)
+            persistent.hooks.getHookStateOrNew(newHook)
 
         override fun refresh() {
             this@ComponentObject.refresh()
@@ -47,15 +43,15 @@ internal data class ComponentObject<
         }
 
         override fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
-            getChildren: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+            getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
             resolveComponent: (ParentWidth, ParentHeight, Float, Float, List<ComponentDrawFunction>, List<ComponentEventHandler>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>) -> ResolvedComponent<ChildWidth, ChildHeight>
         ): ComponentReturn {
             val thisDrawFunctions = onDrawFunctions.toList()
             val thisEventHandlers = eventHandlers.toList()
             val deferredChildren = mutableListOf<Triple<String, Any?, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentReturn>>()
-            val context = object: ParentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
-                override val model get() = getModel()
-                override fun setModel(model: Model) = this@ComponentObject.setModel(model)
+            val context = object: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
+                override val model get() = root.getModel()
+                override fun setModel(model: Model) = root.setModel(model)
 
                 override fun rawComponent(
                     elementType: String,
@@ -69,19 +65,20 @@ internal data class ComponentObject<
 
             context.getChildren()
 
-            val currentWithoutId = children.filter { it.thisComponentId == null }
+            val currentWithoutId = children.filter { it.persistent.id == null }
             val newWithoutId = deferredChildren.filter { it.second == null }
-            val idLessTypesMatch = currentWithoutId.map { it.thisComponentType } == newWithoutId.map { it.first }
+            val idLessTypesMatch = currentWithoutId.map { it.persistent.type } == newWithoutId.map { it.first }
             var idLessIndex = 0
             val childObjects = deferredChildren.map { (type, id, fn) ->
                 val existingComponent = when (id) {
                     null -> if (idLessTypesMatch) currentWithoutId[idLessIndex++] else null
-                    else -> children.firstOrNull { it.thisComponentId == id } ?.takeIf { it.thisComponentType == type }
+                    else -> children.firstOrNull { it.persistent.id == id } ?.takeIf { it.persistent.type == type }
                 }
 
                 val newComponent = ComponentObject(
-                    getModel, setModel, type, id, fn, parentNotifyRefreshed,
-                    hooks = existingComponent?.hooks ?: HookManager(),
+                    root = root,
+                    persistent = existingComponent?.persistent ?: PersistentComponentData(id, type),
+                    generator = fn,
                     children = existingComponent?.children ?: emptyList(),
                 )
 
@@ -100,9 +97,9 @@ internal data class ComponentObject<
 
     @UndocumentedInternal
     fun refresh() {
-        parentNotifyRefreshed(false)
-        hooks.reset()
+        root.parentNotifyRefreshed(false)
+        persistent.hooks.reset()
         createContext().generator()
-        parentNotifyRefreshed(true)
+        root.parentNotifyRefreshed(true)
     }
 }

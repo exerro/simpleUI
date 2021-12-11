@@ -1,13 +1,12 @@
 package com.exerro.simpleui.ui.modifiers
 
 import com.exerro.simpleui.Alignment
-import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <Model: UIModel> ParentContext<Model, Float, Float, Nothing?, Nothing?>.withAlignment(
+fun <Model: UIModel> ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>.withAlignment(
     horizontalAlignment: Alignment,
     verticalAlignment: Alignment,
 ) = modifier<Model, Float, Float, Nothing?, Nothing?, Nothing?, Nothing?, Float, Float>(

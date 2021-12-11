@@ -1,7 +1,6 @@
 package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.UndocumentedExperimental
-import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
@@ -9,7 +8,7 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimental
-fun ParentContext<*, *, *, *, *>.iconButton(
+fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
     icon: Image,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,

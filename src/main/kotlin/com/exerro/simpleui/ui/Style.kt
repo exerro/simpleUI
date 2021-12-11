@@ -194,7 +194,7 @@ interface Style {
             HeaderForegroundColour to RGBA(0x3a, 0x3b, 0x3b),
             ShadowColour to Colours.lightGrey.withAlpha(0.8f),
             AlternateShadowColour to Colours.lightGrey.withAlpha(0.8f),
-            SeparatorColour to RGBA(0x9b, 0x9c, 0x9c),
+            SeparatorColour to RGBA(0xcb, 0xcc, 0xcc),
             attributes = Attributes(isLightTheme = true)
         )
 

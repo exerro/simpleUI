@@ -6,7 +6,7 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimental
-fun ParentContext<*, *, *, *, *>.button(
+fun ComponentChildrenContext<*, *, *, *, *>.button(
     text: TextBuffer<Colour>,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
@@ -69,7 +69,7 @@ fun ParentContext<*, *, *, *, *>.button(
 }
 
 @UndocumentedExperimental
-fun ParentContext<*, *, *, *, *>.button(
+fun ComponentChildrenContext<*, *, *, *, *>.button(
     text: String,
     colour: Colour? = null,
     type: ButtonType = ButtonType.Default,

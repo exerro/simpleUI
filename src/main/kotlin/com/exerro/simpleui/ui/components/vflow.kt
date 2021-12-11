@@ -8,12 +8,12 @@ import kotlin.math.floor
 import kotlin.math.round
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ParentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.vflow(
+fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.vflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     horizontalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = false,
-    init: ParentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.() -> Unit
+    init: ComponentChildrenContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.() -> Unit
 ) = rawComponent("vflow") {
     val separatorThickness = model.style[Style.SeparatorThickness].toFloat()
     val separatorColour = model.style[Style.SeparatorColour]

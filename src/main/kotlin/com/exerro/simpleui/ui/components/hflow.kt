@@ -7,12 +7,12 @@ import kotlin.math.floor
 import kotlin.math.round
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.hflow(
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.hflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     verticalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = false,
-    init: ParentContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.() -> Unit
+    init: ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.() -> Unit
 ) = rawComponent("hflow") {
     val separatorThickness = model.style[Style.SeparatorThickness].toFloat()
     val separatorColour = model.style[Style.SeparatorColour]

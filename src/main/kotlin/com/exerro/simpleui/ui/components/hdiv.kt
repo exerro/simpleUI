@@ -2,7 +2,7 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.ResolvedComponent
-import com.exerro.simpleui.ui.ParentContext
+import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.internal.divCalculateOverflow
 import com.exerro.simpleui.ui.internal.joinEventHandlers
@@ -15,12 +15,12 @@ import kotlin.math.round
  *  the order of children to be reversed. If children define the height of the
  *  hdiv, the maximum height of any child is reported to the parent, and
  *  children are aligned within this height according to [verticalAlignment]. */
-fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ParentContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.hdiv(
+fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.hdiv(
     vararg partitions: Pixels,
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     verticalAlignment: Alignment = 0.5f,
-    init: ParentContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.() -> Unit
+    init: ComponentChildrenContext<Model, Float, ParentHeight, Nothing?, ChildHeight>.() -> Unit
 ) = rawComponent("hdiv") {
     children(init) { width, height, _, availableHeight, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(width)

@@ -10,7 +10,6 @@ import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.withHorizontalAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
 import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
-import com.exerro.simpleui.ui.modifiers.withWidth
 
 @Undocumented
 data class MyModel(
@@ -25,9 +24,9 @@ data class MyModel(
     }
 }
 
-fun <Model: UIModel> ParentContext<Model, Float, Nothing?, Nothing?, Float>.labelledSection(
+fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.labelledSection(
     label: String,
-    init: ParentContext<Model, Float, Nothing?, Nothing?, Float>.() -> Unit,
+    init: ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.() -> Unit,
 ) = withPadding(bottom = 16.px).vflow(spacing = 8.px) {
     component {
         onDraw {
@@ -216,10 +215,10 @@ fun main() {
                     }
 
                     labelledSection("Dropdowns") {
-                        horizontalSelector(selectedRow == 3, maximumValue = 0) { selectedElement ->
+                        horizontalSelector(selectedRow == 3, maximumValue = 1) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 component {
-                                    val (num, setNum) = useState(3)
+                                    val (num, setNum) = useState(initialValue = 3)
 
                                     hflow(spacing = 16.px) {
                                         dropdown(num, listOf(1, 2, 3, 4), focused = selectedElement == 0, onOptionChanged = setNum) { option ->
@@ -232,7 +231,7 @@ fun main() {
                                             }
                                         }
 
-                                        button("You selected $num")
+                                        button("You selected $num", focused = selectedElement == 1)
                                     }
                                 }
                             }

@@ -2,7 +2,7 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.ResolvedComponent
-import com.exerro.simpleui.ui.ParentContext
+import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.internal.divCalculateOverflow
 import com.exerro.simpleui.ui.internal.joinEventHandlers
@@ -15,12 +15,12 @@ import kotlin.math.round
  *  the order of children to be reversed. If children define the width of the
  *  vdiv, the maximum width of any child is reported to the parent, and children
  *  are aligned within this width according to [horizontalAlignment]. */
-fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ParentContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.vdiv(
+fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.vdiv(
     vararg partitions: Pixels,
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     horizontalAlignment: Alignment = 0.5f,
-    init: ParentContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.() -> Unit
+    init: ComponentChildrenContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.() -> Unit
 ) = rawComponent("vdiv") {
     children(init) { width, height, availableWidth, _, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(height)

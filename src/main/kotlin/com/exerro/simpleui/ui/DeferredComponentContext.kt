@@ -4,7 +4,7 @@ import com.exerro.simpleui.UndocumentedExperimental
 
 @UndocumentedExperimental
 @UIContextType
-class BasicComponentContext<
+class DeferredComponentContext<
         Model: UIModel,
         /** Width provided by parent to this component. */
         ParentWidth: Float?,
@@ -16,7 +16,7 @@ class BasicComponentContext<
         ChildHeight: Float?,
         >(
     private val componentContext: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
-): ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
+): ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
     ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight> by componentContext {
     override val model get() = componentContext.model
 

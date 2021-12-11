@@ -9,7 +9,7 @@ internal class HookManager {
     private var hookIndex = 0
 
     @UndocumentedInternal
-    fun <H : HookState> getHookStateOrNew(createHook: () -> H): H {
+    fun <H: HookState> getHookStateOrNew(createHook: () -> H): H {
         val existingHook = hooks.getOrNull(hookIndex)
         val hook = existingHook ?: createHook()
 

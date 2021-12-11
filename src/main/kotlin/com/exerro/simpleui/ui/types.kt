@@ -5,13 +5,13 @@ import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.WindowEvent
 
 @UndocumentedExperimental
-typealias AnyParentContext = ParentContext<*, *, *, *, *>
+typealias AnyParentContext = ComponentChildrenContext<*, *, *, *, *>
 
 @UndocumentedExperimental
-typealias ParentDefinedContext<Model> = ParentContext<Model, Float, Float, Nothing?, Nothing?>
+typealias ParentDefinedContext<Model> = ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>
 
 @UndocumentedExperimental
-typealias ComponentDefinedContext<Model> = ParentContext<Model, Nothing?, Nothing?, Float, Float>
+typealias ComponentDefinedContext<Model> = ComponentChildrenContext<Model, Nothing?, Nothing?, Float, Float>
 
 @UndocumentedExperimental
 typealias ComponentEventHandler = (WindowEvent) -> Boolean

@@ -2,11 +2,11 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.ResolvedComponent
-import com.exerro.simpleui.ui.ParentContext
+import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.UIModel
 
 @UndocumentedExperimental
-fun <Model: UIModel> ParentContext<Model, Float, Nothing?, Nothing?, Float>.flow(
+fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.flow(
     verticalSpacing: Pixels = 0.px,
     horizontalSpacing: Pixels = verticalSpacing,
     reversed: Boolean = false,
@@ -14,7 +14,7 @@ fun <Model: UIModel> ParentContext<Model, Float, Nothing?, Nothing?, Float>.flow
     reverseColumns: Boolean = false,
     verticalRowAlignment: Alignment = 0.5f,
     horizontalRowAlignment: Alignment = 0.5f,
-    init: ParentContext<Model, Nothing?, Nothing?, Float, Float>.() -> Unit
+    init: ComponentChildrenContext<Model, Nothing?, Nothing?, Float, Float>.() -> Unit
 ) = rawComponent("flow") {
     children(init) { width, _, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val verticalSpacingValue = verticalSpacing.apply(availableHeight)

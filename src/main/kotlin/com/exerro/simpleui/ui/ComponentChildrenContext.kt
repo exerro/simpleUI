@@ -4,7 +4,7 @@ import com.exerro.simpleui.UndocumentedExperimental
 
 @UndocumentedExperimental
 @UIContextType
-interface ParentContext<
+interface ComponentChildrenContext<
         Model: UIModel,
         /** Width provided by parent to children. */
         ParentWidth: Float?,
@@ -28,6 +28,6 @@ interface ParentContext<
     fun component(
         elementType: String = "generic",
         trackingId: Any? = null,
-        init: BasicComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
-    ) = rawComponent(elementType, trackingId) { BasicComponentContext(this).init() }
+        init: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
+    ) = rawComponent(elementType, trackingId) { DeferredComponentContext(this).init() }
 }

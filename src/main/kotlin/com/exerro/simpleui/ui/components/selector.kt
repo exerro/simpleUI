@@ -13,14 +13,14 @@ import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 
 @UndocumentedExperimental
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selector(
+ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selector(
     focused: Boolean,
     decreaseSelectionAction: Action,
     increaseSelectionAction: Action,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
 ) = component("selector") {
     val (selected, setSelected) = useState(initialValue)
 
@@ -39,12 +39,12 @@ ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selecto
 
 @UndocumentedExperimental
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizontalSelector(
+ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizontalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusLeft,
@@ -57,12 +57,12 @@ ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizon
 
 @UndocumentedExperimental
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-        ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.verticalSelector(
+        ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.verticalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusUp,

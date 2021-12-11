@@ -4,7 +4,7 @@ import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     top: Pixels = 0.percent,
     right: Pixels = 0.percent,
     bottom: Pixels = 0.percent,
@@ -31,12 +31,12 @@ fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Floa
 )
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     vertical: Pixels,
     horizontal: Pixels,
 ) = withPadding(top = vertical, right = horizontal, bottom = vertical, left = horizontal)
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ParentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     all: Pixels,
 ) = withPadding(top = all, right = all, bottom = all, left = all)

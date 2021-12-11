@@ -1,13 +1,12 @@
 package com.exerro.simpleui.ui.modifiers
 
 import com.exerro.simpleui.Alignment
-import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.UndocumentedExperimental
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimental
-fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ParentContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.withVerticalAlignment(
+fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenContext<Model, ParentWidth, Float, ChildWidth, Nothing?>.withVerticalAlignment(
     verticalAlignment: Alignment,
 ) = modifier<Model, ParentWidth, Float, ChildWidth, Nothing?, ParentWidth, Nothing?, ChildWidth, Float>(
     { w, _, aw, ah -> ModifiedSizes(w, null, aw, ah) },
