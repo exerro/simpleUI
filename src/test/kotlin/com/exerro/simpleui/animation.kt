@@ -1,8 +1,8 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.experimental.animation.AnimatedValue
 import com.exerro.simpleui.experimental.animation.Animation
-import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.experimental.animationTo
 import com.exerro.simpleui.experimental.withEasing
 

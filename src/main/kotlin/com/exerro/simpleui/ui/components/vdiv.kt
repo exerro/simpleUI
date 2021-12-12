@@ -1,8 +1,10 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.*
-import com.exerro.simpleui.ui.ResolvedComponent
+import com.exerro.simpleui.Alignment
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.ComponentChildrenContext
+import com.exerro.simpleui.ui.ResolvedComponent
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.internal.divCalculateOverflow
 import com.exerro.simpleui.ui.internal.joinEventHandlers

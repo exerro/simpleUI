@@ -1,9 +1,7 @@
 package com.exerro.simpleui.ui.modifiers
 
 import com.exerro.simpleui.Layer
-import com.exerro.simpleui.Pixels
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimentalUI

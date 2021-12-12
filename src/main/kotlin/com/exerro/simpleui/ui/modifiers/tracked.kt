@@ -1,9 +1,9 @@
 package com.exerro.simpleui.ui.modifiers
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.ui.ComponentReturn
-import com.exerro.simpleui.ui.ComponentContext
 import com.exerro.simpleui.ui.ComponentChildrenContext
+import com.exerro.simpleui.ui.ComponentContext
+import com.exerro.simpleui.ui.ComponentReturn
 import com.exerro.simpleui.ui.UIModel
 
 @UndocumentedExperimentalUI

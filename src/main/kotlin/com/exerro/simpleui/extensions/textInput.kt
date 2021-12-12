@@ -1,8 +1,11 @@
 package com.exerro.simpleui.extensions
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.DrawContext
+import com.exerro.simpleui.TextBuffer
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.percent
+import com.exerro.simpleui.px
 
 /** Draw a text input box, with [textBuffer] used as its content. [focused]
  *  describes whether this input has focus (e.g. keyboard focus). An icon can

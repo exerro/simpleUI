@@ -1,8 +1,13 @@
 import com.exerro.simpleui.GLFWWindowCreator
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
-import com.exerro.simpleui.ui.components.*
-import com.exerro.simpleui.ui.modifiers.*
+import com.exerro.simpleui.ui.components.ButtonType
+import com.exerro.simpleui.ui.components.button
+import com.exerro.simpleui.ui.components.flow
+import com.exerro.simpleui.ui.components.vdiv
+import com.exerro.simpleui.ui.modifiers.withAlignment
+import com.exerro.simpleui.ui.modifiers.withPadding
+import com.exerro.simpleui.ui.modifiers.withWidth
 
 /** An example model, containing all the data we need to run our application. */
 data class ExampleModel(

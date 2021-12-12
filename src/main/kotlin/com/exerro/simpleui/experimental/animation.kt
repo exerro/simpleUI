@@ -1,10 +1,10 @@
 package com.exerro.simpleui.experimental
 
-import com.exerro.simpleui.experimental.animation.AnimatedValue
-import com.exerro.simpleui.experimental.animation.Animation
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.experimental.animation.AnimatedValue
+import com.exerro.simpleui.experimental.animation.Animation
 import kotlin.time.Duration
 
 infix fun Float.Companion.animationTo(other: Float) =

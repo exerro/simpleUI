@@ -1,6 +1,5 @@
 package com.exerro.simpleui.ui.internal
 
-import com.exerro.simpleui.Graphics
 import com.exerro.simpleui.UndocumentedInternal
 import com.exerro.simpleui.ui.*
 

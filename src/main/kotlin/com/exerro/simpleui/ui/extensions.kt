@@ -1,7 +1,6 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.EKeyPressed
-import com.exerro.simpleui.Graphics
 import com.exerro.simpleui.UndocumentedExperimentalUI
 
 @UndocumentedExperimentalUI

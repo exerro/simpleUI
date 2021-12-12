@@ -1,8 +1,8 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.experimental.Palette
-import com.exerro.simpleui.internal.NVGRenderer
 import com.exerro.simpleui.internal.NVGGraphics
+import com.exerro.simpleui.internal.NVGRenderer
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -13,7 +13,6 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
 import kotlin.time.Duration
 import kotlin.time.TimeMark

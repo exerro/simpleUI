@@ -1,5 +1,9 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.TextBuffer.ContentSegment.Text
+import com.exerro.simpleui.TextBuffer.ContentSegment.Whitespace
+import com.exerro.simpleui.TextBuffer.Decoration.*
+import com.exerro.simpleui.TextBuffer.Line
 import kotlin.time.Duration
 import kotlin.time.TimeMark
 

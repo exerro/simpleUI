@@ -1,6 +1,7 @@
 package com.exerro.simpleui.experimental.animation
 
 import com.exerro.simpleui.UndocumentedInternal
+import com.exerro.simpleui.experimental.animation.Animation.Easing
 import kotlin.math.sqrt
 import kotlin.time.Duration
 

@@ -1,21 +1,14 @@
 package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
-import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.hooks.useState
-import com.exerro.simpleui.ui.internal.calculateInverse
-import com.exerro.simpleui.ui.internal.joinEventHandlers
-import com.exerro.simpleui.ui.modifiers.tracked
 import com.exerro.simpleui.ui.modifiers.withDecoration
 import com.exerro.simpleui.ui.modifiers.withLayer
 import com.exerro.simpleui.ui.modifiers.withVerticalAlignment2
 import com.exerro.simpleui.ui.standardActions.MoveFocusDown
 import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 import com.exerro.simpleui.ui.standardActions.SelectEntity
-import kotlin.math.floor
-import kotlin.math.min
-import kotlin.math.round
 
 // TODO: escape to close
 // TODO: context groupUpdates { ... } to avoid multiple refreshes
