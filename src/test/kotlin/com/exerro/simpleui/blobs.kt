@@ -57,7 +57,7 @@ fun main() {
     val window = GLFWWindowCreator.createWindow("UI")
     val controller = blobsController()
 
-    controller.events.connect { window.draw { controller.draw(this) } }
+    controller.events.connect { window.draw { controller.repositionAndDraw(this) } }
     window.events.connect(controller::pushEvent)
     controller.load()
 

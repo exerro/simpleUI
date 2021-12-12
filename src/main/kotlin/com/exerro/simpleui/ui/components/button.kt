@@ -13,7 +13,7 @@ inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> Component
     icon: Image? = null,
     action: Action = SelectEntity,
     crossinline behaviour: () -> Unit = {},
-) = rawComponent("button") {
+) = component("button") {
     val backgroundColourKey = when (type) {
         ButtonType.Default -> Style.ElementBackgroundColour
         ButtonType.Primary -> Style.PrimaryBackgroundColour

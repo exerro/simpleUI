@@ -22,3 +22,13 @@ object MoveFocusUp: Action(
 object MoveFocusDown: Action(
     description = "Move the focus one downwards."
 )
+
+@UndocumentedExperimentalUI
+object FocusNextElement: Action(
+    description = "Move the focus to the next component."
+)
+
+@UndocumentedExperimentalUI
+object FocusPreviousElement: Action(
+    description = "Move the focus to the previous component."
+)

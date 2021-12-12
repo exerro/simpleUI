@@ -9,6 +9,6 @@ fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe> ComponentChildre
     modifier(
         { w, h, availableWidth, availableHeight -> ModifiedSizes(w, h, availableWidth, availableHeight) },
         { _, _, _, _, _, (childWidth, childHeight) ->
-            SizeResolvedComponent(childWidth, childHeight, emptyList()) {}
+            SizeResolvedComponent(childWidth, childHeight) { r -> PositionResolvedComponent(r, emptyList()) {} }
         }
     )

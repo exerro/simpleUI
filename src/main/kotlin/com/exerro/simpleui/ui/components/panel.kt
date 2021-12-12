@@ -8,7 +8,7 @@ import com.exerro.simpleui.ui.noChildren
 @UndocumentedExperimentalUI
 fun ParentDefinedContext<*>.panel(
     colour: Colour
-) = rawComponent("panel") {
+) = component("panel") {
     onDraw { fill(colour) }
     noChildren()
 }

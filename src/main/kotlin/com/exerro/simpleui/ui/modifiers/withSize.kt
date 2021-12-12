@@ -14,8 +14,8 @@ fun <Model: UIModel> ComponentChildrenContext<Model, ChildDefinesMe, ChildDefine
         val newHeight = height.apply(availableHeight)
         ModifiedSizes(fixForChild(newWidth), fixForChild(newHeight), newWidth, newHeight)
     },
-    { _, _, _, _, m, (_, _, eventHandlers, draw) ->
-        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), fixForParent(fixFromParent(m.height)), eventHandlers, draw)
+    { _, _, _, _, m, (_, _, p) ->
+        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), fixForParent(fixFromParent(m.height)), p)
     }
 )
 
@@ -27,8 +27,8 @@ fun <Model: UIModel, Height: WhoDefinesMe> ComponentChildrenContext<Model, Child
         val newWidth = width.apply(availableWidth)
         ModifiedSizes(fixForChild(newWidth), h, newWidth, availableHeight)
     },
-    { _, _, _, _, m, (_, childHeight, eventHandlers, draw) ->
-        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), childHeight, eventHandlers, draw)
+    { _, _, _, _, m, (_, childHeight, p) ->
+        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), childHeight, p)
     }
 )
 
@@ -40,7 +40,7 @@ fun <Model: UIModel, Width: WhoDefinesMe> ComponentChildrenContext<Model, Width,
         val newHeight = height.apply(availableHeight)
         ModifiedSizes(w, fixForChild(newHeight), availableWidth, newHeight)
     },
-    { _, _, _, _, m, (childWidth, _, eventHandlers, draw) ->
-        SizeResolvedComponent(childWidth, fixForParent(fixFromParent(m.height)), eventHandlers, draw)
+    { _, _, _, _, m, (childWidth, _, p) ->
+        SizeResolvedComponent(childWidth, fixForParent(fixFromParent(m.height)), p)
     }
 )

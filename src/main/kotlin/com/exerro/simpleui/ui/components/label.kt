@@ -3,6 +3,7 @@ package com.exerro.simpleui.ui.components
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.*
+import kotlin.math.ceil
 
 @UndocumentedExperimentalUI
 inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.label(
@@ -11,7 +12,7 @@ inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> Component
     horizontalAlignment: Alignment = 0.5f,
     verticalAlignment: Alignment = 0.5f,
     icon: Image? = null,
-) = rawComponent("label") {
+) = component("label") {
     onDraw {
         write(text, font = font, horizontalAlignment = horizontalAlignment, verticalAlignment = verticalAlignment)
 
@@ -24,7 +25,7 @@ inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> Component
         }
     }
 
-    noChildrenDefineDefaultSize(width = 192f, height = font.lineHeight * text.lines.size)
+    noChildrenDefineDefaultSize(width = 192f, height = ceil(font.lineHeight * text.lines.size))
 }
 
 @UndocumentedExperimentalUI

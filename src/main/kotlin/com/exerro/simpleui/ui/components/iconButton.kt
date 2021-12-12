@@ -14,7 +14,7 @@ inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> Component
     focused: Boolean = false,
     action: Action = SelectEntity,
     crossinline behaviour: () -> Unit = {},
-) = rawComponent("iconButton") {
+) = component("iconButton") {
     val backgroundColourKey = when (type) {
         ButtonType.Default -> Style.ElementBackgroundColour
         ButtonType.Primary -> Style.PrimaryBackgroundColour

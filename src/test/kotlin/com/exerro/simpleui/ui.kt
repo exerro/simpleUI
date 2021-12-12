@@ -82,7 +82,7 @@ fun main() {
                                 button("DISABLED", type = ButtonType.Disabled, focused = selectedElement == 2)
                                 component {
                                     val (count, setCount) = useState(0)
-                                    button("ACTION $count", type = ButtonType.Default, focused = selectedElement == 3) {
+                                    singleChild.button("ACTION $count", type = ButtonType.Default, focused = selectedElement == 3) {
                                         setCount(count + 1)
                                     }
                                 }
@@ -214,12 +214,13 @@ fun main() {
                                 component {
                                     val (num, setNum) = useState(initialValue = 3)
 
-                                    withHeight(48.px).hflow(spacing = 16.px) {
+                                    singleChild.withHeight(48.px).hflow(spacing = 16.px) {
                                         dropdown(
                                             initialSelectedOption = num,
                                             options = listOf(1, 2, 3, 4),
                                             focused = selectedElement == 0,
                                             onOptionChanged = setNum,
+                                            spacing = 0.px,
                                             renderOption = { option ->
                                                 withPadding(8.px, 16.px).label("Option $option", horizontalAlignment = 0f)
                                             },
@@ -338,7 +339,7 @@ fun main() {
     }
 
     component.events.connect {
-        window.draw { component.draw(this) }
+        window.draw { component.repositionAndDraw(this) }
     }
 
     window.events.connect(component::pushEvent)

@@ -1,10 +1,9 @@
 package com.exerro.simpleui.ui.internal
 
-import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.percent
-import com.exerro.simpleui.px
+import com.exerro.simpleui.*
+import com.exerro.simpleui.ui.ComponentDrawFunction
 import com.exerro.simpleui.ui.ComponentEventHandler
+import com.exerro.simpleui.ui.PositionResolvedComponent
 import com.exerro.simpleui.ui.SizeResolvedComponent
 import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.vdiv
@@ -37,8 +36,22 @@ fun divCalculateOverflow(
 @UndocumentedExperimentalUI
 fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
-    children: List<SizeResolvedComponent<*, *>>
+    children: List<PositionResolvedComponent>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
+
+@UndocumentedExperimentalUI
+fun standardChildRendering(
+    region: Region,
+    drawFunctions: List<ComponentDrawFunction>,
+    eventHandlers: List<ComponentEventHandler>,
+    children: List<PositionResolvedComponent>
+) = PositionResolvedComponent(region, joinEventHandlers(eventHandlers, children)) {
+    for (f in drawFunctions) f(this)
+
+    for (child in children) {
+        withRegion(child.region, draw = child.draw)
+    }
+}
 
 @UndocumentedExperimentalUI
 @Suppress("UNCHECKED_CAST")

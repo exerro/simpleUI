@@ -13,16 +13,9 @@ interface ComponentChildrenContext<
     val ids: IdProvider
 
     @UndocumentedExperimentalUI
-    fun rawComponent(
+    fun component(
         elementType: String = "generic",
         id: Id = ids.localAnonymous(elementType),
         init: ComponentContext<Model, Width, Height>.() -> ComponentIsResolved
     ): ComponentIsResolved
-
-    @UndocumentedExperimentalUI
-    fun component(
-        elementType: String = "generic",
-        id: Id = ids.localAnonymous(elementType),
-        init: DeferredComponentContext<Model, Width, Height>.() -> ComponentIsResolved
-    ) = rawComponent(elementType, id) { DeferredComponentContext(this).init() }
 }

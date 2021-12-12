@@ -11,7 +11,7 @@ import com.exerro.simpleui.ui.noChildren
 @UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, ParentDefinesMe, ParentDefinesMe>.controller(
     controller: UIController<*>,
-) = rawComponent("controller") {
+) = component("controller") {
     useOnce { controller.load() }
     connectEventHandler(controller::pushEvent)
     onDraw(controller::draw)

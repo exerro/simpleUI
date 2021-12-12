@@ -19,15 +19,15 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefi
         val newHeight = map(h) { it - heightDelta }
         ModifiedSizes(newWidth, newHeight, availableWidth - widthDelta, availableHeight - heightDelta)
     },
-    { _, _, availableWidth, availableHeight, _, (childWidth, childHeight, eventHandlers, draw) ->
+    { _, _, availableWidth, availableHeight, _, (childWidth, childHeight, positionResolver) ->
         val leftValue = left.apply(availableWidth)
         val topValue = top.apply(availableHeight)
         val widthDelta = leftValue + right.apply(availableWidth)
         val heightDelta = topValue + bottom.apply(availableHeight)
         val cw = map(childWidth) { it + widthDelta }
         val ch = map(childHeight) { it + heightDelta }
-        SizeResolvedComponent(cw, ch, eventHandlers) {
-            withRegion(region.withPadding(top = top, right = right, bottom = bottom, left = left), draw = draw)
+        SizeResolvedComponent(cw, ch) { r ->
+            positionResolver(r.withPadding(top = top, right = right, bottom = bottom, left = left))
         }
     }
 )

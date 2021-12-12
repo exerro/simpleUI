@@ -56,7 +56,7 @@ internal class ComponentInstance<
 
                 override fun <SubWidth : WhoDefinesMe, SubHeight : WhoDefinesMe> children(
                     getChildren: ComponentChildrenContext<Model, SubWidth, SubHeight>.() -> Unit,
-                    resolveComponent: (width: SomeValueForChild<Width>, height: SomeValueForChild<Height>, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>, children: List<GenericResolver<SubWidth, SubHeight>>) -> SizeResolvedComponent<Width, Height>
+                    resolveComponentSize: (width: SomeValueForChild<Width>, height: SomeValueForChild<Height>, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>, children: List<GenericResolver<SubWidth, SubHeight>>) -> SizeResolvedComponent<Width, Height>
                 ): ComponentIsResolved {
                     val thisDrawFunctions = drawFunctions.toList()
                     val thisEventHandlers = eventHandlers.toList()
@@ -67,7 +67,7 @@ internal class ComponentInstance<
                         override fun setModel(model: Model) = controller.setModel(model)
                         override fun updateModel(update: (Model) -> Model) = controller.updateModel(update)
 
-                        override fun rawComponent(
+                        override fun component(
                             elementType: String,
                             id: Id,
                             init: ComponentContext<Model, SubWidth, SubHeight>.() -> ComponentIsResolved
@@ -91,18 +91,18 @@ internal class ComponentInstance<
                     }
 
                     resolver = { width, height, availableWidth, availableHeight ->
-                        resolveComponent(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers, childObjects.map { it.transient.resolver })
+                        resolveComponentSize(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers, childObjects.map { it.transient.sizeResolver })
                     }
 
                     return ComponentIsResolved.INSTANCE
                 }
 
-                override fun setResolver(resolveComponent: (width: SomeValueForChild<Width>, height: SomeValueForChild<Height>, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> SizeResolvedComponent<Width, Height>): ComponentIsResolved {
+                override fun setResolver(resolveComponentSize: (width: SomeValueForChild<Width>, height: SomeValueForChild<Height>, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> SizeResolvedComponent<Width, Height>): ComponentIsResolved {
                     val thisDrawFunctions = drawFunctions.toList()
                     val thisEventHandlers = eventHandlers.toList()
 
                     resolver = { width, height, availableWidth, availableHeight ->
-                        resolveComponent(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers)
+                        resolveComponentSize(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers)
                     }
 
                     return ComponentIsResolved.INSTANCE

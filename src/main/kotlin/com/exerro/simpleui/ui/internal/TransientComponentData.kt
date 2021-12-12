@@ -14,5 +14,5 @@ typealias GenericResolver<Width, Height> = (
 internal data class TransientComponentData<Width: WhoDefinesMe, Height: WhoDefinesMe>(
     val drawFunctions: List<ComponentDrawFunction>,
     val eventHandlers: List<ComponentEventHandler>,
-    val resolver: GenericResolver<Width, Height>,
+    val sizeResolver: GenericResolver<Width, Height>,
 )

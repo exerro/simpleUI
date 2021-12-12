@@ -7,12 +7,15 @@ import com.exerro.simpleui.ui.internal.joinEventHandlers
 @UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ParentDefinesMe>.stack(
     init: ComponentChildrenContext<Model, ParentDefinesMe, ParentDefinesMe>.() -> Unit
-) = rawComponent("stack") {
+) = component("stack") {
     children(init) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
-        val resolvedChildren = children.map { f -> f(width, height, availableWidth, availableHeight) }
-        SizeResolvedComponent(nothingForParent(), nothingForParent(), joinEventHandlers(eventHandlers, resolvedChildren)) {
-            for (f in drawFunctions) f(this)
-            for (child in resolvedChildren) child.draw(this)
+        val sizeResolvedChildren = children.map { f -> f(width, height, availableWidth, availableHeight) }
+        SizeResolvedComponent(nothingForParent(), nothingForParent()) { r ->
+            val positionResolvedChildren = sizeResolvedChildren.map { it.positionResolver(r) }
+            PositionResolvedComponent(r, joinEventHandlers(eventHandlers, positionResolvedChildren)) {
+                for (f in drawFunctions) f(this)
+                for (child in positionResolvedChildren) child.draw(this)
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.withDecoration
 import com.exerro.simpleui.ui.modifiers.withLayer
-import com.exerro.simpleui.ui.modifiers.withVerticalAlignment2
+import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
 import com.exerro.simpleui.ui.standardActions.MoveFocusDown
 import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 import com.exerro.simpleui.ui.standardActions.SelectEntity
@@ -26,8 +26,8 @@ ComponentChildrenContext<Model, Width, Height>.dropdown(
     toggleVisibleAction: Action = SelectEntity,
     selectNextOptionAction: Action = MoveFocusDown, // TODO
     selectPreviousOptionAction: Action = MoveFocusUp, // TODO
-    crossinline renderOption: DeferredComponentContext<Model, Width, ChildDefinesMe>.(T) -> ComponentIsResolved,
-    crossinline renderPrimaryOption: DeferredComponentContext<Model, Width, Height>.(T) -> ComponentIsResolved,
+    crossinline renderOption: ComponentChildContext<Model, Width, ChildDefinesMe>.(T) -> ComponentIsResolved,
+    crossinline renderPrimaryOption: ComponentChildContext<Model, Width, Height>.(T) -> ComponentIsResolved,
 ) = component("dropdown") {
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, updateOnVaryingInitialValue = true)
     val (stateIsExpanded, setExpandedState) = useState(false)
@@ -61,7 +61,7 @@ ComponentChildrenContext<Model, Width, Height>.dropdown(
     if (isExpanded) {
         lateinit var parentRegion: Region
 
-        withLayer(Layer.Foreground).withVerticalAlignment2(verticalAlignment = 0f).withDecoration {
+        singleChild.withLayer(Layer.Foreground).withVerticalAlignment(verticalAlignment = 0f).withDecoration {
             parentRegion = region
             shadow(cornerRadius = cornerRadius, colour = model.style[Style.ShadowColour])
             roundedRectangle(cornerRadius = cornerRadius, colour = model.style[Style.ElementBackgroundColour])
@@ -81,7 +81,7 @@ ComponentChildrenContext<Model, Width, Height>.dropdown(
                         }
                     }
 
-                    renderOption(this, option)
+                    singleChild.renderOption(option)
                 }
             }
         }
@@ -103,6 +103,6 @@ ComponentChildrenContext<Model, Width, Height>.dropdown(
                 }
         }
 
-        renderPrimaryOption(selectedOption)
+        singleChild.renderPrimaryOption(selectedOption)
     }
 }

@@ -86,7 +86,7 @@ fun main() {
     controller.events.connect { event -> when (event) {
         // when the controller emits a "Refreshed" event, it needs to be
         // redrawn, so tell the window to redraw by drawing the controller.
-        UIController.Event.Refreshed -> window.draw { controller.draw(this) }
+        UIController.Event.Refreshed -> window.draw { controller.repositionAndDraw(this) }
     } }
 
     // Pass window events into the controller.

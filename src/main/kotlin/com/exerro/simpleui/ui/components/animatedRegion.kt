@@ -22,7 +22,7 @@ ComponentChildrenContext<Model, Width, Height>.animatedRegion(
     val (getAnimatingFrom, setAnimatingFrom) = useMemory<Region>()
     val (getAnimatingFromTime, setAnimatingFromTime) = useMemory<Long>()
 
-    withDrawModifier { draw ->
+    singleChild.withDrawModifier { draw ->
         val time = System.nanoTime()
         val lastRegion = getLastRegion()
         val animatingFrom = getAnimatingFrom()

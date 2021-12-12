@@ -11,11 +11,14 @@ ComponentChildrenContext<Model, Width, Height>.withDecoration(
     decoration: DrawContext.() -> Unit,
 ) = modifier(
     { w, h, aw, ah -> ModifiedSizes(w, h, aw, ah) },
-    { _, _, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
-        SizeResolvedComponent(childWidth, childHeight, eventHandlers) {
-            if (!after) decoration()
-            draw()
-            if (after) decoration()
+    { _, _, _, _, _, sizeResolved ->
+        sizeResolved.copy { r ->
+            val resolved = sizeResolved.positionResolver(r)
+            resolved.copy(draw = {
+                if (!after) decoration()
+                resolved.draw(this)
+                if (after) decoration()
+            })
         }
     }
 )

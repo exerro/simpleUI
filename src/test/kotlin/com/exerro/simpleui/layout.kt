@@ -96,7 +96,7 @@ fun main() {
     }
 
     controller.events
-        .connect { window.draw { controller.draw(this) } }
+        .connect { window.draw { controller.repositionAndDraw(this) } }
 
     window.events.connect(controller::pushEvent)
 

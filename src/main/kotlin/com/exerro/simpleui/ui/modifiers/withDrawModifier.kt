@@ -10,7 +10,10 @@ ComponentChildrenContext<Model, Width, Height>.withDrawModifier(
     modify: DrawContext.(ComponentDrawFunction) -> Unit,
 ) = modifier(
     { w, h, aw, ah -> ModifiedSizes(w, h, aw, ah) },
-    { _, _, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
-        SizeResolvedComponent(childWidth, childHeight, eventHandlers) { modify(draw) }
+    { _, _, _, _, _, sizeResolved ->
+        sizeResolved.copy { r ->
+            val resolved = sizeResolved.positionResolver(r)
+            resolved.copy(draw = { modify(resolved.draw) })
+        }
     }
 )
