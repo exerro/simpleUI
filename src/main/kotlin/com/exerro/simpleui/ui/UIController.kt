@@ -12,7 +12,6 @@ import com.exerro.simpleui.ui.internal.RootComponentData
 class UIController<Model: UIModel> private constructor(
     private val co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>,
     val events: EventBus<Event>,
-    private val root: RootComponentData<Model>,
 ) {
     private var eventHandlers: List<ComponentEventHandler> = emptyList()
 
@@ -36,16 +35,6 @@ class UIController<Model: UIModel> private constructor(
     }
 
     @UndocumentedExperimentalUI
-    fun updateModel(update: (Model) -> Model) {
-        root.setModel(update(root.getModel()))
-    }
-
-    @UndocumentedExperimentalUI
-    fun setModel(model: Model) {
-        root.setModel(model)
-    }
-
-    @UndocumentedExperimentalUI
     sealed interface Event {
         @UndocumentedExperimentalUI
         object Refreshed: Event
@@ -55,7 +44,7 @@ class UIController<Model: UIModel> private constructor(
         @UndocumentedExperimentalUI
         operator fun <Model: UIModel> invoke(
             initialModel: Model,
-            init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
+            init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
         ): UIController<Model> {
             lateinit var co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>
             var currentModel = initialModel
@@ -73,19 +62,18 @@ class UIController<Model: UIModel> private constructor(
                     if (completed) { if (--refreshingCounter == 0) eventBus.push(Event.Refreshed) }
                     else ++refreshingCounter
                 }
-
             }
 
             co = ComponentObject(rootComponentData, PersistentComponentData(null, "<root>")) {
                 DeferredComponentContext(this).init()
             }
 
-            return UIController(co, eventBus, rootComponentData)
+            return UIController(co, eventBus)
         }
 
         @UndocumentedExperimentalUI
         operator fun invoke(
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
+            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
         ): UIController<UIModel> = invoke(UIModel(), init)
     }
 }

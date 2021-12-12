@@ -22,7 +22,7 @@ interface ComponentContext<
     fun refresh()
 
     @UndocumentedExperimentalUI
-    fun <H: HookState> getHookStateOrRegister(newHook: () -> H): H
+    fun <H: HookState> getHookStateOrNew(newHook: () -> H): H
 
     @UndocumentedExperimentalUI
     fun onDraw(draw: ComponentDrawFunction)
@@ -43,5 +43,17 @@ interface ComponentContext<
             eventHandlers: List<ComponentEventHandler>,
             children: List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>
         ) -> ResolvedComponent<ChildWidth, ChildHeight>,
-    ): ComponentReturn
+    ): ComponentIsResolved
+
+    @UndocumentedExperimentalUI
+    fun setResolver(
+        resolveComponent: (
+            width: ParentWidth,
+            height: ParentHeight,
+            availableWidth: Float,
+            availableHeight: Float,
+            drawFunctions: List<ComponentDrawFunction>,
+            eventHandlers: List<ComponentEventHandler>,
+        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
+    ): ComponentIsResolved
 }

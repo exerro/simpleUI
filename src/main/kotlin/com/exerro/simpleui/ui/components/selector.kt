@@ -20,7 +20,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
 ) = component("selector") {
     val (selected, setSelected) = useState(initialValue)
 
@@ -44,7 +44,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusLeft,
@@ -62,7 +62,7 @@ fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Flo
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentReturn
+    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusUp,

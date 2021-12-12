@@ -14,7 +14,7 @@ internal data class ComponentObject<
     private val root: RootComponentData<Model>,
     private val persistent: PersistentComponentData,
     private var children: List<ComponentObject<Model, *, *, *, *>> = emptyList(),
-    private val generator: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn,
+    private val generator: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved,
 ) {
     lateinit var resolveChildren: (ParentWidth, ParentHeight, Float, Float) -> ResolvedComponent<ChildWidth, ChildHeight>; private set
 
@@ -27,7 +27,7 @@ internal data class ComponentObject<
         override val model get() = root.getModel()
         override fun setModel(model: Model) = root.setModel(model)
 
-        override fun <H : HookState> getHookStateOrRegister(newHook: () -> H) =
+        override fun <H : HookState> getHookStateOrNew(newHook: () -> H) =
             persistent.hooks.getHookStateOrNew(newHook)
 
         override fun refresh() {
@@ -45,10 +45,10 @@ internal data class ComponentObject<
         override fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
             getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
             resolveComponent: (ParentWidth, ParentHeight, Float, Float, List<ComponentDrawFunction>, List<ComponentEventHandler>, List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>) -> ResolvedComponent<ChildWidth, ChildHeight>
-        ): ComponentReturn {
+        ): ComponentIsResolved {
             val thisDrawFunctions = onDrawFunctions.toList()
             val thisEventHandlers = eventHandlers.toList()
-            val deferredChildren = mutableListOf<Triple<String, Any?, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentReturn>>()
+            val deferredChildren = mutableListOf<Triple<String, Any?, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentIsResolved>>()
             val context = object: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
                 override val model get() = root.getModel()
                 override fun setModel(model: Model) = root.setModel(model)
@@ -56,10 +56,10 @@ internal data class ComponentObject<
                 override fun rawComponent(
                     elementType: String,
                     trackingId: Any?,
-                    init: ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentReturn
-                ): ComponentReturn {
+                    init: ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentIsResolved
+                ): ComponentIsResolved {
                     deferredChildren.add(Triple(elementType, trackingId, init))
-                    return ComponentReturn.INSTANCE
+                    return ComponentIsResolved.INSTANCE
                 }
             }
 
@@ -91,7 +91,18 @@ internal data class ComponentObject<
                 resolveComponent(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers, childObjects.map { it.resolveChildren })
             }
 
-            return ComponentReturn.INSTANCE
+            return ComponentIsResolved.INSTANCE
+        }
+
+        override fun setResolver(resolveComponent: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> ResolvedComponent<ChildWidth, ChildHeight>): ComponentIsResolved {
+            val thisDrawFunctions = onDrawFunctions.toList()
+            val thisEventHandlers = eventHandlers.toList()
+
+            this@ComponentObject.resolveChildren = { width, height, availableWidth, availableHeight ->
+                resolveComponent(width, height, availableWidth, availableHeight, thisDrawFunctions, thisEventHandlers)
+            }
+
+            return ComponentIsResolved.INSTANCE
         }
     }
 

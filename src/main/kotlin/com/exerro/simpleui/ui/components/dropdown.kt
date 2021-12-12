@@ -26,8 +26,8 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     toggleVisibleAction: Action = SelectEntity,
     selectNextOptionAction: Action = MoveFocusDown, // TODO
     selectPreviousOptionAction: Action = MoveFocusUp, // TODO
-    renderOption: DeferredComponentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.(T) -> ComponentReturn,
-    renderPrimaryOption: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentReturn,
+    renderOption: DeferredComponentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.(T) -> ComponentIsResolved,
+    renderPrimaryOption: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentIsResolved,
 ) = component("dropdown") {
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, updateOnVaryingInitialValue = true)
     val (stateIsExpanded, setExpandedState) = useState(false)

@@ -20,14 +20,14 @@ interface ComponentChildrenContext<
     fun rawComponent(
         elementType: String = "generic",
         trackingId: Any? = null,
-        init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
-    ): ComponentReturn
+        init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved
+    ): ComponentIsResolved
 
     @UndocumentedExperimentalUI
     @BuilderInference
     fun component(
         elementType: String = "generic",
         trackingId: Any? = null,
-        init: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
+        init: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved
     ) = rawComponent(elementType, trackingId) { DeferredComponentContext(this).init() }
 }
