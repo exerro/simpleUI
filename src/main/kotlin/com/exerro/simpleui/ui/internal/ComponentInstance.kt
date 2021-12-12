@@ -11,17 +11,17 @@ internal class ComponentInstance<
         ChildWidth: Float?,
         ChildHeight: Float?,
 >(
-    private val controller: UIController2<Model>,
-    private val persistent: PersistentComponentData2,
+    private val controller: UIController<Model>,
+    private val persistent: PersistentComponentData,
     private val init: ComponentInstance<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> TransientComponentData<ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
 ) {
-    internal lateinit var transient: TransientComponentData<ParentWidth, ParentHeight, ChildWidth, ChildHeight>
+    lateinit var transient: TransientComponentData<ParentWidth, ParentHeight, ChildWidth, ChildHeight>; private set
 
     internal fun refresh() {
-        controller.notifyRefreshed(false)
+        controller.notifyRefreshing(completed = false)
         persistent.hooks.reset()
         transient = init()
-        controller.notifyRefreshed(true)
+        controller.notifyRefreshing(completed = true)
     }
 
     companion object {
@@ -64,18 +64,19 @@ internal class ComponentInstance<
                 ): ComponentIsResolved {
                     val thisDrawFunctions = drawFunctions.toList()
                     val thisEventHandlers = eventHandlers.toList()
-                    val deferredChildren = mutableListOf<Triple<String, ID, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentIsResolved>>()
+                    val deferredChildren = mutableListOf<Triple<String, Id, ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentIsResolved>>()
                     val context = object: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight> {
+                        override val ids = IdProvider(parent = persistent.id)
                         override val model get() = controller.getModel()
                         override fun setModel(model: Model) = controller.setModel(model)
                         override fun updateModel(update: (Model) -> Model) = controller.updateModel(update)
 
                         override fun rawComponent(
                             elementType: String,
-                            trackingId: Any?,
+                            id: Id,
                             init: ComponentContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> ComponentIsResolved
                         ): ComponentIsResolved {
-                            deferredChildren.add(Triple(elementType, trackingId as ID, init)) // TODO
+                            deferredChildren.add(Triple(elementType, id, init))
                             return ComponentIsResolved.INSTANCE
                         }
                     }

@@ -1,17 +1,11 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.ui.Style
-import com.exerro.simpleui.ui.UIController
-import com.exerro.simpleui.ui.components.animatedRegion
-import com.exerro.simpleui.ui.components.button
-import com.exerro.simpleui.ui.components.flow
-import com.exerro.simpleui.ui.components.vdiv
-import com.exerro.simpleui.ui.get
+import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.hooks.useOnce
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.*
-import com.exerro.simpleui.ui.noChildrenDeclareSize
 import java.lang.Math.random
 
 fun main() {
@@ -49,7 +43,7 @@ fun main() {
                                 roundedRectangle(cornerRadius = 8.px, colour = colour)
                             }
 
-                            noChildrenDeclareSize(width.toFloat(), height.toFloat())
+                            noChildrenDefineDefaultSize(width.toFloat(), height.toFloat())
                         }
                     }
                 }

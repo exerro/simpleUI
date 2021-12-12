@@ -24,7 +24,7 @@ fun ComponentChildrenContext<*, *, *, *, *>.label(
         }
     }
 
-    noChildrenDeclareDefaultSize(width = 192f, height = font.lineHeight * text.lines.size)
+    noChildrenDefineDefaultSize(width = 192f, height = font.lineHeight * text.lines.size)
 }
 
 @UndocumentedExperimentalUI

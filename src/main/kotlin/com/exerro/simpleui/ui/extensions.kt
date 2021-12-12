@@ -2,6 +2,7 @@ package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.EKeyPressed
 import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.ui.internal.calculateInverse
 
 @UndocumentedExperimentalUI
 fun ComponentContext<*, *, *, *, *>.bind(keybind: ActionKeybind, behaviour: () -> Boolean) = connectEventHandler { event ->
@@ -25,18 +26,8 @@ fun ComponentContext<*, *, *, *, *>.bind(action: Action, behaviour: () -> Boolea
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @UndocumentedExperimentalUI
-data class ModifiedSizes<Width: Float?, Height: Float?>(
-    val width: Width,
-    val height: Height,
-    val availableWidth: Float,
-    val availableHeight: Float,
-)
-
-@UndocumentedExperimentalUI
-fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.noChildren(
-    resolveComponent: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> ResolvedComponent<ChildWidth, ChildHeight>
-) = setResolver { w, h, aw, ah, drawFunctions, eventHandlers ->
-    resolveComponent(w, h, aw, ah, drawFunctions, eventHandlers)
+fun ComponentContext<*, *, *, Nothing?, Nothing?>.noChildren() = setResolver { _, _, _, _, drawFunctions, eventHandlers ->
+    ResolvedComponent(null, null, eventHandlers) { for (f in drawFunctions) f(this) }
 }
 
 @UndocumentedExperimentalUI
@@ -44,51 +35,44 @@ inline fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, Child
     crossinline resolveChildSize: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float) -> Pair<ChildWidth, ChildHeight>
 ) = setResolver { w, h, aw, ah, drawFunctions, eventHandlers ->
     val (cw, ch) = resolveChildSize(w, h, aw, ah)
-    ResolvedComponent(cw, ch, eventHandlers) {
-        for (f in drawFunctions) f(this)
-    }
+    ResolvedComponent(cw, ch, eventHandlers) { for (f in drawFunctions) f(this) }
 }
 
 @UndocumentedExperimentalUI
-fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareSize(
-    width: ChildWidth,
-    height: ChildHeight
-) = noChildren { _, _, _, _ -> width to height }
-
-@UndocumentedExperimentalUI
-@JvmName("noChildrenW")
-fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareWidth(width: ChildWidth): ComponentIsResolved =
-    noChildren { _, _, _, _ -> width to null }
-
-@UndocumentedExperimentalUI
-@JvmName("noChildrenH")
-fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareHeight(height: ChildHeight) =
-    noChildren { _, _, _, _ -> null to height }
-
-@UndocumentedExperimentalUI
-fun ComponentContext<*, *, *, Nothing?, Nothing?>.noChildren() =
-    noChildren { _, _, _, _ -> null to null }
-
-@UndocumentedExperimentalUI
-@JvmName("noChildrenWD")
-fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareDefaultSize(
+fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDefineDefaultSize(
     width: Float,
     height: Float,
-) = noChildren { w, h, _, _ -> (if (w == null) width else null) as ChildWidth to (if (h == null) height else null) as ChildHeight }
+) = setResolver { w, h, _, _, drawFunctions, eventHandlers ->
+    val cw = calculateInverse<ChildWidth>(w) { width }
+    val ch = calculateInverse<ChildHeight>(h) { height }
+    ResolvedComponent(cw, ch, eventHandlers) { for (f in drawFunctions) f(this) }
+}
 
 @UndocumentedExperimentalUI
-@JvmName("noChildrenWD")
-fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareDefaultWidth(
+fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDefineDefaultWidth(
     width: Float
-) = noChildren { w, _, _, _ -> (if (w == null) width else null) as ChildWidth to null }
+) = setResolver { w, _, _, _, drawFunctions, eventHandlers ->
+    val cw = calculateInverse<ChildWidth>(w) { width }
+    ResolvedComponent(cw, null, eventHandlers) { for (f in drawFunctions) f(this) }
+}
 
 @UndocumentedExperimentalUI
-@JvmName("noChildrenHD")
-fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareDefaultHeight(
+fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDefineDefaultHeight(
     height: Float
-) = noChildren { _, h, _, _ -> null to (if (h == null) height else null) as ChildHeight }
+) = setResolver { _, h, _, _, drawFunctions, eventHandlers ->
+    val ch = calculateInverse<ChildHeight>(h) { height }
+    ResolvedComponent(null, ch, eventHandlers) { for (f in drawFunctions) f(this) }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@UndocumentedExperimentalUI
+data class ModifiedSizes<Width: Float?, Height: Float?>(
+    val width: Width,
+    val height: Height,
+    val availableWidth: Float,
+    val availableHeight: Float,
+)
 
 @UndocumentedExperimentalUI
 fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?>
@@ -98,14 +82,15 @@ ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, 
 ): ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
     val parentContext = this
     return object : ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
+        override val ids = parentContext.ids
         override val model get() = parentContext.model
         override fun setModel(model: Model) = parentContext.setModel(model)
 
         override fun rawComponent(
             elementType: String,
-            trackingId: Any?,
+            id: Id,
             init: ComponentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight>.() -> ComponentIsResolved
-        ) = parentContext.rawComponent(elementType, trackingId) {
+        ) = parentContext.rawComponent(elementType, id) {
             val pContext = this
 
             object: ComponentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {

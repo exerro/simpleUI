@@ -1,6 +1,7 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.ui.internal.ComponentInstance
 
 @UndocumentedExperimentalUI
 @UIContextType
@@ -16,7 +17,7 @@ interface ComponentContext<
         ChildHeight: Float?,
 >: SharedContext<Model> {
     @UndocumentedExperimentalUI
-    val thisComponentId: Any?
+    val thisComponentId: Id
 
     @UndocumentedExperimentalUI
     fun refresh()
@@ -31,6 +32,18 @@ interface ComponentContext<
     fun connectEventHandler(handler: ComponentEventHandler)
 
     @UndocumentedExperimentalUI
+    fun setResolver(
+        resolveComponent: (
+            width: ParentWidth,
+            height: ParentHeight,
+            availableWidth: Float,
+            availableHeight: Float,
+            drawFunctions: List<ComponentDrawFunction>,
+            eventHandlers: List<ComponentEventHandler>,
+        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
+    ): ComponentIsResolved
+
+    @UndocumentedExperimentalUI
     // TODO: add extra configuration for controlling child tracking
     fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
         getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
@@ -42,18 +55,6 @@ interface ComponentContext<
             drawFunctions: List<ComponentDrawFunction>,
             eventHandlers: List<ComponentEventHandler>,
             children: List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>
-        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
-    ): ComponentIsResolved
-
-    @UndocumentedExperimentalUI
-    fun setResolver(
-        resolveComponent: (
-            width: ParentWidth,
-            height: ParentHeight,
-            availableWidth: Float,
-            availableHeight: Float,
-            drawFunctions: List<ComponentDrawFunction>,
-            eventHandlers: List<ComponentEventHandler>,
         ) -> ResolvedComponent<ChildWidth, ChildHeight>,
     ): ComponentIsResolved
 }

@@ -11,7 +11,7 @@ import com.exerro.simpleui.ui.components.vdiv
 
 /** Calculate the size in [Pixels] of children that overflow the explicit
  *  partition sizes of a dividing element (see: [hdiv], [vdiv]). */
-fun divCalculateOverflow(
+internal fun divCalculateOverflow(
     partitions: Array<out Pixels>,
     childCount: Int,
     spacing: Pixels
@@ -35,13 +35,14 @@ fun divCalculateOverflow(
     }
 
 @UndocumentedExperimentalUI
-fun joinEventHandlers(
+internal fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
     children: List<ResolvedComponent<*, *>>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
 
 @UndocumentedExperimentalUI
-fun <ChildValue: Float?> calculateInverse(
+@Suppress("UNCHECKED_CAST")
+internal inline fun <ChildValue: Float?> calculateInverse(
     parentValue: Float?,
     calculateChildValue: () -> Float,
 ): ChildValue = (if (parentValue == null) calculateChildValue() else null) as ChildValue
