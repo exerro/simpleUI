@@ -19,7 +19,7 @@ fun main() {
 
         val animatedRegion = target.currentValue
 
-        animatedRegion.draw {
+        withRegion(animatedRegion) {
             fill(Colours.white)
         }
     }

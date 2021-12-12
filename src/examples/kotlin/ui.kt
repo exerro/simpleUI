@@ -1,11 +1,10 @@
 import com.exerro.simpleui.GLFWWindowCreator
-import com.exerro.simpleui.Undocumented
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.modifiers.*
 
-@Undocumented
+/** An example model, containing all the data we need to run our application. */
 data class ExampleModel(
     val theme: Int = 0,
 ): UIModel {
@@ -17,7 +16,7 @@ data class ExampleModel(
     }
 }
 
-@Undocumented
+/** Main function which runs the application. */
 fun main() {
     // Create a window, titled "UI".
     val window = GLFWWindowCreator.createWindow("UI")

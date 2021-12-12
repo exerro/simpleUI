@@ -1,6 +1,5 @@
 package com.exerro.simpleui.colour
 
-import com.exerro.simpleui.Undocumented
 import com.exerro.simpleui.internal.cycle
 import com.exerro.simpleui.internal.isRoughlyZero
 import kotlin.math.max
@@ -84,7 +83,7 @@ object Colours {
         alpha = a.alpha * (1 - ratio) + b.alpha * ratio
     )
 
-    @Undocumented
+    /** Return a random colour. */
     fun random(): Colour =
         RGBA(Math.random(), Math.random(), Math.random())
 

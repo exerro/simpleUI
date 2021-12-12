@@ -16,7 +16,7 @@ fun main() {
 
         // Take the region representing the screen, and resize to 256x32px. By
         // default, resizing down like this leaves the resultant region centred.
-        region.resizeTo(256.px, 32.px).draw {
+        withRegion(region.resizeTo(256.px, 32.px)) {
             // Draw an outline shadow for this region.
             shadow()
             // Fill the region with a teal background.

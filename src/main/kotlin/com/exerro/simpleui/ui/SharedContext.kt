@@ -1,16 +1,16 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 interface SharedContext<Model: UIModel> {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     val model: Model
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun setModel(model: Model)
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun updateModel(update: (Model) -> Model) =
         setModel(update(model))
 }

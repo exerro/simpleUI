@@ -38,21 +38,21 @@ fun main() {
             .flatMap { it.partitionHorizontally(partitions = colours.size / 4, spacing = 8.px) }
 
         topRegions.zip(colours).forEach { (r, c) ->
-            r.draw {
+            withRegion(r) {
                 roundedRectangle(4.px, palette[c.second], palette[c.second.withVariant(PaletteVariant.Darker)], 2.px)
                 write(c.first.uppercase(), palette[PaletteColour.Black()], font = Font.monospace)
             }
         }
 
         belowRegions.zip(colours).forEach { (r, c) ->
-            r.draw {
+            withRegion(r) {
                 val (r0, r1, r2, r3, r4) = r.partitionVertically(5, 8.px)
 
-                r0.draw { fill(palette[c.second.withVariant(PaletteVariant.Dimmer)]); write("dimmer", palette[PaletteColour.White()]) }
-                r1.draw { fill(palette[c.second.withVariant(PaletteVariant.Brighter)]); write("brighter", palette[PaletteColour.White()]) }
-                r2.draw { fill(palette[c.second.withVariant(PaletteVariant.Darker)]); write("darker", palette[PaletteColour.White()]) }
-                r3.draw { fill(palette[c.second]); write(c.first.lowercase(), palette[PaletteColour.White()]) }
-                r4.draw { fill(palette[c.second.withVariant(PaletteVariant.Lighter)]); write("lighter", palette[PaletteColour.White()]) }
+                withRegion(r0) { fill(palette[c.second.withVariant(PaletteVariant.Dimmer)]); write("dimmer", palette[PaletteColour.White()]) }
+                withRegion(r1) { fill(palette[c.second.withVariant(PaletteVariant.Brighter)]); write("brighter", palette[PaletteColour.White()]) }
+                withRegion(r2) { fill(palette[c.second.withVariant(PaletteVariant.Darker)]); write("darker", palette[PaletteColour.White()]) }
+                withRegion(r3) { fill(palette[c.second]); write(c.first.lowercase(), palette[PaletteColour.White()]) }
+                withRegion(r4) { fill(palette[c.second.withVariant(PaletteVariant.Lighter)]); write("lighter", palette[PaletteColour.White()]) }
             }
         }
     }

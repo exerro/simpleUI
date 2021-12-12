@@ -1,11 +1,11 @@
-package com.exerro.simpleui.extensions
+package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.EventBus
-import com.exerro.simpleui.Undocumented
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@Undocumented
+@UndocumentedExperimentalUI
 class PushableEventBus<T>: EventBus<T> {
-    @Undocumented
+    @UndocumentedExperimentalUI
     fun push(event: T) {
         synchronized(callbacks) { callbacks.toList() }
             .forEach { it(event) }

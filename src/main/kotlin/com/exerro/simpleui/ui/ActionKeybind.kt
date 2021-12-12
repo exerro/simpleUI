@@ -1,9 +1,9 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.KeyModifier
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 data class ActionKeybind(
     val keyName: String,
     val modifiers: Set<KeyModifier> = emptySet(),

@@ -1,12 +1,12 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.ResolvedComponent
 import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.internal.joinEventHandlers
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>.stack(
     init: ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>.() -> Unit
 ) = rawComponent("stack") {

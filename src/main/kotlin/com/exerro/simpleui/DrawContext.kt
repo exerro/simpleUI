@@ -10,7 +10,7 @@ import kotlin.time.Duration
  *  [roundedRectangle].
  *  Initially, [region] represents the window content area. To draw in a
  *  different [Region], the [region] field can be used to derive a sub-region
- *  then use [draw] to draw within that instead.
+ *  then use [withRegion] to draw within that instead.
  *
  *  **Warning**: unless explicitly stated otherwise, using context members after
  *  a frame has been drawn will lead to undefined behaviour. An example of this
@@ -20,6 +20,12 @@ import kotlin.time.Duration
  *  least unexpected behaviour. */
 @DrawContextDSL
 interface DrawContext {
+    /** Graphics associated with this [DrawContext]. */
+    val graphics: Graphics
+
+    /** Layer being drawn to. */
+    val layer: Layer
+
     /** Area on-screen where content is drawn relative to. */
     val region: Region
 
@@ -81,25 +87,6 @@ interface DrawContext {
         isResource: Boolean = true,
     )
 
-    /** Return a copy of [buffer] word-wrapped to fit the [availableWidth]. */
-    fun <Colour> wordWrap(
-        buffer: TextBuffer<Colour>,
-        font: Font = Font.default,
-        indentationSize: Int = 4,
-        availableWidth: Float = region.width,
-    ): TextBuffer<Colour>
-
-    /** Return a [Region] which will span the area used when rendering [buffer]
-     *  using [write] with the same parameters. Note: this includes any space
-     *  used for indentation. */
-    fun textBufferBounds(
-        buffer: TextBuffer<*>,
-        font: Font = Font.default,
-        horizontalAlignment: Alignment = 0.5f,
-        verticalAlignment: Alignment = 0.5f,
-        indentationSize: Int = 4,
-    ): Region
-
     /** Draw a [buffer] of text to the screen. */
     fun write(
         buffer: TextBuffer<Colour>,
@@ -123,20 +110,171 @@ interface DrawContext {
         verticalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
         wordWrap: Boolean = false,
+    ) = write(
+        buffer = graphics.wordWrap(TextBufferBuilder(text = text, colour = colour, splitSegments = wordWrap), font = font, indentationSize = indentationSize, availableWidth = region.width),
+        font = font,
+        horizontalAlignment = horizontalAlignment,
+        verticalAlignment = verticalAlignment,
+        indentationSize = indentationSize
     )
+
+    /** Draw content using [draw] on the [layer] provided. Layers describe an
+     *  ordering to drawn content. See [Window.draw]. */
+    fun <T> withLayer(
+        layer: Layer,
+        draw: DrawContext.() -> T
+    ): T
 
     /** Draw content within another region. When [clip] is true, all content
      *  drawn within the callback [draw] is clipped to the region given. */
-    fun <T> Region.draw(
+    fun <T> withRegion(
+        region: Region,
         clip: Boolean = false,
-        draw: DrawContext.() -> T,
+        draw: DrawContext.() -> T
     ): T
 
-    /** Shorthand for drawing a list of regions. See [DrawContext.draw]. [draw]
+    /** Shorthand for drawing a list of regions. See [withRegion]. [draw]
      *  callback receives an additional parameter for the index of the region
      *  being drawn. */
-    fun List<Region>.draw(
+    fun <T> withRegions(
+        regions: List<Region>,
         clip: Boolean = false,
-        draw: DrawContext.(index: Int) -> Unit,
-    ) = forEachIndexed { i, r -> r.draw(clip = clip) { draw(i) } }
+        draw: DrawContext.(index: Int) -> T
+    ): List<T> = regions.mapIndexed { i, v -> withRegion(v, clip) { draw(i) } }
+
+    /** Represents a set of draw calls that have been collected but yet
+     *  executed, grouped by [Layer]. */
+    data class DeferredDrawCalls(
+        val hasDynamicContent: Boolean,
+        val dynamicContentChangesIn: Duration,
+        val layers: Map<Layer, List<DeferredLayer>>,
+    ) {
+        /** A sequence of draw calls in a given [Layer], within a defined
+         *  [clipRegion]. */
+        data class DeferredLayer(
+            val clipRegion: Region,
+            val drawCalls: List<DrawContextRenderer.DeferredDrawCall>,
+        )
+    }
+
+    companion object {
+        /** Buffer a [draw] function, returning a [DeferredDrawCalls] instance
+         *  which can be used to actually draw the content. */
+        internal fun <T> buffer(
+            graphics: Graphics,
+            layer: Layer,
+            drawRegion: Region,
+            clipRegion: Region,
+            impl: DrawContextRenderer,
+            draw: DrawContext.() -> T
+        ): Pair<DeferredDrawCalls, T> {
+            var currentDrawRegion = drawRegion
+            var hasDynamicContent = false
+            var dynamicContentChangesIn: Duration = Duration.INFINITE
+            val deferredDrawCalls = mutableListOf<DrawContextRenderer.DeferredDrawCall>()
+            val result = mutableMapOf<Layer, MutableList<DeferredDrawCalls.DeferredLayer>>()
+
+            fun addCurrentStuff() {
+                if (deferredDrawCalls.isNotEmpty()) {
+                    result.computeIfAbsent(layer) { mutableListOf() } += DeferredDrawCalls.DeferredLayer(
+                        clipRegion = clipRegion,
+                        drawCalls = deferredDrawCalls.toList() // copy
+                    )
+                    deferredDrawCalls.clear()
+                }
+            }
+
+            val context = object: DrawContext {
+                override val graphics = graphics
+                override val layer = layer
+                override val region get() = currentDrawRegion
+                override val clipRegion = clipRegion
+
+                override fun dynamicContent(changesIn: Duration?) {
+                    hasDynamicContent = true
+
+                    if (changesIn != null)
+                        dynamicContentChangesIn = minOf(changesIn, dynamicContentChangesIn)
+                }
+
+                override fun fill(colour: Colour) {
+                    deferredDrawCalls += impl.fill(currentDrawRegion, colour)
+                }
+
+                override fun roundedRectangle(
+                    cornerRadius: Pixels,
+                    colour: Colour,
+                    borderColour: Colour,
+                    borderWidth: Pixels
+                ) {
+                    deferredDrawCalls += impl.roundedRectangle(currentDrawRegion, cornerRadius, colour, borderColour, borderWidth)
+                }
+
+                override fun ellipse(colour: Colour, borderColour: Colour, borderWidth: Pixels) {
+                    deferredDrawCalls += impl.ellipse(currentDrawRegion, colour, borderColour, borderWidth)
+                }
+
+                override fun shadow(colour: Colour, radius: Pixels, offset: Pixels, cornerRadius: Pixels) {
+                    deferredDrawCalls += impl.shadow(currentDrawRegion, colour, radius, offset, cornerRadius)
+                }
+
+                override fun image(path: String, tint: Colour?, isResource: Boolean) {
+                    deferredDrawCalls += impl.image(currentDrawRegion, path, tint, isResource)
+                }
+
+                override fun write(
+                    buffer: TextBuffer<Colour>,
+                    font: Font,
+                    horizontalAlignment: Alignment,
+                    verticalAlignment: Alignment,
+                    indentationSize: Int
+                ) {
+                    deferredDrawCalls += impl.write(currentDrawRegion, buffer, font, horizontalAlignment, verticalAlignment, indentationSize)
+                }
+
+                override fun <T> withLayer(layer: Layer, draw: DrawContext.() -> T): T {
+                    addCurrentStuff()
+                    val (additionalContent, r) = buffer(graphics, layer, currentDrawRegion, clipRegion, impl, draw)
+
+                    if (additionalContent.hasDynamicContent)
+                        dynamicContent(additionalContent.dynamicContentChangesIn)
+
+                    for ((l, ds) in additionalContent.layers) {
+                        result.computeIfAbsent(l) { mutableListOf() } .addAll(ds)
+                    }
+
+                    return r
+                }
+
+                override fun <T> withRegion(region: Region, clip: Boolean, draw: DrawContext.() -> T): T {
+                    return if (clip) {
+                        addCurrentStuff()
+                        val (additionalContent, r) = buffer(graphics, layer, region, region, impl, draw)
+
+                        if (additionalContent.hasDynamicContent)
+                            dynamicContent(additionalContent.dynamicContentChangesIn)
+
+                        for ((l, ds) in additionalContent.layers) {
+                            result.computeIfAbsent(l) { mutableListOf() } .addAll(ds)
+                        }
+
+                        r
+                    }
+                    else {
+                        val oldDrawRegion = currentDrawRegion
+                        currentDrawRegion = region
+                        val result = draw()
+                        currentDrawRegion = oldDrawRegion
+                        result
+                    }
+                }
+            }
+
+            val r = context.draw()
+
+            addCurrentStuff()
+
+            return DeferredDrawCalls(hasDynamicContent, dynamicContentChangesIn, result) to r
+        }
+    }
 }

@@ -1,6 +1,6 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.standardActions.MoveFocusDown
@@ -11,7 +11,7 @@ import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 // TODO: wrapping on min/max
 // TODO: tabSelector
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
 ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selector(
     focused: Boolean,
@@ -37,7 +37,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     init(selected.takeIf { focused })
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
 ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizontalSelector(
     focused: Boolean,
@@ -55,7 +55,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     init = init,
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
         ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.verticalSelector(
     focused: Boolean,

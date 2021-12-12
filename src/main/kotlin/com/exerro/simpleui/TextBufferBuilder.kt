@@ -2,6 +2,7 @@ package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
+import kotlin.time.Duration
 import kotlin.time.TimeMark
 
 /** Used to create [TextBuffer]s in a nice way. */
@@ -38,8 +39,10 @@ interface TextBufferBuilder<Colour> {
 
     /** Emit a cursor at the current position in the text. If [colour] is null,
      *  [defaultColour] is used. [resetAt] is used to facilitate cursor blinking
-     *  and represents when the cursor was "reset" (e.g. moved, created). */
-    fun emitCursor(colour: Colour? = null, resetAt: TimeMark? = null)
+     *  and represents when the cursor was "reset" (e.g. moved, created).
+     *  [blinkRate] describes the rate at which the cursor toggles from visible
+     *  to invisible. */
+    fun emitCursor(colour: Colour? = null, resetAt: TimeMark? = null, blinkRate: Duration = Duration.seconds(0.5))
 
     /** Begin a type decoration from the next character. Decorations can stack
      *  and multiple of any type can be active at any given time, although only
@@ -78,8 +81,8 @@ interface TextBufferBuilder<Colour> {
             indentation += relativeIndentation
         }
 
-        override fun emitCursor(colour: Colour?, resetAt: TimeMark?) {
-            activeLineCursors.add(TextBuffer.Cursor(thisLineLength, colour ?: defaultColour, resetAt))
+        override fun emitCursor(colour: Colour?, resetAt: TimeMark?, blinkRate: Duration) {
+            activeLineCursors.add(TextBuffer.Cursor(thisLineLength, colour ?: defaultColour, resetAt, blinkRate))
         }
 
         override fun beginDecoration(decoration: TextBuffer.Decoration, colour: Colour?) {

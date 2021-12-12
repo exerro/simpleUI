@@ -40,10 +40,10 @@ fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenC
             appliedChildren.forEachIndexed { i, c ->
                 val allocatedHeight = if (i == children.lastIndex && children.size > partitions.size) height - lastY else round(appliedHeights[i])
 
-                region
+                withRegion(region
                     .resizeTo(width = (c.width ?: region.width).px, horizontalAlignment = horizontalAlignment)
-                    .copy(y = region.y + lastY, height = allocatedHeight)
-                    .draw(draw = c.draw)
+                    .copy(y = region.y + lastY, height = allocatedHeight),
+                    draw = c.draw)
 
                 lastY += round(appliedHeights[i] + spacingValue)
             }

@@ -1,15 +1,11 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.EventBus
-import com.exerro.simpleui.UndocumentedExperimental
-import com.exerro.simpleui.WindowEvent
-import com.exerro.simpleui.extensions.PushableEventBus
+import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.internal.ComponentObject
 import com.exerro.simpleui.ui.internal.PersistentComponentData
 import com.exerro.simpleui.ui.internal.RootComponentData
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 class UIController<Model: UIModel> private constructor(
     private val co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>,
     val events: EventBus<Event>,
@@ -17,42 +13,43 @@ class UIController<Model: UIModel> private constructor(
 ) {
     private var eventHandlers: List<ComponentEventHandler> = emptyList()
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun draw(context: DrawContext) {
         val readyToDraw = co.resolveChildren(context.region.width, context.region.height, context.region.width, context.region.height)
         eventHandlers = readyToDraw.eventHandlers
         readyToDraw.draw(context)
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun pushEvent(event: WindowEvent) {
         for (eventHandler in eventHandlers.reversed()) {
             if (eventHandler(event)) break
         }
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun load() {
         co.refresh()
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun updateModel(update: (Model) -> Model) {
         root.setModel(update(root.getModel()))
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun setModel(model: Model) {
         root.setModel(model)
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     sealed interface Event {
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         object Refreshed: Event
     }
 
     companion object {
+        @UndocumentedExperimentalUI
         operator fun <Model: UIModel> invoke(
             initialModel: Model,
             init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
@@ -82,5 +79,10 @@ class UIController<Model: UIModel> private constructor(
 
             return UIController(co, eventBus, rootComponentData)
         }
+
+        @UndocumentedExperimentalUI
+        operator fun invoke(
+            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
+        ): UIController<UIModel> = invoke(UIModel(), init)
     }
 }

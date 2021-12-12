@@ -1,9 +1,11 @@
 package com.exerro.simpleui.ui.modifiers
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.percent
 import com.exerro.simpleui.ui.*
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     top: Pixels = 0.percent,
     right: Pixels = 0.percent,
@@ -25,18 +27,18 @@ fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Floa
         val cw = childWidth?.let { it + widthDelta } as ChildWidth
         val ch = childHeight?.let { it + heightDelta } as ChildHeight
         ResolvedComponent(cw, ch, eventHandlers) {
-            region.withPadding(top = top, right = right, bottom = bottom, left = left).draw(draw = draw)
+            withRegion(region.withPadding(top = top, right = right, bottom = bottom, left = left), draw = draw)
         }
     }
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     vertical: Pixels,
     horizontal: Pixels,
 ) = withPadding(top = vertical, right = horizontal, bottom = vertical, left = horizontal)
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
     all: Pixels,
 ) = withPadding(top = all, right = all, bottom = all, left = all)

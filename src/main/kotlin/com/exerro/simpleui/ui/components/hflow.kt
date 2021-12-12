@@ -1,12 +1,15 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.Alignment
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.internal.joinEventHandlers
 import kotlin.math.floor
 import kotlin.math.round
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.hflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
@@ -18,7 +21,7 @@ fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildre
     val separatorColour = model.style[Style.SeparatorColour]
 
     children(init) { _, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
-        val spacingValue = spacing.apply(availableWidth)
+        val spacingValue = spacing.apply(availableWidth) + separatorThickness
         val appliedChildren = (if (reversed) children.reversed() else children).map { child ->
             child(null, height, availableWidth, availableHeight)
         }
@@ -33,15 +36,15 @@ fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildre
 
             appliedChildren.forEachIndexed { i, c ->
                 if (showSeparators && i > 0)
-                    region.copy(
+                    withRegion(region.copy(
                         x = region.x + lastX - floor((spacingValue + separatorThickness) / 2),
                         width = separatorThickness
-                    ).draw { fill(separatorColour) }
+                    )) { fill(separatorColour) }
 
-                region
+                withRegion(region
                     .resizeTo(width = c.width.px, height = (c.height ?: region.height).px, verticalAlignment = verticalAlignment)
-                    .copy(x = region.x + lastX)
-                    .draw(draw = c.draw)
+                    .copy(x = region.x + lastX),
+                    draw = c.draw)
 
                 lastX += round(c.width + spacingValue)
             }

@@ -1,7 +1,7 @@
 package com.exerro.simpleui.ui.internal
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.ComponentEventHandler
@@ -34,13 +34,13 @@ fun divCalculateOverflow(
         availableSize / overflowedChildren
     }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
     children: List<ResolvedComponent<*, *>>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <ChildValue: Float?> calculateInverse(
     parentValue: Float?,
     calculateChildValue: () -> Float,

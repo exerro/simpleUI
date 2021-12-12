@@ -1,9 +1,10 @@
 package com.exerro.simpleui.ui.modifiers
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, Nothing?, Nothing?, Float, Float>.withSize(
     width: Pixels,
     height: Pixels,

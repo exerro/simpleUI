@@ -1,13 +1,13 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
     icon: Image,
     type: ButtonType = ButtonType.Default,
@@ -50,14 +50,14 @@ fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
 
         if (focused) {
             val thisRegion = region
-            region.resizeTo(height = 20.percent, width = 100.percent, verticalAlignment = 1f).rounded().draw(clip = true) {
-                thisRegion.withPadding(1.px).draw {
+            withRegion(region.resizeTo(height = 20.percent, width = 100.percent, verticalAlignment = 1f).rounded(), clip = true) {
+                withRegion(thisRegion.withPadding(1.px)) {
                     roundedRectangle(cornerRadius = 50.percent, colour = Colours.transparent, borderColour = model.style[focusColourKey], borderWidth = focusUnderlineThickness)
                 }
             }
         }
 
-        region.withPadding(12.px).draw { image(icon.image, model.style[foregroundColourKey], icon.imageIsResource) }
+        withRegion(region.withPadding(12.px)) { image(icon.image, model.style[foregroundColourKey], icon.imageIsResource) }
     }
 
     noChildrenDeclareDefaultSize(width = 48f, height = 48f)
