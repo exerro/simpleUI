@@ -1,7 +1,6 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.ui.internal.ComponentInstance
 
 @UndocumentedExperimentalUI
 @UIContextType

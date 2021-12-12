@@ -6,13 +6,13 @@ import com.exerro.simpleui.ui.ComponentContext
 import com.exerro.simpleui.ui.HookState
 
 @UndocumentedInternal
-internal class OnLoadHookState<T>(
+internal data class OnLoadHookState<T>(
     var evaluated: Boolean,
     var value: T?,
 ): HookState
 
 @UndocumentedExperimentalUI
-fun <T> ComponentContext<*, *, *, *, *>.useOnce(fn: () -> T): T {
+fun <T: Any> ComponentContext<*, *, *, *, *>.useOnce(fn: () -> T): T {
     val hook = getHookStateOrNew { OnLoadHookState<T>(false, null) }
     if (!hook.evaluated) {
         hook.evaluated = true

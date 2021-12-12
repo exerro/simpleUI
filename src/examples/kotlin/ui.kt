@@ -14,9 +14,8 @@ data class ExampleModel(
     val theme: Int = 0,
 ): UIModel {
     override val keybinds = ActionKeybinds.Default
-    override val style = when (theme % 3) {
+    override val style = when (theme % 2) {
         0 -> Style.Dark
-        1 -> Style.Accessible
         else -> Style.Light
     }
 }

@@ -1,6 +1,7 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.DrawContext
+import com.exerro.simpleui.GLFWWindowCreator
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.WindowEvent
 import com.exerro.simpleui.ui.internal.ComponentInstance
@@ -14,10 +15,11 @@ class UIController<Model: UIModel>(
     val events = PushableEventBus<Event>()
 
     @UndocumentedExperimentalUI
-    fun pushEvent(event: WindowEvent) {
+    fun pushEvent(event: WindowEvent): Boolean {
         for (eventHandler in eventHandlers.reversed()) {
-            if (eventHandler(event)) break
+            if (eventHandler(event)) return true
         }
+        return false
     }
 
     @UndocumentedExperimentalUI
@@ -102,5 +104,20 @@ class UIController<Model: UIModel>(
         operator fun invoke(
             init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
         ) = UIController(UIModel(), init)
+
+        @UndocumentedExperimentalUI
+        fun runDefaultApp(
+            title: String = "Default UI App",
+            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+        ) {
+            val window = GLFWWindowCreator.createWindow(title)
+            val controller = UIController(UIModel(), init)
+
+            controller.events.connect { window.draw { controller.draw(this) } }
+            window.events.connect(controller::pushEvent)
+            controller.load()
+
+            while (!window.isClosed) GLFWWindowCreator.update()
+        }
     }
 }
