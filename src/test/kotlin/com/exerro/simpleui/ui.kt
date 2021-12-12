@@ -124,7 +124,7 @@ fun main() {
                         }
                     }
 
-                    labelledSection("Sliders") {
+                    labelledSection("Sliders (NYI)") {
                         horizontalSelector(selectedRow == 2, maximumValue = 0) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 component {
@@ -192,7 +192,7 @@ fun main() {
                         }
                     }
 
-                    labelledSection("Toggles") {
+                    labelledSection("Toggles (NYI)") {
                         horizontalSelector(selectedRow == 4, maximumValue = 2) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 component {

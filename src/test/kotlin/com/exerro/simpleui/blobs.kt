@@ -10,7 +10,7 @@ import com.exerro.simpleui.ui.modifiers.*
 import java.lang.Math.random
 
 fun blobsController() = UIController {
-    val (width, setWidth) = useState(512f)
+    val (outerWidth, setWidth) = useState(512f)
 
     onDraw {
         fill(model.style[Style.AlternateBackgroundColour])
@@ -18,7 +18,7 @@ fun blobsController() = UIController {
 
     withPadding(32.px, 64.px).vdiv(48.px, spacing = 32.px) {
         withHorizontalAlignment(0.5f).dropdown(
-            initialSelectedOption = width,
+            initialSelectedOption = outerWidth,
             options = listOf(512f, 768f, 1024f, 1516f),
             focused = true,
             onOptionChanged = setWidth,
@@ -26,7 +26,7 @@ fun blobsController() = UIController {
             renderPrimaryOption = { withPadding(12.px, 24.px).label("${it.toInt()}px", horizontalAlignment = 0f) },
         )
 
-        withPadding(32.px).withAlignment(0.5f, 0f).withWidth(width.px).withDecoration {
+        withPadding(32.px).withAlignment(0.5f, 0f).withWidth(outerWidth.px).withAnimatedRegion().withDecoration {
             withRegion(region.withPadding((-32).px)) {
                 shadow(cornerRadius = 16.px)
                 roundedRectangle(cornerRadius = 16.px, colour = model.style[Style.BackgroundColour])
@@ -37,19 +37,18 @@ fun blobsController() = UIController {
             verticalRowAlignment = 0f,
             horizontalRowAlignment = 0f,
         ) {
-            for (i in 1 .. 1) {
-                animatedRegion {
-                    component {
-                        val (width, height) = useOnce { (128 + random() * 128) to (64 + random() * 64) }
-                        val colour = useOnce { Colours.random() }
+            for (i in 1 .. 32) {
+                withAnimatedRegion().component {
+                    val width = useOnce { 128 + random() * 128 }
+                    val height = useOnce { 64 + random() * 64 }
+                    val colour = useOnce { Colours.random() }
 
-                        onDraw {
-                            shadow(cornerRadius = 8.px)
-                            roundedRectangle(cornerRadius = 8.px, colour = colour)
-                        }
-
-                        noChildrenDefineDefaultSize(width.toFloat(), height.toFloat())
+                    onDraw {
+                        shadow(cornerRadius = 8.px)
+                        roundedRectangle(cornerRadius = 8.px, colour = colour)
                     }
+
+                    noChildrenDefineDefaultSize(width.toFloat(), height.toFloat())
                 }
             }
         }
