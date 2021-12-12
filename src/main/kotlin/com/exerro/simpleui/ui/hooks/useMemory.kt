@@ -12,6 +12,6 @@ internal class MemoryHookState<T>(
 
 @UndocumentedExperimentalUI
 fun <T> ComponentContext<*, *, *, *, *>.useMemory(): Pair<() -> T?, (T) -> Unit> {
-    val hook = getHookStateOrRegister { MemoryHookState<T>() }
+    val hook = getHookStateOrNew { MemoryHookState<T>() }
     return Pair({ hook.value }, { hook.value = it })
 }

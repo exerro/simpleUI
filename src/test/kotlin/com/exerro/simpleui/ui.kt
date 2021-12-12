@@ -33,7 +33,7 @@ fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, 
             write(label, model.style[Style.HeaderForegroundColour], horizontalAlignment = 0f, font = Font.heading)
         }
 
-        noChildrenDeclareHeight(height = Font.heading.lineHeight)
+        noChildrenDefineDefaultHeight(height = Font.heading.lineHeight)
     }
     init()
 }
@@ -111,7 +111,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 48f)
+                                    noChildrenDefineDefaultSize(192f, 48f)
                                 }
 
                                 component {
@@ -131,7 +131,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 48f)
+                                    noChildrenDefineDefaultSize(192f, 48f)
                                 }
 
                                 component {
@@ -146,7 +146,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 48f)
+                                    noChildrenDefineDefaultSize(192f, 48f)
                                 }
 
                                 component {
@@ -162,7 +162,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 48f)
+                                    noChildrenDefineDefaultSize(192f, 48f)
                                 }
                             }
                         }
@@ -178,7 +178,7 @@ fun main() {
                                         slider(0.3f, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour].takeIf { focused }, model.style[Style.ShadowColour])
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
 
                                 component {
@@ -186,7 +186,7 @@ fun main() {
                                         progress(0.3f, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], null, model.style[Style.ShadowColour])
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
 
                                 component {
@@ -194,7 +194,7 @@ fun main() {
                                         progress(0.6f, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], Colours.white, model.style[Style.ShadowColour])
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
 
                                 component {
@@ -202,7 +202,7 @@ fun main() {
                                         progress(0.2f, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], Colours.white, model.style[Style.ShadowColour])
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
                             }
                         }
@@ -264,7 +264,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
 
                                 component {
@@ -293,7 +293,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
 
                                 component {
@@ -327,7 +327,7 @@ fun main() {
                                         }
                                     }
 
-                                    noChildrenDeclareSize(192f, 24f)
+                                    noChildrenDefineDefaultSize(192f, 24f)
                                 }
                             }
                         }

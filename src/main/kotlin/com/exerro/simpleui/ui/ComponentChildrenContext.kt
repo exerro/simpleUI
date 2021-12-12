@@ -16,18 +16,19 @@ interface ComponentChildrenContext<
         ChildHeight: Float?,
 >: SharedContext<Model> {
     @UndocumentedExperimentalUI
-    @BuilderInference
-    fun rawComponent(
-        elementType: String = "generic",
-        trackingId: Any? = null,
-        init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
-    ): ComponentReturn
+    val ids: IdProvider
 
     @UndocumentedExperimentalUI
-    @BuilderInference
+    fun rawComponent(
+        elementType: String = "generic",
+        id: Id = ids.localAnonymous(elementType),
+        init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved
+    ): ComponentIsResolved
+
+    @UndocumentedExperimentalUI
     fun component(
         elementType: String = "generic",
-        trackingId: Any? = null,
-        init: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
-    ) = rawComponent(elementType, trackingId) { DeferredComponentContext(this).init() }
+        id: Id = ids.localAnonymous(elementType),
+        init: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved
+    ) = rawComponent(elementType, id) { DeferredComponentContext(this).init() }
 }

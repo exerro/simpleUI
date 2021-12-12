@@ -16,19 +16,31 @@ interface ComponentContext<
         ChildHeight: Float?,
 >: SharedContext<Model> {
     @UndocumentedExperimentalUI
-    val thisComponentId: Any?
+    val thisComponentId: Id
 
     @UndocumentedExperimentalUI
     fun refresh()
 
     @UndocumentedExperimentalUI
-    fun <H: HookState> getHookStateOrRegister(newHook: () -> H): H
+    fun <H: HookState> getHookStateOrNew(newHook: () -> H): H
 
     @UndocumentedExperimentalUI
     fun onDraw(draw: ComponentDrawFunction)
 
     @UndocumentedExperimentalUI
     fun connectEventHandler(handler: ComponentEventHandler)
+
+    @UndocumentedExperimentalUI
+    fun setResolver(
+        resolveComponent: (
+            width: ParentWidth,
+            height: ParentHeight,
+            availableWidth: Float,
+            availableHeight: Float,
+            drawFunctions: List<ComponentDrawFunction>,
+            eventHandlers: List<ComponentEventHandler>,
+        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
+    ): ComponentIsResolved
 
     @UndocumentedExperimentalUI
     // TODO: add extra configuration for controlling child tracking
@@ -43,5 +55,5 @@ interface ComponentContext<
             eventHandlers: List<ComponentEventHandler>,
             children: List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>
         ) -> ResolvedComponent<ChildWidth, ChildHeight>,
-    ): ComponentReturn
+    ): ComponentIsResolved
 }

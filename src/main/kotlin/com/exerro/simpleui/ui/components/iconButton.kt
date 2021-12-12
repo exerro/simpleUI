@@ -60,5 +60,5 @@ fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
         withRegion(region.withPadding(12.px)) { image(icon.image, model.style[foregroundColourKey], icon.imageIsResource) }
     }
 
-    noChildrenDeclareDefaultSize(width = 48f, height = 48f)
+    noChildrenDefineDefaultSize(width = 48f, height = 48f)
 }

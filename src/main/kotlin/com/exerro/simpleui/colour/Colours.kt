@@ -93,6 +93,7 @@ object Colours {
     // TODO: burgundy: 552a3f
     // TODO: yellow: c6b848
     // TODO: pink: d37dad
+    // TODO: https://i.imgur.com/UXcnokg.png
 
     /** No colour. */
     val transparent = RGBA(0f, 0f, 0f, 0f)

@@ -3,7 +3,7 @@ package com.exerro.simpleui.ui.components
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.ComponentChildrenContext
-import com.exerro.simpleui.ui.ComponentReturn
+import com.exerro.simpleui.ui.ComponentIsResolved
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.hooks.useMemory
 import com.exerro.simpleui.ui.modifiers.withDrawModifier
@@ -15,7 +15,7 @@ fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Floa
 ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.animatedRegion(
     duration: Duration = Duration.seconds(0.4),
     easing: (t: Float, a: Float, b: Float) -> Float = { t, a, b -> a + 3 * (b - a) * t * t - 2 * (b - a) * t * t * t },
-    content: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn,
+    content: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved,
 ) = component {
     val (getLastRegion, setLastRegion) = useMemory<Region>()
     val (getAnimatingFrom, setAnimatingFrom) = useMemory<Region>()

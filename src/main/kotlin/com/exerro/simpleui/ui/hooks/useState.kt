@@ -16,7 +16,7 @@ fun <T> ComponentContext<*, *, *, *, *>.useState(
     initialValue: T,
     updateOnVaryingInitialValue: Boolean = false,
 ): Triple<T, (T) -> Unit, Boolean> {
-    val hook = getHookStateOrRegister { StateHookState(initialValue, initialValue) }
+    val hook = getHookStateOrNew { StateHookState(initialValue, initialValue) }
     var changed = false
 
     if (updateOnVaryingInitialValue && hook.lastInitialValue != initialValue) {

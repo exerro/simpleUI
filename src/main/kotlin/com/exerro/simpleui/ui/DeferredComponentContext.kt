@@ -18,11 +18,12 @@ class DeferredComponentContext<
     private val componentContext: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
 ): ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
     ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight> by componentContext {
+    override val ids = IdProvider(thisComponentId)
     override val model get() = componentContext.model
 
-    override fun rawComponent(elementType: String, trackingId: Any?, init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn): ComponentReturn {
+    override fun rawComponent(elementType: String, id: Id, init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved): ComponentIsResolved {
         return componentContext.children<ParentWidth, ParentHeight, ChildWidth, ChildHeight>({
-            rawComponent(elementType, trackingId, init)
+            rawComponent(elementType, id, init)
         }) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
             val a = children.last()(width, height, availableWidth, availableHeight)
             a.copy(

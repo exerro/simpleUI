@@ -1,48 +1,96 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.EventBus
+import com.exerro.simpleui.GLFWWindowCreator
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.WindowEvent
-import com.exerro.simpleui.ui.internal.ComponentObject
+import com.exerro.simpleui.ui.internal.ComponentInstance
 import com.exerro.simpleui.ui.internal.PersistentComponentData
-import com.exerro.simpleui.ui.internal.RootComponentData
 
 @UndocumentedExperimentalUI
-class UIController<Model: UIModel> private constructor(
-    private val co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>,
-    val events: EventBus<Event>,
-    private val root: RootComponentData<Model>,
+class UIController<Model: UIModel>(
+    initialModel: Model,
+    init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved,
 ) {
-    private var eventHandlers: List<ComponentEventHandler> = emptyList()
+    val events = PushableEventBus<Event>()
+
+    @UndocumentedExperimentalUI
+    fun pushEvent(event: WindowEvent): Boolean {
+        for (eventHandler in eventHandlers.reversed()) {
+            if (eventHandler(event)) return true
+        }
+        return false
+    }
 
     @UndocumentedExperimentalUI
     fun draw(context: DrawContext) {
-        val readyToDraw = co.resolveChildren(context.region.width, context.region.height, context.region.width, context.region.height)
+        val readyToDraw = c.transient.resolver(context.region.width, context.region.height, context.region.width, context.region.height)
         eventHandlers = readyToDraw.eventHandlers
         readyToDraw.draw(context)
     }
 
     @UndocumentedExperimentalUI
-    fun pushEvent(event: WindowEvent) {
-        for (eventHandler in eventHandlers.reversed()) {
-            if (eventHandler(event)) break
-        }
-    }
-
-    @UndocumentedExperimentalUI
-    fun load() {
-        co.refresh()
-    }
-
-    @UndocumentedExperimentalUI
-    fun updateModel(update: (Model) -> Model) {
-        root.setModel(update(root.getModel()))
-    }
+    fun getModel() = currentModel
 
     @UndocumentedExperimentalUI
     fun setModel(model: Model) {
-        root.setModel(model)
+        currentModel = model
+        c.refresh()
+    }
+
+    @UndocumentedExperimentalUI
+    fun updateModel(update: (Model) -> Model) =
+        setModel(update(getModel()))
+
+    @UndocumentedExperimentalUI
+    fun load() = c.refresh()
+
+    private var currentModel = initialModel
+    private val persistentData = mutableMapOf<Id, PersistentComponentData>()
+    private var eventHandlers = emptyList<ComponentEventHandler>()
+    private var refreshedDuringWait = false
+    private var waitingForRefresh = 0
+    private var refreshingCounter = 0
+    private val c = ComponentInstance(
+        controller = this,
+        persistent = PersistentComponentData(Id.Root, "root"),
+        init = ComponentInstance.convertComponentFunction<Model, Float, Float, Nothing?, Nothing?> {
+            init(DeferredComponentContext(this))
+        }
+    )
+
+    internal fun getPersistentData(id: Id, elementType: String): PersistentComponentData {
+        if (id in persistentData) {
+            val existing = persistentData[id]!!
+            if (existing.elementType == elementType) return existing
+        }
+        val newPersistentData = PersistentComponentData(id, elementType)
+        persistentData[id] = newPersistentData
+        return newPersistentData
+    }
+
+    @UndocumentedExperimentalUI
+    internal fun notifyRefreshing(completed: Boolean) {
+        if (completed) {
+            if (--refreshingCounter == 0) {
+                if (waitingForRefresh == 0) events.push(Event.Refreshed)
+                else refreshedDuringWait = true
+            }
+        }
+        else ++refreshingCounter
+    }
+
+    @UndocumentedExperimentalUI
+    internal fun setWaitingForRefresh(done: Boolean = false) {
+        if (!done) {
+            ++waitingForRefresh
+        }
+        if (done) {
+            if (--waitingForRefresh == 0 && refreshedDuringWait) {
+                events.push(Event.Refreshed)
+                refreshedDuringWait = false
+            }
+        }
     }
 
     @UndocumentedExperimentalUI
@@ -53,39 +101,23 @@ class UIController<Model: UIModel> private constructor(
 
     companion object {
         @UndocumentedExperimentalUI
-        operator fun <Model: UIModel> invoke(
-            initialModel: Model,
-            init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
-        ): UIController<Model> {
-            lateinit var co: ComponentObject<Model, Float, Float, Nothing?, Nothing?>
-            var currentModel = initialModel
-            var refreshingCounter = 0
-            val eventBus = PushableEventBus<Event>()
-            val rootComponentData = object: RootComponentData<Model> {
-                override fun getModel() = currentModel
-
-                override fun setModel(model: Model) {
-                    currentModel = model
-                    co.refresh()
-                }
-
-                override fun parentNotifyRefreshed(completed: Boolean) {
-                    if (completed) { if (--refreshingCounter == 0) eventBus.push(Event.Refreshed) }
-                    else ++refreshingCounter
-                }
-
-            }
-
-            co = ComponentObject(rootComponentData, PersistentComponentData(null, "<root>")) {
-                DeferredComponentContext(this).init()
-            }
-
-            return UIController(co, eventBus, rootComponentData)
-        }
+        operator fun invoke(
+            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+        ) = UIController(UIModel(), init)
 
         @UndocumentedExperimentalUI
-        operator fun invoke(
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentReturn
-        ): UIController<UIModel> = invoke(UIModel(), init)
+        fun runDefaultApp(
+            title: String = "Default UI App",
+            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+        ) {
+            val window = GLFWWindowCreator.createWindow(title)
+            val controller = UIController(UIModel(), init)
+
+            controller.events.connect { window.draw { controller.draw(this) } }
+            window.events.connect(controller::pushEvent)
+            controller.load()
+
+            while (!window.isClosed) GLFWWindowCreator.update()
+        }
     }
 }

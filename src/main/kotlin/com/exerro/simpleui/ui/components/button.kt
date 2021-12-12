@@ -68,7 +68,7 @@ fun AnyComponentChildrenContext.button(
         }
     }
 
-    noChildrenDeclareDefaultSize(width = 192f, height = 32f)
+    noChildrenDefineDefaultSize(width = 192f, height = 32f)
 }
 
 @UndocumentedExperimentalUI
