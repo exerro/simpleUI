@@ -1,9 +1,10 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.EKeyPressed
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.Graphics
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentContext<*, *, *, *, *>.bind(keybind: ActionKeybind, behaviour: () -> Boolean) = connectEventHandler { event ->
     if (event !is EKeyPressed) return@connectEventHandler false
     val handled = keybind.keyName == event.name && keybind.modifiers == event.modifiers && (keybind.allowRepeats || !event.isRepeat)
@@ -11,7 +12,7 @@ fun ComponentContext<*, *, *, *, *>.bind(keybind: ActionKeybind, behaviour: () -
     handled && behaviour()
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentContext<*, *, *, *, *>.bind(action: Action, behaviour: () -> Boolean) = connectEventHandler { event ->
     if (event !is EKeyPressed) return@connectEventHandler false
     val keybinds = model.keybinds[action]
@@ -24,7 +25,7 @@ fun ComponentContext<*, *, *, *, *>.bind(action: Action, behaviour: () -> Boolea
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 data class ModifiedSizes<Width: Float?, Height: Float?>(
     val width: Width,
     val height: Height,
@@ -32,14 +33,14 @@ data class ModifiedSizes<Width: Float?, Height: Float?>(
     val availableHeight: Float,
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.noChildren(
     resolveComponent: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float, drawFunctions: List<ComponentDrawFunction>, eventHandlers: List<ComponentEventHandler>) -> ResolvedComponent<ChildWidth, ChildHeight>
 ) = children<Nothing?, Nothing?, Nothing?, Nothing?>({}) { w, h, aw, ah, drawFunctions, eventHandlers, _ ->
     resolveComponent(w, h, aw, ah, drawFunctions, eventHandlers)
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 inline fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.noChildren(
     crossinline resolveChildSize: (width: ParentWidth, height: ParentHeight, availableWidth: Float, availableHeight: Float) -> Pair<ChildWidth, ChildHeight>
 ) = children<Nothing?, Nothing?, Nothing?, Nothing?>({}) { w, h, aw, ah, drawFunctions, eventHandlers, _ ->
@@ -49,40 +50,40 @@ inline fun <ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, Child
     }
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareSize(
     width: ChildWidth,
     height: ChildHeight
 ) = noChildren { _, _, _, _ -> width to height }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @JvmName("noChildrenW")
 fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareWidth(width: ChildWidth): ComponentReturn =
     noChildren { _, _, _, _ -> width to null }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @JvmName("noChildrenH")
 fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareHeight(height: ChildHeight) =
     noChildren { _, _, _, _ -> null to height }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentContext<*, *, *, Nothing?, Nothing?>.noChildren() =
     noChildren { _, _, _, _ -> null to null }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @JvmName("noChildrenWD")
 fun <ChildWidth: Float?, ChildHeight: Float?> ComponentContext<*, *, *, ChildWidth, ChildHeight>.noChildrenDeclareDefaultSize(
     width: Float,
     height: Float,
 ) = noChildren { w, h, _, _ -> (if (w == null) width else null) as ChildWidth to (if (h == null) height else null) as ChildHeight }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @JvmName("noChildrenWD")
 fun <ChildWidth: Float?> ComponentContext<*, *, *, ChildWidth, Nothing?>.noChildrenDeclareDefaultWidth(
     width: Float
 ) = noChildren { w, _, _, _ -> (if (w == null) width else null) as ChildWidth to null }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @JvmName("noChildrenHD")
 fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChildrenDeclareDefaultHeight(
     height: Float
@@ -90,7 +91,7 @@ fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChi
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?>
 ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
     modifyParentSize: (OldParentWidth, OldParentHeight, Float, Float) -> ModifiedSizes<NewParentWidth, NewParentHeight>,
@@ -98,7 +99,7 @@ ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, 
 ): ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
     val parentContext = this
     return object : ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
-        override val model: Model get() = parentContext.model
+        override val model get() = parentContext.model
         override fun setModel(model: Model) = parentContext.setModel(model)
 
         override fun rawComponent(
@@ -110,7 +111,7 @@ ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, 
 
             object: ComponentContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {
                 override val thisComponentId get() = pContext.thisComponentId
-                override val model: Model get() = pContext.model
+                override val model get() = pContext.model
                 override fun setModel(model: Model) = pContext.setModel(model)
                 override fun refresh() = pContext.refresh()
                 override fun <ParentHeight : HookState> getHookStateOrRegister(newHook: () -> ParentHeight) = pContext.getHookStateOrRegister(newHook)

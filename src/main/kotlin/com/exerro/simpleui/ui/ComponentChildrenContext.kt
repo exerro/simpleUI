@@ -1,8 +1,8 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @UIContextType
 interface ComponentChildrenContext<
         Model: UIModel,
@@ -15,7 +15,7 @@ interface ComponentChildrenContext<
         /** Height provided by children to parent. */
         ChildHeight: Float?,
 >: SharedContext<Model> {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     @BuilderInference
     fun rawComponent(
         elementType: String = "generic",
@@ -23,7 +23,7 @@ interface ComponentChildrenContext<
         init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentReturn
     ): ComponentReturn
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     @BuilderInference
     fun component(
         elementType: String = "generic",

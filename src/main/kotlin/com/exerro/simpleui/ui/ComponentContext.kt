@@ -1,8 +1,8 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 @UIContextType
 interface ComponentContext<
         Model: UIModel,
@@ -15,22 +15,22 @@ interface ComponentContext<
         /** Height provided by this component to parent. */
         ChildHeight: Float?,
 >: SharedContext<Model> {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     val thisComponentId: Any?
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun refresh()
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun <H: HookState> getHookStateOrRegister(newHook: () -> H): H
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun onDraw(draw: ComponentDrawFunction)
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun connectEventHandler(handler: ComponentEventHandler)
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     // TODO: add extra configuration for controlling child tracking
     fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
         getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,

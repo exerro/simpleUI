@@ -1,9 +1,10 @@
 package com.exerro.simpleui.ui.modifiers
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.DrawContext
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
 ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withDecoration(
     after: Boolean = false,

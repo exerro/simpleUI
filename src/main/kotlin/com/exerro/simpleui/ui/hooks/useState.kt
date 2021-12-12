@@ -1,6 +1,6 @@
 package com.exerro.simpleui.ui.hooks
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.UndocumentedInternal
 import com.exerro.simpleui.ui.ComponentContext
 import com.exerro.simpleui.ui.HookState
@@ -11,7 +11,7 @@ internal class StateHookState<T>(
     var lastInitialValue: T,
 ): HookState
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <T> ComponentContext<*, *, *, *, *>.useState(
     initialValue: T,
     updateOnVaryingInitialValue: Boolean = false,

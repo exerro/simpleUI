@@ -62,7 +62,7 @@ data class TextBuffer<out Colour>(
         val resetAt: TimeMark?,
         val blinkRate: Duration,
     ) {
-        @Undocumented
+        /** Return true if this cursor is currently visible, false otherwise. */
         fun isVisible(): Boolean {
             if (resetAt == null) return true
 
@@ -73,9 +73,10 @@ data class TextBuffer<out Colour>(
             return timeModBlinkRate < blinkRateNanos
         }
 
-        @Undocumented
-        fun timeTillVisibilityChanged(): Duration? {
-            if (resetAt == null) return null
+        /** Return the time until the visibility of this cursor changes. If the
+         *  cursor is constantly active, [Duration.INFINITE] is returned. */
+        fun timeTillVisibilityChanged(): Duration {
+            if (resetAt == null) return Duration.INFINITE
 
             val time = resetAt.elapsedNow()
             val blinkRateNanos = blinkRate.inWholeNanoseconds

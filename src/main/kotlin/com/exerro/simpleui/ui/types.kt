@@ -1,20 +1,20 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.WindowEvent
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 typealias AnyParentContext = ComponentChildrenContext<*, *, *, *, *>
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 typealias ParentDefinedContext<Model> = ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 typealias ComponentDefinedContext<Model> = ComponentChildrenContext<Model, Nothing?, Nothing?, Float, Float>
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 typealias ComponentEventHandler = (WindowEvent) -> Boolean
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 typealias ComponentDrawFunction = DrawContext.() -> Unit

@@ -1,11 +1,14 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.*
-import com.exerro.simpleui.ui.ResolvedComponent
+import com.exerro.simpleui.Alignment
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.ComponentChildrenContext
+import com.exerro.simpleui.ui.ResolvedComponent
 import com.exerro.simpleui.ui.UIModel
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.flow(
     verticalSpacing: Pixels = 0.px,
     horizontalSpacing: Pixels = verticalSpacing,
@@ -62,12 +65,12 @@ fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, 
                 for (child in if (reverseColumns) row.reversed() else row) {
                     val valignOffset = (rowHeight - child.height) * verticalRowAlignment
 
-                    region.copy(
+                    withRegion(region.copy(
                         x = region.x + lastX,
                         y = region.y + lastY + valignOffset,
                         width = child.width,
                         height = child.height
-                    ).draw(draw = child.draw)
+                    ), draw = child.draw)
 
                     lastX += child.width + horizontalSpacingValue
                 }

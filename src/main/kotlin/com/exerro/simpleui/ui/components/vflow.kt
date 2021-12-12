@@ -1,13 +1,16 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.Alignment
+import com.exerro.simpleui.Pixels
+import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.internal.calculateInverse
 import com.exerro.simpleui.ui.internal.joinEventHandlers
 import kotlin.math.floor
 import kotlin.math.round
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.vflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
@@ -34,15 +37,15 @@ fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenC
 
             appliedChildren.forEachIndexed { i, c ->
                 if (showSeparators && i > 0)
-                    region.copy(
+                    withRegion(region.copy(
                         y = region.y + lastY - floor((spacingValue + separatorThickness) / 2),
                         height = separatorThickness
-                    ).draw { fill(separatorColour) }
+                    )) { fill(separatorColour) }
 
-                region
+                withRegion(region
                     .resizeTo(height = c.height.px, width = (c.width ?: region.width).px, horizontalAlignment = horizontalAlignment)
-                    .copy(y = region.y + lastY)
-                    .draw(draw = c.draw)
+                    .copy(y = region.y + lastY),
+                    draw = c.draw)
 
                 lastY += round(c.height + spacingValue)
             }

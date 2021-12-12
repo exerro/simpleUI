@@ -112,18 +112,18 @@ fun main() {
             stopDecoration(TextBuffer.Decoration.Highlight)
         }
 
-        textBoxes.take(10).draw {
+        withRegions(textBoxes.take(10)) {
             shadow()
             fill(palette[PaletteColour.Charcoal(PaletteVariant.Darker)])
         }
 
-        textBoxContentAreas[0].draw { write(
+        withRegion(textBoxContentAreas[0]) { write(
             buffer = textBuffer0,
             horizontalAlignment = 0f,
             verticalAlignment = 0f
         ) }
 
-        textBoxContentAreas[1].draw { write(
+        withRegion(textBoxContentAreas[1]) { write(
             buffer = textBuffer1,
             font = Font.monospace,
             horizontalAlignment = 0f,
@@ -131,43 +131,43 @@ fun main() {
             indentationSize = 4,
         ) }
 
-        textBoxContentAreas[2].draw { write(
+        withRegion(textBoxContentAreas[2]) { write(
             buffer = graphics.wordWrap(textBuffer2, region.width),
             horizontalAlignment = 0f,
             verticalAlignment = 0f,
         )}
 
-        textBoxContentAreas[3].draw { write(
+        withRegion(textBoxContentAreas[3]) { write(
             buffer = graphics.wordWrap(textBuffer2, region.width),
         )}
 
-        textBoxContentAreas[4].draw { write(
+        withRegion(textBoxContentAreas[4]) { write(
             buffer = graphics.wordWrap(textBuffer4, region.width),
         )}
 
-        textBoxContentAreas[5].draw { write(
+        withRegion(textBoxContentAreas[5]) { write(
             buffer = graphics.wordWrap(textBuffer5, region.width),
         )}
 
-        textBoxContentAreas[6].draw {
+        withRegion(textBoxContentAreas[6]) {
             val (w, h) = graphics.textBufferSize(textBuffer6)
             val r = Region(0f, 0f, w, h).alignWithin(region)
 
             write(textBuffer6)
 
-            region.above(r).draw {
+            withRegion(region.above(r)) {
                 write("I am above", silver, verticalAlignment = 1f)
             }
 
-            region.below(r).draw {
+            withRegion(region.below(r)) {
                 write("I am below", silver, verticalAlignment = 0f)
             }
 
-            region.toLeftOf(r).draw {
+            withRegion(region.toLeftOf(r)) {
                 write("I am to the left", silver, horizontalAlignment = 1f)
             }
 
-            region.toRightOf(r).draw {
+            withRegion(region.toRightOf(r)) {
                 write("I am to the right", silver, horizontalAlignment = 0f)
             }
         }

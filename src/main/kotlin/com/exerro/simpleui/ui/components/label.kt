@@ -4,27 +4,30 @@ import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.*
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, *, *, *, *>.label(
     text: TextBuffer<Colour>,
     font: Font = Font.default,
     horizontalAlignment: Alignment = 0.5f,
     verticalAlignment: Alignment = 0.5f,
     icon: Image? = null,
-) = rawComponent("button") {
+) = rawComponent("label") {
     onDraw {
         write(text, font = font, horizontalAlignment = horizontalAlignment, verticalAlignment = verticalAlignment)
 
-        if (icon != null) region
-            .resizeTo(width = region.height.px, horizontalAlignment = 0f)
-            .withPadding(6.px)
-            .draw { image(icon.image, model.style[Style.ForegroundColour], icon.imageIsResource) }
+        if (icon != null) {
+            val iconRegion = region
+                .resizeTo(width = region.height.px, horizontalAlignment = 0f)
+                .withPadding(6.px)
+
+            withRegion(iconRegion) { image(icon.image, model.style[Style.ForegroundColour], icon.imageIsResource) }
+        }
     }
 
     noChildrenDeclareDefaultSize(width = 192f, height = font.lineHeight * text.lines.size)
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, *, *, *, *>.label(
     text: String,
     font: Font = Font.default,

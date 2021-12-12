@@ -1,6 +1,7 @@
 package com.exerro.simpleui
 
-@UndocumentedExperimental
+/** A [Graphics] object contains graphics-related methods that are not draw
+ *  commands. */
 interface Graphics {
     /** Return a copy of [buffer] word-wrapped to fit the [availableWidth]. */
     fun <Colour> wordWrap(

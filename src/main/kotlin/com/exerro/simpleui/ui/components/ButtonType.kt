@@ -1,8 +1,8 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 enum class ButtonType {
     Default,
     Primary,

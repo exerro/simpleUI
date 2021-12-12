@@ -15,7 +15,7 @@ fun Window.drawModel(model: EventModel) = draw {
 
     // Take the region representing the screen, and resize to 256x32px. By
     // default, resizing down like this leaves the resultant region centred.
-    region.resizeTo(256.px, 32.px).draw {
+    withRegion(region.resizeTo(256.px, 32.px)) {
         // Draw an outline shadow for this region.
         shadow()
         // Fill the region with a teal or red background, depending on the
@@ -26,10 +26,10 @@ fun Window.drawModel(model: EventModel) = draw {
     }
 
     // Draw a region at the bottom of the screen containing the model text
-    region.resizeTo(width = 100.percent, height = 64.px, verticalAlignment = 1f).draw {
+    withRegion(region.resizeTo(width = 100.percent, height = 64.px, verticalAlignment = 1f)) {
         fill(Colours.charcoal)
 
-        region.withPadding(16.px).draw {
+        withRegion(region.withPadding(16.px)) {
             write(model.text, Colours.white, horizontalAlignment = 0f)
         }
     }

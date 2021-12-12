@@ -5,7 +5,7 @@ import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, *, *, *, *>.button(
     text: TextBuffer<Colour>,
     type: ButtonType = ButtonType.Default,
@@ -52,23 +52,26 @@ fun ComponentChildrenContext<*, *, *, *, *>.button(
         write(text)
 
         if (focused) {
-            region.resizeTo(height = focusUnderlineThickness, width = 80.percent, verticalAlignment = 1f).draw(clip = true) {
-                region.resizeTo(height = buttonHeight.px, verticalAlignment = 0f).draw {
+            withRegion(region.resizeTo(height = focusUnderlineThickness, width = 80.percent, verticalAlignment = 1f), clip = true) {
+                withRegion(region.resizeTo(height = buttonHeight.px, verticalAlignment = 0f)) {
                     roundedRectangle(cornerRadius = cornerRadius, colour = model.style[focusColourKey])
                 }
             }
         }
 
-        if (icon != null) region
-            .resizeTo(width = region.height.px, horizontalAlignment = 0f)
-            .withPadding(6.px)
-            .draw { image(icon.image, model.style[foregroundColourKey], icon.imageIsResource) }
+        if (icon != null) {
+            val iconRegion = region
+                .resizeTo(width = region.height.px, horizontalAlignment = 0f)
+                .withPadding(6.px)
+
+            withRegion(iconRegion) { image(icon.image, model.style[foregroundColourKey], icon.imageIsResource) }
+        }
     }
 
     noChildrenDeclareDefaultSize(width = 192f, height = 32f)
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ComponentChildrenContext<*, *, *, *, *>.button(
     text: String,
     colour: Colour? = null,

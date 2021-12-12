@@ -1,24 +1,24 @@
 package com.exerro.simpleui.ui.standardActions
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.Action
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 object MoveFocusLeft: Action(
     description = "Move the focus one to the left."
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 object MoveFocusRight: Action(
     description = "Move the focus one to the right."
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 object MoveFocusUp: Action(
     description = "Move the focus one upwards."
 )
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 object MoveFocusDown: Action(
     description = "Move the focus one downwards."
 )

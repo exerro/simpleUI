@@ -12,7 +12,6 @@ import com.exerro.simpleui.ui.modifiers.withHorizontalAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
 import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
 
-@Undocumented
 data class MyModel(
     val window: Window,
     val theme: Int = 0,
@@ -37,12 +36,6 @@ fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, 
         noChildrenDeclareHeight(height = Font.heading.lineHeight)
     }
     init()
-}
-
-fun AnyParentContext.customComponent(name: String) = component {
-    val (count, setCount) = useState(0)
-
-    button("Hello $name! $count") { setCount(count + 1) }
 }
 
 fun main() {
@@ -113,7 +106,7 @@ fun main() {
                                     }
 
                                     onDraw {
-                                        region.resizeTo(height = 48.px).draw {
+                                        withRegion(region.resizeTo(height = 48.px)) {
                                             textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused)
                                         }
                                     }
@@ -133,7 +126,7 @@ fun main() {
                                     }
 
                                     onDraw {
-                                        region.resizeTo(height = 48.px).draw {
+                                        withRegion(region.resizeTo(height = 48.px)) {
                                             textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.ErrorBackgroundColour], model.style[Style.ShadowColour], focused)
                                         }
                                     }
@@ -148,7 +141,7 @@ fun main() {
                                     }
 
                                     onDraw {
-                                        region.resizeTo(height = 48.px).draw {
+                                        withRegion(region.resizeTo(height = 48.px)) {
                                             textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.DisabledBackgroundColour], model.style[Style.ShadowColour], focused)
                                         }
                                     }
@@ -164,7 +157,7 @@ fun main() {
                                     }
 
                                     onDraw {
-                                        region.resizeTo(height = 48.px).draw {
+                                        withRegion(region.resizeTo(height = 48.px)) {
                                             textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused, icon = "images/search.png", iconColour = model.style[Style.ForegroundColour])
                                         }
                                     }
@@ -250,23 +243,23 @@ fun main() {
                                         val focused = selectedElement == 0
                                         val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
                                         val textBuffer = TextBufferBuilder("Radio button", model.style[Style.ForegroundColour])
-                                        val (tbw, tbh) = label.withPadding(4.px).draw { graphics.textBufferSize(textBuffer) }
+                                        val (tbw, tbh) = withRegion(label.withPadding(4.px)) { graphics.textBufferSize(textBuffer) }
                                         val textBufferRegion = Region(label.x, 0f, tbw, tbh).alignWithin(region, horizontalAlignment = 0f)
 
                                         if (focused) {
-                                            listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {
+                                            withRegion(listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion()) {
                                                 shadow(model.style[Style.ShadowColour], cornerRadius = 8.px)
                                                 roundedRectangle(8.px, model.style[Style.ElementBackgroundColour])
                                             }
                                         }
 
-                                        button.withPadding(4.px).draw {
+                                        withRegion(button.withPadding(4.px)) {
                                             shadow(model.style[Style.ShadowColour], cornerRadius = 50.percent)
                                             ellipse(model.style[Style.ElementBackgroundColour])
 //                                            if (index == 2) region.withPadding(4.px).draw { ellipse(model.primaryColour) }
                                         }
 
-                                        label.withPadding(4.px).draw {
+                                        withRegion(label.withPadding(4.px)) {
                                             write(textBuffer, horizontalAlignment = 0f)
                                         }
                                     }
@@ -279,23 +272,23 @@ fun main() {
                                         val focused = selectedElement == 1
                                         val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
                                         val textBuffer = TextBufferBuilder("Checkbox", model.style[Style.ForegroundColour])
-                                        val (tbw, tbh) = label.withPadding(4.px).draw { graphics.textBufferSize(textBuffer) }
+                                        val (tbw, tbh) = withRegion(label.withPadding(4.px)) { graphics.textBufferSize(textBuffer) }
                                         val textBufferRegion = Region(label.x, 0f, tbw, tbh).alignWithin(region, horizontalAlignment = 0f)
 
                                         if (focused) {
-                                            listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {
+                                            withRegion(listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion()) {
                                                 shadow(model.style[Style.ShadowColour], cornerRadius = 8.px)
                                                 roundedRectangle(8.px, model.style[Style.ElementBackgroundColour])
                                             }
                                         }
 
-                                        button.withPadding(4.px).draw {
+                                        withRegion(button.withPadding(4.px)) {
                                             shadow(model.style[Style.ShadowColour], cornerRadius = 2.px)
                                             roundedRectangle(2.px, model.style[Style.ElementBackgroundColour])
 //                                            if (index == 2) region.withPadding(4.px).draw { ellipse(model.primaryColour) }
                                         }
 
-                                        label.withPadding(4.px).draw {
+                                        withRegion(label.withPadding(4.px)) {
                                             write(textBuffer, horizontalAlignment = 0f)
                                         }
                                     }
@@ -308,29 +301,29 @@ fun main() {
                                         val r = region.resizeTo(width = 96.px, horizontalAlignment = 0f)
                                         val (left, right) = r.withPadding(horizontal = 4.px).splitHorizontally()
 
-                                        r.draw {
+                                        withRegion(r) {
                                             shadow(cornerRadius = 50.percent, colour = model.style[Style.ShadowColour])
                                             roundedRectangle(50.percent, model.style[Style.ElementBackgroundColour])
                                         }
 
-                                        r.withPadding(4.px).resizeTo(width = 50.percent, horizontalAlignment = 0f).draw {
+                                        withRegion(r.withPadding(4.px).resizeTo(width = 50.percent, horizontalAlignment = 0f)) {
                                             roundedRectangle(50.percent, model.style[Style.PrimaryBackgroundColour])
                                         }
 
-                                        left.draw(clip = true) {
-                                            left.resizeTo(region.width.px + region.height.px, horizontalAlignment = 0f).draw {
+                                        withRegion(left, clip = true) {
+                                            withRegion(left.resizeTo(region.width.px + region.height.px, horizontalAlignment = 0f)) {
 //                    roundedRectangle(50.percent, if (isOn) primaryColour else model.lighterBackgroundColour)
                                             }
 
-                                            region.withPadding(4.px).draw { write("ON", colour = Colours.white, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
+                                            withRegion(region.withPadding(4.px)) { write("ON", colour = Colours.white, font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
                                         }
 
-                                        right.draw(clip = true) {
-                                            right.resizeTo(region.width.px + region.height.px, horizontalAlignment = 1f).draw {
+                                        withRegion(right, clip = true) {
+                                            withRegion(right.resizeTo(region.width.px + region.height.px, horizontalAlignment = 1f)) {
 //                    roundedRectangle(50.percent, if (!isOn) primaryColour else model.lighterBackgroundColour)
                                             }
 
-                                            region.withPadding(4.px).draw { write("OFF", colour = model.style[Style.ForegroundColour], font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
+                                            withRegion(region.withPadding(4.px)) { write("OFF", colour = model.style[Style.ForegroundColour], font = Font.default.copy(lineHeight = Font.default.lineHeight * 0.8f)) }
                                         }
                                     }
 

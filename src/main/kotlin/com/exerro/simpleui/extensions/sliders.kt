@@ -17,12 +17,12 @@ fun DrawContext.slider(
     highlightColour: Colour? = null,
     shadowColour: Colour = Colours.black,
 ) {
-    region.resizeTo(height = 6.px).draw {
+    withRegion(region.resizeTo(height = 6.px)) {
         shadow(cornerRadius = 50.percent, colour = shadowColour)
         roundedRectangle(cornerRadius = 50.percent, colour = backgroundColour)
     }
 
-    region.resizeTo(height = 16.px).withAspectRatio(1f, horizontalAlignment = value).draw {
+    withRegion(region.resizeTo(height = 16.px).withAspectRatio(1f, horizontalAlignment = value)) {
         shadow(cornerRadius = 50.percent, colour = shadowColour)
         ellipse(colour = highlightColour ?: backgroundColour)
     }
@@ -47,17 +47,17 @@ fun DrawContext.progress(
     shadow(cornerRadius = 50.percent, colour = shadowColour)
     roundedRectangle(cornerRadius = 50.percent, colour = backgroundColour)
 
-    leftRegion.draw(clip = true) {
-        region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 0f).draw {
+    withRegion(leftRegion, clip = true) {
+        withRegion(region.resizeTo(width = region.width.px + region.height.px, horizontalAlignment = 0f), clip = true) {
             roundedRectangle(cornerRadius = 50.percent, colour = highlightColour)
         }
     }
 
     if (textColour != null) {
         if (progress > 0.5f)
-            leftRegion.draw { write("${(progress * 100 + 0.5).toInt()}%", textColour) }
+            withRegion(leftRegion) { write("${(progress * 100 + 0.5).toInt()}%", textColour) }
         else
             // TODO: the text colour here can fuck up :(
-            rightRegion.draw { write("${((1 - progress) * 100 + 0.5).toInt()}%", textColour) }
+            withRegion(rightRegion) { write("${((1 - progress) * 100 + 0.5).toInt()}%", textColour) }
     }
 }

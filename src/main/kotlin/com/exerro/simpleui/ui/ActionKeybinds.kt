@@ -1,18 +1,18 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.standardActions.*
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 interface ActionKeybinds {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     operator fun get(action: Action): List<ActionKeybind>
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     operator fun get(keybind: ActionKeybind): List<Action>
 
     companion object {
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         fun create(vararg binds: Pair<ActionKeybind, Action>) = object: ActionKeybinds {
             val actions = binds.groupBy { it.second } .mapValues { (_, v) -> v.map { it.first } }
             val keybinds = binds.groupBy { it.first } .mapValues { (_, v) -> v.map { it.second } }
@@ -21,13 +21,13 @@ interface ActionKeybinds {
             override fun get(keybind: ActionKeybind) = keybinds[keybind] ?: emptyList()
         }
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         fun combine(vararg keybinds: ActionKeybinds) = object: ActionKeybinds {
             override fun get(action: Action) = keybinds.flatMap { it[action] }
             override fun get(keybind: ActionKeybind) = keybinds.flatMap { it[keybind] }
         }
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         val Default = create(
             ActionKeybind("left") to MoveFocusLeft,
             ActionKeybind("right") to MoveFocusRight,

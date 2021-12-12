@@ -1,8 +1,8 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 data class Image(
     val image: String,
     val imageIsResource: Boolean = true

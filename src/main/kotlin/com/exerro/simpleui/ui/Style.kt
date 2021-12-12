@@ -1,38 +1,38 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.UndocumentedInternal
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.colour.RGBA
 import com.exerro.simpleui.px
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 interface Style {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     val attributes: Attributes
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     fun <T> getOrNull(key: Key<T>): T?
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     sealed interface Key<T> {
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         abstract class WithDefault<T>(val defaultValue: T): Key<T>
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         abstract class FallsBackOn<T>(val fallsBackOn: Key<T>): Key<T>
     }
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     data class Attributes(
         val isDarkTheme: Boolean = false,
         val isLightTheme: Boolean = false,
         val isAccessibleTheme: Boolean = false,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     data class KeyValuePair<T> internal constructor(
         val key: Key<T>,
         val value: T,
@@ -40,123 +40,123 @@ interface Style {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object BackgroundColour: Key.WithDefault<Colour>(
         RGBA(0xe8, 0xe9, 0xe9)
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object AlternateBackgroundColour: Key.FallsBackOn<Colour>(
         BackgroundColour
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ElementBackgroundColour: Key.FallsBackOn<Colour>(
         BackgroundColour
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object PrimaryBackgroundColour: Key.WithDefault<Colour>(
         Colours.teal
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ErrorBackgroundColour: Key.WithDefault<Colour>(
         Colours.red
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object DisabledBackgroundColour: Key.WithDefault<Colour>(
         RGBA(0x7b, 0x7c, 0x7c)
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ForegroundColour: Key.WithDefault<Colour>(
         Colours.black
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object AlternateForegroundColour: Key.FallsBackOn<Colour>(
         ForegroundColour
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ElementForegroundColour: Key.FallsBackOn<Colour>(
         PrimaryForegroundColour,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object PrimaryForegroundColour: Key.WithDefault<Colour>(
         Colours.white
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ErrorForegroundColour: Key.FallsBackOn<Colour>(
         PrimaryForegroundColour,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object DisabledForegroundColour: Key.FallsBackOn<Colour>(
         PrimaryForegroundColour,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object HeaderForegroundColour: Key.FallsBackOn<Colour>(
         ForegroundColour
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ShadowColour: Key.WithDefault<Colour>(
         Colours.lightGrey.withAlpha(0.8f)
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object AlternateShadowColour: Key.WithDefault<Colour>(
         Colours.lightGrey.withAlpha(0.8f)
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ShadowRadius: Key.WithDefault<Float>(
         10f,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ShadowOffset: Key.WithDefault<Float>(
         2f,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object SeparatorColour: Key.WithDefault<Colour>(
         RGBA(0x9b, 0x9c, 0x9c)
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object SeparatorThickness: Key.WithDefault<Int>(
         1
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object FocusUnderlineThickness: Key.WithDefault<Int>(
         2,
     )
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     object ButtonCornerRadius: Key.WithDefault<Pixels>(
         6.px
     )
 
     companion object {
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         operator fun invoke(vararg values: KeyValuePair<*>, attributes: Attributes = Attributes()) =
             fromMap(values.associate { it.key to it.value }, attributes = attributes)
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         fun fromMap(colourMap: Map<Key<*>, Any?>, attributes: Attributes = Attributes()) = object: Style {
             override val attributes = attributes
             override fun <T> getOrNull(key: Key<T>) = colourMap[key] as T?
         }
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         fun combine(base: Style, vararg extras: Style, attributes: Attributes = getAttributes(base, *extras)) = object: Style {
             override val attributes = attributes
             override fun <T> getOrNull(key: Key<T>): T? {
@@ -177,7 +177,7 @@ interface Style {
             isAccessibleTheme = styles.all { it.attributes.isAccessibleTheme },
         )
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         val Light = Style(
             BackgroundColour to RGBA(0xe8, 0xe9, 0xe9),
             AlternateBackgroundColour to RGBA(0xe0, 0xe1, 0xe1),
@@ -198,7 +198,7 @@ interface Style {
             attributes = Attributes(isLightTheme = true)
         )
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         val Dark = Style(
             BackgroundColour to RGBA(0x18, 0x19, 0x19),
             AlternateBackgroundColour to RGBA(0x13, 0x14, 0x14),
@@ -219,7 +219,7 @@ interface Style {
             attributes = Attributes(isDarkTheme = true)
         )
 
-        @UndocumentedExperimental
+        @UndocumentedExperimentalUI
         val Accessible = Style(
             BackgroundColour to Colours.pureWhite,
             AlternateBackgroundColour to Colours.lighterGrey,
@@ -242,11 +242,11 @@ interface Style {
     }
 }
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 infix fun <T> Style.Key<T>.to(value: T) =
     Style.KeyValuePair(this, value)
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 tailrec operator fun <T> Style.get(key: Style.Key<T>): T {
     getOrNull(key) ?.let { return it }
 

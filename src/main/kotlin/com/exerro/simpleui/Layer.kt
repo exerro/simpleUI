@@ -1,27 +1,21 @@
 package com.exerro.simpleui
 
-@UndocumentedExperimental
-interface Layer {
-    @UndocumentedExperimental
-    val name: String
+/** A [Layer] is a conceptual plane on which content is drawn. [Layer]s are
+ *  ordered using [LayerComposition]. */
+abstract class Layer(
+    /** Name of this [Layer], for debug purposes only. */
+    val name: String,
+) {
+    /** Default layer. */
+    object Default: Layer("Default")
 
-    @UndocumentedExperimental
-    object Default: Layer {
-        override val name = "Default"
-    }
+    /** Layer that should appear in front of [Default]. */
+    object Foreground: Layer("Foreground")
 
-    @UndocumentedExperimental
-    object Foreground: Layer {
-        override val name = "Foreground"
-    }
+    /** Layer that should appear behind [Default]. */
+    object Background: Layer("Background")
 
-    @UndocumentedExperimental
-    object Background: Layer {
-        override val name = "Background"
-    }
-
-    @UndocumentedExperimental
-    object Debug: Layer {
-        override val name = "Debug"
-    }
+    /** Layer that should appear in front of everything, showing debug
+     *  information. */
+    object Debug: Layer("Debug")
 }

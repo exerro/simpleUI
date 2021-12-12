@@ -10,7 +10,7 @@ import kotlin.time.Duration
  *  [roundedRectangle].
  *  Initially, [region] represents the window content area. To draw in a
  *  different [Region], the [region] field can be used to derive a sub-region
- *  then use [draw] to draw within that instead.
+ *  then use [withRegion] to draw within that instead.
  *
  *  **Warning**: unless explicitly stated otherwise, using context members after
  *  a frame has been drawn will lead to undefined behaviour. An example of this
@@ -20,7 +20,7 @@ import kotlin.time.Duration
  *  least unexpected behaviour. */
 @DrawContextDSL
 interface DrawContext {
-    @UndocumentedExperimental
+    /** Graphics associated with this [DrawContext]. */
     val graphics: Graphics
 
     /** Layer being drawn to. */
@@ -118,7 +118,8 @@ interface DrawContext {
         indentationSize = indentationSize
     )
 
-    @UndocumentedExperimental
+    /** Draw content using [draw] on the [layer] provided. Layers describe an
+     *  ordering to drawn content. See [Window.draw]. */
     fun <T> withLayer(
         layer: Layer,
         draw: DrawContext.() -> T
@@ -132,7 +133,7 @@ interface DrawContext {
         draw: DrawContext.() -> T
     ): T
 
-    /** Shorthand for drawing a list of regions. See [DrawContext.draw]. [draw]
+    /** Shorthand for drawing a list of regions. See [withRegion]. [draw]
      *  callback receives an additional parameter for the index of the region
      *  being drawn. */
     fun <T> withRegions(
@@ -141,48 +142,36 @@ interface DrawContext {
         draw: DrawContext.(index: Int) -> T
     ): List<T> = regions.mapIndexed { i, v -> withRegion(v, clip) { draw(i) } }
 
-    /** Draw content within another region. When [clip] is true, all content
-     *  drawn within the callback [draw] is clipped to the region given. */
-    fun <T> Region.draw(
-        clip: Boolean = false,
-        draw: DrawContext.() -> T,
-    ) = withRegion(this, clip, draw)
-
-    /** Shorthand for drawing a list of regions. See [DrawContext.draw]. [draw]
-     *  callback receives an additional parameter for the index of the region
-     *  being drawn. */
-    fun List<Region>.draw(
-        clip: Boolean = false,
-        draw: DrawContext.(index: Int) -> Unit,
-    ) = withRegions(this, clip, draw)
-
-    @UndocumentedExperimental
+    /** Represents a set of draw calls that have been collected but yet
+     *  executed, grouped by [Layer]. */
     data class DeferredDrawCalls(
         val hasDynamicContent: Boolean,
         val dynamicContentChangesIn: Duration,
         val layers: Map<Layer, List<DeferredLayer>>,
     ) {
-        @UndocumentedExperimental
+        /** A sequence of draw calls in a given [Layer], within a defined
+         *  [clipRegion]. */
         data class DeferredLayer(
             val clipRegion: Region,
-            val drawCalls: List<DrawContextImplementor.DeferredDrawCall>,
+            val drawCalls: List<DrawContextRenderer.DeferredDrawCall>,
         )
     }
 
     companion object {
-        @UndocumentedExperimental
-        fun <T> buffer(
+        /** Buffer a [draw] function, returning a [DeferredDrawCalls] instance
+         *  which can be used to actually draw the content. */
+        internal fun <T> buffer(
             graphics: Graphics,
             layer: Layer,
             drawRegion: Region,
             clipRegion: Region,
-            impl: DrawContextImplementor,
+            impl: DrawContextRenderer,
             draw: DrawContext.() -> T
         ): Pair<DeferredDrawCalls, T> {
             var currentDrawRegion = drawRegion
             var hasDynamicContent = false
             var dynamicContentChangesIn: Duration = Duration.INFINITE
-            val deferredDrawCalls = mutableListOf<DrawContextImplementor.DeferredDrawCall>()
+            val deferredDrawCalls = mutableListOf<DrawContextRenderer.DeferredDrawCall>()
             val result = mutableMapOf<Layer, MutableList<DeferredDrawCalls.DeferredLayer>>()
 
             fun addCurrentStuff() {

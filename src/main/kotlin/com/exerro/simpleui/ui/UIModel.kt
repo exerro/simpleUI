@@ -1,21 +1,24 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 interface UIModel {
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     val style: Style
 
-    @UndocumentedExperimental
+    @UndocumentedExperimentalUI
     val keybinds: ActionKeybinds
 
     companion object: UIModel {
         override val style = Style.Dark
         override val keybinds = ActionKeybinds.Default
 
-        @UndocumentedExperimental
-        operator fun invoke(style: Style, keybinds: ActionKeybinds) = object: UIModel {
+        @UndocumentedExperimentalUI
+        operator fun invoke(
+            style: Style = Style.Dark,
+            keybinds: ActionKeybinds = ActionKeybinds.Default
+        ) = object: UIModel {
             override val style = style
             override val keybinds = keybinds
         }

@@ -1,25 +1,28 @@
 package com.exerro.simpleui
 
-@UndocumentedExperimental
+// TODO: some way of disabling layers in an efficient way (so withLayer {})
+//       doesn't run the callback.
+
+/** [LayerComposition] allows the user to order [Layer]s. */
 fun interface LayerComposition {
-    @UndocumentedExperimental
+    /** Specify when to draw layers using [Context]. See [Context]. */
     fun Context.draw()
 
-    @UndocumentedExperimental
+    /** Contains a single method [drawLayer]. See [drawLayer]. */
     interface Context {
-        @UndocumentedExperimental
+        /** Draw the given [layer]. */
         fun drawLayer(layer: Layer)
     }
 
     companion object {
-        @UndocumentedInternal
+        /** Default layer composition. */
         val Default = LayerComposition {
             drawLayer(Layer.Background)
             drawLayer(Layer.Default)
             drawLayer(Layer.Foreground)
         }
 
-        @UndocumentedInternal
+        /** Default debug layer composition. */
         val DefaultDebug = LayerComposition {
             drawLayer(Layer.Background)
             drawLayer(Layer.Default)

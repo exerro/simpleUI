@@ -20,7 +20,7 @@ import kotlin.math.round
 // TODO: escape to close
 // TODO: context groupUpdates { ... } to avoid multiple refreshes
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun <T, Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
 ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdown(
     initialSelectedOption: T,

@@ -1,11 +1,11 @@
 package com.exerro.simpleui.ui.components
 
-import com.exerro.simpleui.UndocumentedExperimental
+import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.ParentDefinedContext
 import com.exerro.simpleui.ui.noChildren
 
-@UndocumentedExperimental
+@UndocumentedExperimentalUI
 fun ParentDefinedContext<*>.panel(
     colour: Colour
 ) = rawComponent("panel") {

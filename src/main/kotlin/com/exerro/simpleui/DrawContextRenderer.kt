@@ -3,15 +3,18 @@ package com.exerro.simpleui
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
 
-@UndocumentedExperimental
-interface DrawContextImplementor {
-    @UndocumentedExperimental
+/** A [DrawContextRenderer] is responsible for handling the graphical output
+ *  from draw calls. It contains methods which return [DeferredDrawCall], which
+ *  are collected and passed to [submit] later. */
+interface DrawContextRenderer {
+    /** A [DeferredDrawCall] is a graphical action yet to be taken. */
     fun interface DeferredDrawCall {
-        @UndocumentedExperimental
+        /** Draw the respective graphics. */
         fun draw()
     }
 
-    @UndocumentedExperimental
+    /** Submit a sequence of [DeferredDrawCall]s to the given [layer] and
+     *  [clipRegion]. */
     fun submit(layer: Layer, clipRegion: Region, calls: Iterable<DeferredDrawCall>)
 
     /** Fill the region with a [colour]. */

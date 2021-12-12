@@ -26,15 +26,18 @@ fun DrawContext.textInput(
     roundedRectangle(4.px, backgroundColour)
 
     if (icon != null) {
-        val iconRegion = region.resizeTo(width = region.height.px, horizontalAlignment = 0f)
-        iconRegion.withPadding(12.px).draw { image(icon, iconColour, iconIsResource) }
+        val iconRegion = region
+            .resizeTo(width = region.height.px, horizontalAlignment = 0f)
+            .withPadding(12.px)
+
+        withRegion(iconRegion) { image(icon, iconColour, iconIsResource) }
     }
 
-    textRegion.draw { write(textBuffer, horizontalAlignment = 0f) }
+    withRegion(textRegion) { write(textBuffer, horizontalAlignment = 0f) }
 
     if (focused) {
-        region.resizeTo(height = 2.px, width = 100.percent - 32.px, verticalAlignment = 1f).draw(clip = true) {
-            region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
+        withRegion(region.resizeTo(height = 2.px, width = 100.percent - 32.px, verticalAlignment = 1f), clip = true) {
+            withRegion(region.resizeTo(height = 32.px, verticalAlignment = 0f)) {
                 roundedRectangle(cornerRadius = 4.px, colour = highlightColour)
             }
         }

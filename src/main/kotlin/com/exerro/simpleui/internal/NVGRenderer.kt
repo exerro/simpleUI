@@ -12,10 +12,10 @@ import kotlin.math.min
 import kotlin.math.round
 
 /** NanoVG implementation of a [DrawContext]. */
-internal class NVGDrawContext(
+internal class NVGRenderer(
     private val graphics: NVGGraphics,
-): DrawContextImplementor {
-    override fun submit(layer: Layer, clipRegion: Region, calls: Iterable<DrawContextImplementor.DeferredDrawCall>) {
+): DrawContextRenderer {
+    override fun submit(layer: Layer, clipRegion: Region, calls: Iterable<DrawContextRenderer.DeferredDrawCall>) {
         NanoVG.nvgScissor(graphics.context, clipRegion.x, clipRegion.y, clipRegion.width, clipRegion.height)
         for (call in calls) call.draw()
     }
@@ -23,7 +23,7 @@ internal class NVGDrawContext(
     override fun fill(
         region: Region,
         colour: Colour
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, graphics.colour)
         NanoVG.nvgBeginPath(graphics.context)
         NanoVG.nvgRect(graphics.context, region.x, region.y, region.width, region.height)
@@ -38,7 +38,7 @@ internal class NVGDrawContext(
         colour: Colour,
         borderColour: Colour,
         borderWidth: Pixels,
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         val cr = cornerRadius.apply(min(region.width, region.height))
         val bw = borderWidth.apply(min(region.width, region.height))
         NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, graphics.colour)
@@ -64,7 +64,7 @@ internal class NVGDrawContext(
         colour: Colour,
         borderColour: Colour,
         borderWidth: Pixels,
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         val bw = borderWidth.apply(min(region.width, region.height))
         NanoVG.nvgRGBAf(colour.red, colour.green, colour.blue, colour.alpha, graphics.colour)
         NanoVG.nvgBeginPath(graphics.context)
@@ -90,7 +90,7 @@ internal class NVGDrawContext(
         radius: Pixels,
         offset: Pixels,
         cornerRadius: Pixels,
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         val paint = NVGPaint.calloc()
         val dy = offset.apply(min(region.width, region.height))
         val cr = cornerRadius.apply(min(region.width, region.height))
@@ -111,7 +111,7 @@ internal class NVGDrawContext(
         path: String,
         tint: Colour?,
         isResource: Boolean,
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         val image = graphics.imageCache.computeIfAbsent(path) {
             if (isResource) {
                 val imageStream = GLFWWindowCreator::class.java.getResourceAsStream(path)!!
@@ -147,7 +147,7 @@ internal class NVGDrawContext(
         horizontalAlignment: Alignment,
         verticalAlignment: Alignment,
         indentationSize: Int
-    ) = DrawContextImplementor.DeferredDrawCall {
+    ) = DrawContextRenderer.DeferredDrawCall {
         graphics.setupFont(font)
 
         val lineHeight = font.lineHeight

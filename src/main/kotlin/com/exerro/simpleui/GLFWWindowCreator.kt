@@ -1,7 +1,7 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.experimental.Palette
-import com.exerro.simpleui.internal.NVGDrawContext
+import com.exerro.simpleui.internal.NVGRenderer
 import com.exerro.simpleui.internal.NVGGraphics
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
@@ -12,6 +12,8 @@ import org.lwjgl.nanovg.NanoVGGL3
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL46C
 import org.lwjgl.system.MemoryUtil
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Semaphore
 import kotlin.concurrent.thread
 import kotlin.time.Duration
 import kotlin.time.TimeMark
@@ -26,7 +28,7 @@ object GLFWWindowCreator: WindowCreator {
         val onEventList = mutableListOf<(WindowEvent) -> Unit>()
         var isClosed = false
         lateinit var nvgGraphics: NVGGraphics
-        lateinit var nvgDrawImplementor: NVGDrawContext
+        lateinit var nvgRenderer: NVGRenderer
         var palette: Palette = Palette.Default
 
         if (windows++ == 0) {
@@ -71,6 +73,12 @@ object GLFWWindowCreator: WindowCreator {
             if (isClosed) return
             isClosed = true
             worker.stop()
+
+            // destroy the window
+            GLFW.glfwDestroyWindow(windowID)
+
+            // terminate GLFW if this was the last window
+            if (--windows == 0) GLFW.glfwTerminate()
         }
 
         ////////////////////////////////////////////////////////
@@ -205,10 +213,6 @@ object GLFWWindowCreator: WindowCreator {
 
             NanoVGGL3.nvgDelete(nvgGraphics.context)
             GL.setCapabilities(null)
-            GLFW.glfwDestroyWindow(windowID)
-
-            // terminate GLFW if this was the last window
-            if (--windows == 0) GLFW.glfwTerminate()
         }
 
         worker.start("SimpleUI Render Thread [$title]") {
@@ -234,7 +238,7 @@ object GLFWWindowCreator: WindowCreator {
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
 
             nvgGraphics = NVGGraphics(context, colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
-            nvgDrawImplementor = NVGDrawContext(nvgGraphics)
+            nvgRenderer = NVGRenderer(nvgGraphics)
         }
 
         ////////////////////////////////////////////////////////
@@ -260,15 +264,16 @@ object GLFWWindowCreator: WindowCreator {
             }
 
             override fun draw(layers: LayerComposition, onDraw: DrawContext.(deltaTime: Duration) -> Unit) {
+                var lastFrame = System.nanoTime()
+                val width = IntArray(1)
+                val height = IntArray(1)
+
                 worker.loop {
-                    var lastFrame = System.nanoTime()
-                    val width = IntArray(1)
-                    val height = IntArray(1)
                     val time = System.nanoTime()
                     GLFW.glfwGetFramebufferSize(windowID, width, height)
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
 
-                    val (d) = DrawContext.buffer(nvgGraphics, Layer.Default, r, r, nvgDrawImplementor) {
+                    val (d) = DrawContext.buffer(nvgGraphics, Layer.Default, r, r, nvgRenderer) {
                         val time = System.nanoTime()
                         onDraw(Duration.nanoseconds(time - lastFrame))
                         lastFrame = time
@@ -281,7 +286,7 @@ object GLFWWindowCreator: WindowCreator {
                         object: LayerComposition.Context {
                             override fun drawLayer(layer: Layer) {
                                 for (ds in d.layers[layer] ?: emptyList()) {
-                                    nvgDrawImplementor.submit(layer, ds.clipRegion, ds.drawCalls)
+                                    nvgRenderer.submit(layer, ds.clipRegion, ds.drawCalls)
                                 }
                             }
                         } .draw()
@@ -317,8 +322,11 @@ object GLFWWindowCreator: WindowCreator {
         var onFinish: () -> Unit = {}
 
         fun start(name: String, init: () -> Unit) {
+            val c = CountDownLatch(1)
+
             thread = thread(start = true, name = name, isDaemon = true) {
                 init()
+                c.countDown()
 
                 while (running) {
                     try {
@@ -333,6 +341,8 @@ object GLFWWindowCreator: WindowCreator {
 
                 onFinish()
             }
+
+            c.await()
         }
 
         fun loop(fn: () -> Boolean) {
