@@ -6,13 +6,13 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimentalUI
-fun AnyComponentChildrenContext.button(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.button(
     text: TextBuffer<Colour>,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
     icon: Image? = null,
     action: Action = SelectEntity,
-    behaviour: () -> Unit = {},
+    crossinline behaviour: () -> Unit = {},
 ) = rawComponent("button") {
     val backgroundColourKey = when (type) {
         ButtonType.Default -> Style.ElementBackgroundColour
@@ -72,14 +72,14 @@ fun AnyComponentChildrenContext.button(
 }
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.button(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.button(
     text: String,
     colour: Colour? = null,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
     icon: Image? = null,
     action: Action = SelectEntity,
-    behaviour: () -> Unit = {},
+    crossinline behaviour: () -> Unit = {},
 ) = button(
     text = TextBufferBuilder(text, colour ?: model.style[when (type) {
         ButtonType.Default -> Style.ForegroundColour

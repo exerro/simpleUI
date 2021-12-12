@@ -3,9 +3,9 @@ package com.exerro.simpleui.ui
 import com.exerro.simpleui.UndocumentedExperimentalUI
 
 @UndocumentedExperimentalUI
-data class ResolvedComponent<out W: Float?, out H: Float?>(
-    val width: W,
-    val height: H,
+data class SizeResolvedComponent<W: WhoDefinesMe, H: WhoDefinesMe>(
+    val width: SomeValueForParent<W>,
+    val height: SomeValueForParent<H>,
     val eventHandlers: List<ComponentEventHandler>,
     val draw: ComponentDrawFunction,
 )

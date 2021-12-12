@@ -24,9 +24,9 @@ data class MyModel(
     }
 }
 
-fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.labelledSection(
+fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ChildDefinesMe>.labelledSection(
     label: String,
-    init: ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.() -> Unit,
+    init: ComponentChildrenContext<Model, ParentDefinesMe, ChildDefinesMe>.() -> Unit,
 ) = withPadding(bottom = 16.px).vflow(spacing = 8.px) {
     component {
         onDraw {

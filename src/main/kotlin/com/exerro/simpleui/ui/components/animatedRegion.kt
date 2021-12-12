@@ -5,18 +5,19 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.ComponentIsResolved
 import com.exerro.simpleui.ui.UIModel
+import com.exerro.simpleui.ui.WhoDefinesMe
 import com.exerro.simpleui.ui.hooks.useMemory
 import com.exerro.simpleui.ui.modifiers.withDrawModifier
 import kotlin.math.min
 import kotlin.time.Duration
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.animatedRegion(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.animatedRegion(
     duration: Duration = Duration.seconds(0.4),
     easing: (t: Float, a: Float, b: Float) -> Float = { t, a, b -> a + 3 * (b - a) * t * t - 2 * (b - a) * t * t * t },
-    content: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved,
-) = component {
+    content: ComponentChildrenContext<Model, Width, Height>.() -> ComponentIsResolved,
+) = component("animated-region") {
     val (getLastRegion, setLastRegion) = useMemory<Region>()
     val (getAnimatingFrom, setAnimatingFrom) = useMemory<Region>()
     val (getAnimatingFromTime, setAnimatingFromTime) = useMemory<Long>()

@@ -1,19 +1,14 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
+import com.exerro.simpleui.ui.internal.GenericResolver
 
 @UndocumentedExperimentalUI
 @UIContextType
 interface ComponentContext<
         Model: UIModel,
-        /** Width provided by parent to this component. */
-        ParentWidth: Float?,
-        /** Height provided by parent to this component. */
-        ParentHeight: Float?,
-        /** Width provided by this component to parent. */
-        ChildWidth: Float?,
-        /** Height provided by this component to parent. */
-        ChildHeight: Float?,
+        Width: WhoDefinesMe,
+        Height: WhoDefinesMe,
 >: SharedContext<Model> {
     @UndocumentedExperimentalUI
     val thisComponentId: Id
@@ -33,27 +28,27 @@ interface ComponentContext<
     @UndocumentedExperimentalUI
     fun setResolver(
         resolveComponent: (
-            width: ParentWidth,
-            height: ParentHeight,
+            width: SomeValueForChild<Width>,
+            height: SomeValueForChild<Height>,
             availableWidth: Float,
             availableHeight: Float,
             drawFunctions: List<ComponentDrawFunction>,
             eventHandlers: List<ComponentEventHandler>,
-        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
+        ) -> SizeResolvedComponent<Width, Height>,
     ): ComponentIsResolved
 
     @UndocumentedExperimentalUI
     // TODO: add extra configuration for controlling child tracking
-    fun <SubParentWidth: Float?, SubParentHeight: Float?, SubChildWidth: Float?, SubChildHeight: Float?> children(
-        getChildren: ComponentChildrenContext<Model, SubParentWidth, SubParentHeight, SubChildWidth, SubChildHeight>.() -> Unit,
+    fun <SubWidth: WhoDefinesMe, SubHeight: WhoDefinesMe> children(
+        getChildren: ComponentChildrenContext<Model, SubWidth, SubHeight>.() -> Unit,
         resolveComponent: (
-            width: ParentWidth,
-            height: ParentHeight,
+            width: SomeValueForChild<Width>,
+            height: SomeValueForChild<Height>,
             availableWidth: Float,
             availableHeight: Float,
             drawFunctions: List<ComponentDrawFunction>,
             eventHandlers: List<ComponentEventHandler>,
-            children: List<(SubParentWidth, SubParentHeight, Float, Float) -> ResolvedComponent<SubChildWidth, SubChildHeight>>
-        ) -> ResolvedComponent<ChildWidth, ChildHeight>,
+            children: List<GenericResolver<SubWidth, SubHeight>>
+        ) -> SizeResolvedComponent<Width, Height>,
     ): ComponentIsResolved
 }

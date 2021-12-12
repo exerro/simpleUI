@@ -6,23 +6,17 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 @UIContextType
 class DeferredComponentContext<
         Model: UIModel,
-        /** Width provided by parent to this component. */
-        ParentWidth: Float?,
-        /** Height provided by parent to this component. */
-        ParentHeight: Float?,
-        /** Width provided by this component to parent. */
-        ChildWidth: Float?,
-        /** Height provided by this component to parent. */
-        ChildHeight: Float?,
+        Width: WhoDefinesMe,
+        Height: WhoDefinesMe,
         >(
-    private val componentContext: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
-): ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>,
-    ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight> by componentContext {
+    private val componentContext: ComponentContext<Model, Width, Height>,
+): ComponentChildrenContext<Model, Width, Height>,
+    ComponentContext<Model, Width, Height> by componentContext {
     override val ids = IdProvider(thisComponentId)
     override val model get() = componentContext.model
 
-    override fun rawComponent(elementType: String, id: Id, init: ComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.() -> ComponentIsResolved): ComponentIsResolved {
-        return componentContext.children<ParentWidth, ParentHeight, ChildWidth, ChildHeight>({
+    override fun rawComponent(elementType: String, id: Id, init: ComponentContext<Model, Width, Height>.() -> ComponentIsResolved): ComponentIsResolved {
+        return componentContext.children<Width, Height>({
             rawComponent(elementType, id, init)
         }) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
             val a = children.last()(width, height, availableWidth, availableHeight)

@@ -5,14 +5,14 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withDecoration(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.withDecoration(
     after: Boolean = false,
     decoration: DrawContext.() -> Unit,
-) = modifier<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight, ParentWidth, ParentHeight, ChildWidth, ChildHeight>(
+) = modifier(
     { w, h, aw, ah -> ModifiedSizes(w, h, aw, ah) },
     { _, _, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
-        ResolvedComponent(childWidth, childHeight, eventHandlers) {
+        SizeResolvedComponent(childWidth, childHeight, eventHandlers) {
             if (!after) decoration()
             draw()
             if (after) decoration()

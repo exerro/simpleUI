@@ -1,13 +1,18 @@
 package com.exerro.simpleui.ui.internal
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.ui.ComponentDrawFunction
-import com.exerro.simpleui.ui.ComponentEventHandler
-import com.exerro.simpleui.ui.ResolvedComponent
+import com.exerro.simpleui.ui.*
+
+typealias GenericResolver<Width, Height> = (
+    SomeValueForChild<Width>,
+    SomeValueForChild<Height>,
+    Float,
+    Float,
+) -> SizeResolvedComponent<Width, Height>
 
 @UndocumentedExperimentalUI
-internal data class TransientComponentData<ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>(
+internal data class TransientComponentData<Width: WhoDefinesMe, Height: WhoDefinesMe>(
     val drawFunctions: List<ComponentDrawFunction>,
     val eventHandlers: List<ComponentEventHandler>,
-    val resolver: (ParentWidth, ParentHeight, Float, Float) -> ResolvedComponent<ChildWidth, ChildHeight>
+    val resolver: GenericResolver<Width, Height>,
 )

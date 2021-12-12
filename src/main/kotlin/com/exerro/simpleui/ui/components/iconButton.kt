@@ -8,12 +8,12 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.iconButton(
     icon: Image,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
     action: Action = SelectEntity,
-    behaviour: () -> Unit = {},
+    crossinline behaviour: () -> Unit = {},
 ) = rawComponent("iconButton") {
     val backgroundColourKey = when (type) {
         ButtonType.Default -> Style.ElementBackgroundColour

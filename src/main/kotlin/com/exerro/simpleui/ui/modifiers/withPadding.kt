@@ -6,17 +6,17 @@ import com.exerro.simpleui.percent
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, Width, Height>.withPadding(
     top: Pixels = 0.percent,
     right: Pixels = 0.percent,
     bottom: Pixels = 0.percent,
     left: Pixels = 0.percent,
-) = modifier<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight, ParentWidth, ParentHeight, ChildWidth, ChildHeight>(
+) = modifier(
     { w, h, availableWidth, availableHeight ->
         val widthDelta = right.apply(availableWidth) + left.apply(availableWidth)
         val heightDelta = top.apply(availableHeight) + bottom.apply(availableHeight)
-        val newWidth = w?.let { it - widthDelta } as ParentWidth
-        val newHeight = h?.let { it - heightDelta } as ParentHeight
+        val newWidth = map(w) { it - widthDelta }
+        val newHeight = map(h) { it - heightDelta }
         ModifiedSizes(newWidth, newHeight, availableWidth - widthDelta, availableHeight - heightDelta)
     },
     { _, _, availableWidth, availableHeight, _, (childWidth, childHeight, eventHandlers, draw) ->
@@ -24,21 +24,21 @@ fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Floa
         val topValue = top.apply(availableHeight)
         val widthDelta = leftValue + right.apply(availableWidth)
         val heightDelta = topValue + bottom.apply(availableHeight)
-        val cw = childWidth?.let { it + widthDelta } as ChildWidth
-        val ch = childHeight?.let { it + heightDelta } as ChildHeight
-        ResolvedComponent(cw, ch, eventHandlers) {
+        val cw = map(childWidth) { it + widthDelta }
+        val ch = map(childHeight) { it + heightDelta }
+        SizeResolvedComponent(cw, ch, eventHandlers) {
             withRegion(region.withPadding(top = top, right = right, bottom = bottom, left = left), draw = draw)
         }
     }
 )
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, Width, Height>.withPadding(
     vertical: Pixels,
     horizontal: Pixels,
 ) = withPadding(top = vertical, right = horizontal, bottom = vertical, left = horizontal)
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withPadding(
+inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, Width, Height>.withPadding(
     all: Pixels,
 ) = withPadding(top = all, right = all, bottom = all, left = all)

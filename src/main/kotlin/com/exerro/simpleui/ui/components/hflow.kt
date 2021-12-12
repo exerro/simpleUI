@@ -10,12 +10,12 @@ import kotlin.math.floor
 import kotlin.math.round
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.hflow(
+inline fun <Model: UIModel, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, ChildDefinesMe, Height>.hflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     verticalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = false,
-    init: ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.() -> Unit
+    noinline init: ComponentChildrenContext<Model, ChildDefinesMe, Height>.() -> Unit
 ) = rawComponent("hflow") {
     val separatorThickness = model.style[Style.SeparatorThickness].toFloat()
     val separatorColour = model.style[Style.SeparatorColour]
@@ -23,13 +23,13 @@ fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildre
     children(init) { _, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(availableWidth) + separatorThickness
         val appliedChildren = (if (reversed) children.reversed() else children).map { child ->
-            child(null, height, availableWidth, availableHeight)
+            child(nothingForChild(), height, availableWidth, availableHeight)
         }
-        val childHeight = (if (height == null) if (appliedChildren.isNotEmpty()) appliedChildren.maxOf { it.height as Float } else 0f else null) as ChildHeight
-        val sumWidth = appliedChildren.fold(0f) { a, b -> a + b.width }
+        val childHeight = if (appliedChildren.isNotEmpty()) appliedChildren.maxOf { fixFromChildAny(it.height) } else 0f
+        val sumWidth = appliedChildren.fold(0f) { a, b -> a + fixFromChild(b.width) }
         val totalWidth = sumWidth + spacingValue * (children.size - 1)
 
-        ResolvedComponent(totalWidth, childHeight, joinEventHandlers(eventHandlers, appliedChildren)) {
+        SizeResolvedComponent(fixForParent(totalWidth), fixForParentAny(childHeight), joinEventHandlers(eventHandlers, appliedChildren)) {
             var lastX = 0f
 
             for (f in drawFunctions) f(this)
@@ -42,11 +42,11 @@ fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildre
                     )) { fill(separatorColour) }
 
                 withRegion(region
-                    .resizeTo(width = c.width.px, height = (c.height ?: region.height).px, verticalAlignment = verticalAlignment)
+                    .resizeTo(width = fixFromChild(c.width).px, height = (fixFromChildAnyOptional(c.height) ?: region.height).px, verticalAlignment = verticalAlignment)
                     .copy(x = region.x + lastX),
                     draw = c.draw)
 
-                lastX += round(c.width + spacingValue)
+                lastX += round(fixFromChild(c.width) + spacingValue)
             }
         }
     }

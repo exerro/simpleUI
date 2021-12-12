@@ -5,7 +5,7 @@ import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.label(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.label(
     text: TextBuffer<Colour>,
     font: Font = Font.default,
     horizontalAlignment: Alignment = 0.5f,
@@ -28,7 +28,7 @@ fun ComponentChildrenContext<*, *, *, *, *>.label(
 }
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.label(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.label(
     text: String,
     font: Font = Font.default,
     horizontalAlignment: Alignment = 0.5f,

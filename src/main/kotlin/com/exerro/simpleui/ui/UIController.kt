@@ -10,7 +10,7 @@ import com.exerro.simpleui.ui.internal.PersistentComponentData
 @UndocumentedExperimentalUI
 class UIController<Model: UIModel>(
     initialModel: Model,
-    init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved,
+    init: DeferredComponentContext<Model, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved,
 ) {
     val events = PushableEventBus<Event>()
 
@@ -24,7 +24,7 @@ class UIController<Model: UIModel>(
 
     @UndocumentedExperimentalUI
     fun draw(context: DrawContext) {
-        val readyToDraw = c.transient.resolver(context.region.width, context.region.height, context.region.width, context.region.height)
+        val readyToDraw = c.transient.resolver(fixForChild(context.region.width), fixForChild(context.region.height), context.region.width, context.region.height)
         eventHandlers = readyToDraw.eventHandlers
         readyToDraw.draw(context)
     }
@@ -54,7 +54,7 @@ class UIController<Model: UIModel>(
     private val c = ComponentInstance(
         controller = this,
         persistent = PersistentComponentData(Id.Root, "root"),
-        init = ComponentInstance.convertComponentFunction<Model, Float, Float, Nothing?, Nothing?> {
+        init = ComponentInstance.convertComponentFunction<Model, ParentDefinesMe, ParentDefinesMe> {
             init(DeferredComponentContext(this))
         }
     )
@@ -102,13 +102,13 @@ class UIController<Model: UIModel>(
     companion object {
         @UndocumentedExperimentalUI
         operator fun invoke(
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+            init: DeferredComponentContext<UIModel, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved
         ) = UIController(UIModel(), init)
 
         @UndocumentedExperimentalUI
         fun runDefaultApp(
             title: String = "Default UI App",
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+            init: DeferredComponentContext<UIModel, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved
         ) {
             val window = GLFWWindowCreator.createWindow(title)
             val controller = UIController(UIModel(), init)

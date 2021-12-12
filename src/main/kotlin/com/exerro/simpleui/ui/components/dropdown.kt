@@ -14,20 +14,20 @@ import com.exerro.simpleui.ui.standardActions.SelectEntity
 // TODO: context groupUpdates { ... } to avoid multiple refreshes
 
 @UndocumentedExperimentalUI
-fun <T, Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdown(
+inline fun <T, Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.dropdown(
     initialSelectedOption: T,
     options: List<T>,
     focused: Boolean = false,
     spacing: Pixels = 0.px,
     horizontalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = true,
-    onOptionChanged: (T) -> Unit = {},
+    crossinline onOptionChanged: (T) -> Unit = {},
     toggleVisibleAction: Action = SelectEntity,
     selectNextOptionAction: Action = MoveFocusDown, // TODO
     selectPreviousOptionAction: Action = MoveFocusUp, // TODO
-    renderOption: DeferredComponentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.(T) -> ComponentIsResolved,
-    renderPrimaryOption: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentIsResolved,
+    crossinline renderOption: DeferredComponentContext<Model, Width, ChildDefinesMe>.(T) -> ComponentIsResolved,
+    crossinline renderPrimaryOption: DeferredComponentContext<Model, Width, Height>.(T) -> ComponentIsResolved,
 ) = component("dropdown") {
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, updateOnVaryingInitialValue = true)
     val (stateIsExpanded, setExpandedState) = useState(false)

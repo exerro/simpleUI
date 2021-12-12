@@ -12,15 +12,15 @@ import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 // TODO: tabSelector
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.selector(
     focused: Boolean,
     decreaseSelectionAction: Action,
     increaseSelectionAction: Action,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = component("selector") {
     val (selected, setSelected) = useState(initialValue)
 
@@ -38,13 +38,13 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
 }
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizontalSelector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.horizontalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusLeft,
@@ -56,13 +56,13 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
 )
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-        ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.verticalSelector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+        ComponentChildrenContext<Model, Width, Height>.verticalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
     decreaseSelectionAction = MoveFocusUp,

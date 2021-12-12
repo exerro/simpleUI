@@ -5,13 +5,13 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.ComponentEventHandler
-import com.exerro.simpleui.ui.ResolvedComponent
+import com.exerro.simpleui.ui.SizeResolvedComponent
 import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.vdiv
 
 /** Calculate the size in [Pixels] of children that overflow the explicit
  *  partition sizes of a dividing element (see: [hdiv], [vdiv]). */
-internal fun divCalculateOverflow(
+fun divCalculateOverflow(
     partitions: Array<out Pixels>,
     childCount: Int,
     spacing: Pixels
@@ -35,9 +35,9 @@ internal fun divCalculateOverflow(
     }
 
 @UndocumentedExperimentalUI
-internal fun joinEventHandlers(
+fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
-    children: List<ResolvedComponent<*, *>>
+    children: List<SizeResolvedComponent<*, *>>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
 
 @UndocumentedExperimentalUI
