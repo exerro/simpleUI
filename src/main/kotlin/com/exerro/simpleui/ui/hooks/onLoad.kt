@@ -12,7 +12,7 @@ internal class OnLoadHookState<T>(
 ): HookState
 
 @UndocumentedExperimentalUI
-fun <T> ComponentContext<*, *, *, *, *>.onLoad(fn: () -> T): T {
+fun <T> ComponentContext<*, *, *, *, *>.useOnce(fn: () -> T): T {
     val hook = getHookStateOrRegister { OnLoadHookState<T>(false, null) }
     if (!hook.evaluated) {
         hook.evaluated = true

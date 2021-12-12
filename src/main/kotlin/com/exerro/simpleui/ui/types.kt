@@ -5,7 +5,7 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.WindowEvent
 
 @UndocumentedExperimentalUI
-typealias AnyParentContext = ComponentChildrenContext<*, *, *, *, *>
+typealias AnyComponentChildrenContext = ComponentChildrenContext<*, *, *, *, *>
 
 @UndocumentedExperimentalUI
 typealias ParentDefinedContext<Model> = ComponentChildrenContext<Model, Float, Float, Nothing?, Nothing?>

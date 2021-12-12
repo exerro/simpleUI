@@ -6,7 +6,7 @@ import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.button(
+fun AnyComponentChildrenContext.button(
     text: TextBuffer<Colour>,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
