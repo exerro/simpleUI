@@ -132,25 +132,26 @@ fun main() {
         ) }
 
         textBoxContentAreas[2].draw { write(
-            buffer = wordWrap(textBuffer2),
+            buffer = graphics.wordWrap(textBuffer2, region.width),
             horizontalAlignment = 0f,
             verticalAlignment = 0f,
         )}
 
         textBoxContentAreas[3].draw { write(
-            buffer = wordWrap(textBuffer2),
+            buffer = graphics.wordWrap(textBuffer2, region.width),
         )}
 
         textBoxContentAreas[4].draw { write(
-            buffer = wordWrap(textBuffer4),
+            buffer = graphics.wordWrap(textBuffer4, region.width),
         )}
 
         textBoxContentAreas[5].draw { write(
-            buffer = wordWrap(textBuffer5),
+            buffer = graphics.wordWrap(textBuffer5, region.width),
         )}
 
         textBoxContentAreas[6].draw {
-            val r = textBufferBounds(textBuffer6)
+            val (w, h) = graphics.textBufferSize(textBuffer6)
+            val r = Region(0f, 0f, w, h).alignWithin(region)
 
             write(textBuffer6)
 

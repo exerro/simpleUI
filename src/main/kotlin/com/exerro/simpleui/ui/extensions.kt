@@ -91,7 +91,8 @@ fun <ChildHeight: Float?> ComponentContext<*, *, *, Nothing?, ChildHeight>.noChi
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @UndocumentedExperimental
-fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?> ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
+fun <Model: UIModel, OldParentWidth: Float?, OldParentHeight: Float?, OldChildWidth: Float?, OldChildHeight: Float?, NewParentWidth: Float?, NewParentHeight: Float?, NewChildWidth: Float?, NewChildHeight: Float?>
+ComponentChildrenContext<Model, OldParentWidth, OldParentHeight, OldChildWidth, OldChildHeight>.modifier(
     modifyParentSize: (OldParentWidth, OldParentHeight, Float, Float) -> ModifiedSizes<NewParentWidth, NewParentHeight>,
     modify: (OldParentWidth, OldParentHeight, Float, Float, ModifiedSizes<NewParentWidth, NewParentHeight>, ResolvedComponent<NewChildWidth, NewChildHeight>) -> ResolvedComponent<OldChildWidth, OldChildHeight>
 ): ComponentChildrenContext<Model, NewParentWidth, NewParentHeight, NewChildWidth, NewChildHeight> {

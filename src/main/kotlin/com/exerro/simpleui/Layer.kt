@@ -1,12 +1,27 @@
 package com.exerro.simpleui
 
-@Undocumented
+@UndocumentedExperimental
 interface Layer {
-    @Undocumented
+    @UndocumentedExperimental
     val name: String
 
-    @Undocumented
+    @UndocumentedExperimental
     object Default: Layer {
         override val name = "Default"
+    }
+
+    @UndocumentedExperimental
+    object Foreground: Layer {
+        override val name = "Foreground"
+    }
+
+    @UndocumentedExperimental
+    object Background: Layer {
+        override val name = "Background"
+    }
+
+    @UndocumentedExperimental
+    object Debug: Layer {
+        override val name = "Debug"
     }
 }

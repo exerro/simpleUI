@@ -1,5 +1,6 @@
 package com.exerro.simpleui
 
+import kotlin.time.Duration
 import kotlin.time.TimeMark
 
 /** A buffer of decorated text. Contains a list of [lines][Line], each of which
@@ -52,12 +53,42 @@ data class TextBuffer<out Colour>(
 
     /** A cursor offset into the text by [offset] characters. If [resetAt] is
      *  not null, it represents the time when this cursor was "reset" e.g. moved
-     *  or initialised, and is used to calculate cursor blinking. */
+     *  or initialised, and is used to calculate cursor blinking. [blinkRate]
+     *  describes the rate at which the cursor toggles from visible to
+     *  invisible. */
     data class Cursor<out Colour>(
         val offset: Int,
         val colour: Colour,
         val resetAt: TimeMark?,
-    )
+        val blinkRate: Duration,
+    ) {
+        @Undocumented
+        fun isVisible(): Boolean {
+            if (resetAt == null) return true
+
+            val time = resetAt.elapsedNow()
+            val blinkRateNanos = blinkRate.inWholeNanoseconds
+            val timeModBlinkRate = time.inWholeNanoseconds % (blinkRateNanos * 2L)
+
+            return timeModBlinkRate < blinkRateNanos
+        }
+
+        @Undocumented
+        fun timeTillVisibilityChanged(): Duration? {
+            if (resetAt == null) return null
+
+            val time = resetAt.elapsedNow()
+            val blinkRateNanos = blinkRate.inWholeNanoseconds
+            val timeModBlinkRate = time.inWholeNanoseconds % (blinkRateNanos * 2L)
+
+            return if (timeModBlinkRate < blinkRateNanos) {
+                Duration.nanoseconds(blinkRateNanos - timeModBlinkRate)
+            }
+            else {
+                Duration.nanoseconds(blinkRateNanos * 2 - timeModBlinkRate)
+            }
+        }
+    }
 
     /** Enumeration of possible text decorations. Text decoration is some
      *  graphical decoration alongside text.

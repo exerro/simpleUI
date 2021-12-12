@@ -1,8 +1,8 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.experimental.Palette
-import com.exerro.simpleui.internal.NVGData
 import com.exerro.simpleui.internal.NVGDrawContext
+import com.exerro.simpleui.internal.NVGGraphics
 import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.glfw.GLFWErrorCallback
@@ -25,7 +25,8 @@ object GLFWWindowCreator: WindowCreator {
         val worker = WorkerThread()
         val onEventList = mutableListOf<(WindowEvent) -> Unit>()
         var isClosed = false
-        lateinit var nvgData: NVGData
+        lateinit var nvgGraphics: NVGGraphics
+        lateinit var nvgDrawImplementor: NVGDrawContext
         var palette: Palette = Palette.Default
 
         if (windows++ == 0) {
@@ -195,14 +196,14 @@ object GLFWWindowCreator: WindowCreator {
             GL46C.glClearColor(0f, 0f, 0f, 1f)
             GL46C.glClear(GL46C.GL_COLOR_BUFFER_BIT)
             GLFW.glfwSwapBuffers(windowID)
-            nvgData.colour.free()
-            nvgData.colour2.free()
+            nvgGraphics.colour.free()
+            nvgGraphics.colour2.free()
 
-            for (image in nvgData.imageCache.values) {
-                NanoVG.nvgDeleteImage(nvgData.context, image)
+            for (image in nvgGraphics.imageCache.values) {
+                NanoVG.nvgDeleteImage(nvgGraphics.context, image)
             }
 
-            NanoVGGL3.nvgDelete(nvgData.context)
+            NanoVGGL3.nvgDelete(nvgGraphics.context)
             GL.setCapabilities(null)
             GLFW.glfwDestroyWindow(windowID)
 
@@ -232,7 +233,8 @@ object GLFWWindowCreator: WindowCreator {
             sansBuffer.flip()
             NanoVG.nvgCreateFontMem(context, "sans", sansBuffer, 1)
 
-            nvgData = NVGData(context, colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
+            nvgGraphics = NVGGraphics(context, colour, colour2, monoBuffer, sansBuffer, mutableMapOf())
+            nvgDrawImplementor = NVGDrawContext(nvgGraphics)
         }
 
         ////////////////////////////////////////////////////////
@@ -257,25 +259,39 @@ object GLFWWindowCreator: WindowCreator {
                 }
             }
 
-            override fun draw(onDraw: DrawContext.(deltaTime: Duration) -> Unit) {
-                var lastFrame = System.nanoTime()
-
+            override fun draw(layers: LayerComposition, onDraw: DrawContext.(deltaTime: Duration) -> Unit) {
                 worker.loop {
+                    var lastFrame = System.nanoTime()
                     val width = IntArray(1)
                     val height = IntArray(1)
                     val time = System.nanoTime()
                     GLFW.glfwGetFramebufferSize(windowID, width, height)
-                    NanoVG.nvgBeginFrame(nvgData.context, width[0].toFloat(), height[0].toFloat(), 1f)
-                    GL46C.glViewport(0, 0, width[0], height[0])
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
-                    val context = NVGDrawContext(nvgData, r, r, true)
-                    context.onDraw(Duration.nanoseconds(time - lastFrame))
+
+                    val (d) = DrawContext.buffer(nvgGraphics, Layer.Default, r, r, nvgDrawImplementor) {
+                        val time = System.nanoTime()
+                        onDraw(Duration.nanoseconds(time - lastFrame))
+                        lastFrame = time
+                    }
+
+                    NanoVG.nvgBeginFrame(nvgGraphics.context, width[0].toFloat(), height[0].toFloat(), 1f)
+                    GL46C.glViewport(0, 0, width[0], height[0])
+
+                    layers.run {
+                        object: LayerComposition.Context {
+                            override fun drawLayer(layer: Layer) {
+                                for (ds in d.layers[layer] ?: emptyList()) {
+                                    nvgDrawImplementor.submit(layer, ds.clipRegion, ds.drawCalls)
+                                }
+                            }
+                        } .draw()
+                    }
 
                     lastFrame = time
-                    NanoVG.nvgEndFrame(nvgData.context)
+                    NanoVG.nvgEndFrame(nvgGraphics.context)
                     GLFW.glfwSwapBuffers(windowID)
 
-                    context.hasDynamicContent
+                    d.hasDynamicContent
                 }
             }
 

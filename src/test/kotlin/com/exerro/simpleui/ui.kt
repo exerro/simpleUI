@@ -7,6 +7,7 @@ import com.exerro.simpleui.extensions.textInput
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.hooks.useState
+import com.exerro.simpleui.ui.modifiers.withHeight
 import com.exerro.simpleui.ui.modifiers.withHorizontalAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
 import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
@@ -220,16 +221,19 @@ fun main() {
                                 component {
                                     val (num, setNum) = useState(initialValue = 3)
 
-                                    hflow(spacing = 16.px) {
-                                        dropdown(num, listOf(1, 2, 3, 4), focused = selectedElement == 0, onOptionChanged = setNum) { option ->
-                                            component {
-                                                onDraw {
-                                                    write("Option $option", model.style[Style.ForegroundColour], horizontalAlignment = 0f)
-                                                }
-
-                                                noChildrenDeclareSize(176f, Font.default.lineHeight)
+                                    withHeight(48.px).hflow(spacing = 16.px) {
+                                        dropdown(
+                                            initialSelectedOption = num,
+                                            options = listOf(1, 2, 3, 4),
+                                            focused = selectedElement == 0,
+                                            onOptionChanged = setNum,
+                                            renderOption = { option ->
+                                                withPadding(8.px, 16.px).label("Option $option", horizontalAlignment = 0f)
+                                            },
+                                            renderPrimaryOption = { option ->
+                                                withPadding(8.px, 16.px).label("Option $option", horizontalAlignment = 0f)
                                             }
-                                        }
+                                        )
 
                                         button("You selected $num", focused = selectedElement == 1)
                                     }
@@ -246,7 +250,8 @@ fun main() {
                                         val focused = selectedElement == 0
                                         val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
                                         val textBuffer = TextBufferBuilder("Radio button", model.style[Style.ForegroundColour])
-                                        val textBufferRegion = label.withPadding(4.px).draw { textBufferBounds(textBuffer, horizontalAlignment = 0f) }
+                                        val (tbw, tbh) = label.withPadding(4.px).draw { graphics.textBufferSize(textBuffer) }
+                                        val textBufferRegion = Region(label.x, 0f, tbw, tbh).alignWithin(region, horizontalAlignment = 0f)
 
                                         if (focused) {
                                             listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {
@@ -274,7 +279,8 @@ fun main() {
                                         val focused = selectedElement == 1
                                         val (button, _, label) = region.splitHorizontally(at1 = region.height.px, at2 = region.height.px + 8.px)
                                         val textBuffer = TextBufferBuilder("Checkbox", model.style[Style.ForegroundColour])
-                                        val textBufferRegion = label.withPadding(4.px).draw { textBufferBounds(textBuffer, horizontalAlignment = 0f) }
+                                        val (tbw, tbh) = label.withPadding(4.px).draw { graphics.textBufferSize(textBuffer) }
+                                        val textBufferRegion = Region(label.x, 0f, tbw, tbh).alignWithin(region, horizontalAlignment = 0f)
 
                                         if (focused) {
                                             listOf(button.withPadding(left = (-4).px), textBufferRegion.withPadding(right = (-8).px)).boundingRegion().draw {

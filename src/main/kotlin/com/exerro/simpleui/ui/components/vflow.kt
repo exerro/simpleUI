@@ -19,7 +19,7 @@ fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenC
     val separatorColour = model.style[Style.SeparatorColour]
 
     children(init) { width, _, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
-        val spacingValue = spacing.apply(availableHeight)
+        val spacingValue = spacing.apply(availableHeight) + separatorThickness
         val appliedChildren = (if (reversed) children.reversed() else children).map { child ->
             child(width, null, availableWidth, availableHeight)
         }

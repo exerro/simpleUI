@@ -19,3 +19,19 @@ fun <Model: UIModel, ParentWidth: Float?, ChildWidth: Float?> ComponentChildrenC
         }
     }
 )
+
+@UndocumentedExperimental
+fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
+ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withVerticalAlignment2(
+    verticalAlignment: Alignment,
+) = modifier<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight, ParentWidth, Nothing?, ChildWidth, Float>(
+    { w, _, aw, ah -> ModifiedSizes(w, null, aw, ah) },
+    { _, ph, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
+        ResolvedComponent(childWidth, (if (ph == null) childHeight else null) as ChildHeight, eventHandlers) {
+            region.resizeTo(
+                height = childHeight.px,
+                verticalAlignment = verticalAlignment,
+            ).draw(draw = draw)
+        }
+    }
+)

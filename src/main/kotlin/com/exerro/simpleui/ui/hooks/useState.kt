@@ -14,12 +14,12 @@ internal class StateHookState<T>(
 @UndocumentedExperimental
 fun <T> ComponentContext<*, *, *, *, *>.useState(
     initialValue: T,
-    handleVaryingInitialValue: Boolean = false,
+    updateOnVaryingInitialValue: Boolean = false,
 ): Triple<T, (T) -> Unit, Boolean> {
     val hook = getHookStateOrRegister { StateHookState(initialValue, initialValue) }
     var changed = false
 
-    if (handleVaryingInitialValue && hook.lastInitialValue != initialValue) {
+    if (updateOnVaryingInitialValue && hook.lastInitialValue != initialValue) {
         hook.lastInitialValue = initialValue
         hook.value = initialValue
         changed = true

@@ -33,7 +33,7 @@ fun DrawContext.textInput(
     textRegion.draw { write(textBuffer, horizontalAlignment = 0f) }
 
     if (focused) {
-        region.resizeTo(height = 2.px, width = 100.percent - 16.px, verticalAlignment = 1f).draw(clip = true) {
+        region.resizeTo(height = 2.px, width = 100.percent - 32.px, verticalAlignment = 1f).draw(clip = true) {
             region.resizeTo(height = 32.px, verticalAlignment = 0f).draw {
                 roundedRectangle(cornerRadius = 4.px, colour = highlightColour)
             }
