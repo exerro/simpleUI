@@ -1,16 +1,25 @@
 package com.exerro.simpleui.ui.internal
 
 import com.exerro.simpleui.*
-import com.exerro.simpleui.ui.ComponentDrawFunction
-import com.exerro.simpleui.ui.ComponentEventHandler
-import com.exerro.simpleui.ui.PositionResolvedComponent
-import com.exerro.simpleui.ui.SizeResolvedComponent
+import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.vdiv
 
+@UndocumentedExperimentalUI
+fun <Width: WhoDefinesMe, Height: WhoDefinesMe> resolveFlowChildSizes(
+    reversed: Boolean,
+    width: SizeForChild<Width>,
+    height: SizeForChild<Height>,
+    availableWidth: Float,
+    availableHeight: Float,
+    children: List<ComponentSizeResolver<Width, Height>>
+) = (if (reversed) children.asReversed() else children).map { child ->
+    child(width, height, availableWidth, availableHeight)
+}
+
 /** Calculate the size in [Pixels] of children that overflow the explicit
  *  partition sizes of a dividing element (see: [hdiv], [vdiv]). */
-fun divCalculateOverflow(
+fun calculateDivOverflow(
     partitions: Array<out Pixels>,
     childCount: Int,
     spacing: Pixels
@@ -36,7 +45,7 @@ fun divCalculateOverflow(
 @UndocumentedExperimentalUI
 fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
-    children: List<PositionResolvedComponent>
+    children: List<ResolvedComponentPositionPhase>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
 
 @UndocumentedExperimentalUI
@@ -44,8 +53,8 @@ fun standardChildRendering(
     region: Region,
     drawFunctions: List<ComponentDrawFunction>,
     eventHandlers: List<ComponentEventHandler>,
-    children: List<PositionResolvedComponent>
-) = PositionResolvedComponent(region, joinEventHandlers(eventHandlers, children)) {
+    children: List<ResolvedComponentPositionPhase>
+) = ResolvedComponentPositionPhase(region, joinEventHandlers(eventHandlers, children)) {
     for (f in drawFunctions) f(this)
 
     for (child in children) {

@@ -3,6 +3,8 @@ package com.exerro.simpleui.ui.modifiers
 import com.exerro.simpleui.Pixels
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.ModifiedSizes
+import com.exerro.simpleui.ui.extensions.modifier
 
 @UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, ChildDefinesMe, ChildDefinesMe>.withSize(
@@ -15,7 +17,7 @@ fun <Model: UIModel> ComponentChildrenContext<Model, ChildDefinesMe, ChildDefine
         ModifiedSizes(fixForChild(newWidth), fixForChild(newHeight), newWidth, newHeight)
     },
     { _, _, _, _, m, (_, _, p) ->
-        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), fixForParent(fixFromParent(m.height)), p)
+        ResolvedComponentSizePhase(fixForParent(fixFromParent(m.width)), fixForParent(fixFromParent(m.height)), p)
     }
 )
 
@@ -28,7 +30,7 @@ fun <Model: UIModel, Height: WhoDefinesMe> ComponentChildrenContext<Model, Child
         ModifiedSizes(fixForChild(newWidth), h, newWidth, availableHeight)
     },
     { _, _, _, _, m, (_, childHeight, p) ->
-        SizeResolvedComponent(fixForParent(fixFromParent(m.width)), childHeight, p)
+        ResolvedComponentSizePhase(fixForParent(fixFromParent(m.width)), childHeight, p)
     }
 )
 
@@ -41,6 +43,6 @@ fun <Model: UIModel, Width: WhoDefinesMe> ComponentChildrenContext<Model, Width,
         ModifiedSizes(w, fixForChild(newHeight), availableWidth, newHeight)
     },
     { _, _, _, _, m, (childWidth, _, p) ->
-        SizeResolvedComponent(childWidth, fixForParent(fixFromParent(m.height)), p)
+        ResolvedComponentSizePhase(childWidth, fixForParent(fixFromParent(m.height)), p)
     }
 )

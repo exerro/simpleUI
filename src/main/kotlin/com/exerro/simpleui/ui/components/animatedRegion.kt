@@ -6,18 +6,21 @@ import com.exerro.simpleui.ui.ComponentChildrenContext
 import com.exerro.simpleui.ui.ComponentIsResolved
 import com.exerro.simpleui.ui.UIModel
 import com.exerro.simpleui.ui.WhoDefinesMe
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.hooks.useMemory
 import com.exerro.simpleui.ui.modifiers.withDrawModifier
 import kotlin.math.min
 import kotlin.time.Duration
 
+// TODO: make modifier and use resolved positions for animation sources instead
+//       of draw-time regions!
 @UndocumentedExperimentalUI
 fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
 ComponentChildrenContext<Model, Width, Height>.animatedRegion(
     duration: Duration = Duration.seconds(0.4),
     easing: (t: Float, a: Float, b: Float) -> Float = { t, a, b -> a + 3 * (b - a) * t * t - 2 * (b - a) * t * t * t },
     content: ComponentChildrenContext<Model, Width, Height>.() -> ComponentIsResolved,
-) = component("animated-region") {
+) = component("animatedRegion") {
     val (getLastRegion, setLastRegion) = useMemory<Region>()
     val (getAnimatingFrom, setAnimatingFrom) = useMemory<Region>()
     val (getAnimatingFromTime, setAnimatingFromTime) = useMemory<Long>()

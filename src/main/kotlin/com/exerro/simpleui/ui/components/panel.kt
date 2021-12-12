@@ -3,7 +3,7 @@ package com.exerro.simpleui.ui.components
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.ParentDefinedContext
-import com.exerro.simpleui.ui.noChildren
+import com.exerro.simpleui.ui.extensions.noChildren
 
 @UndocumentedExperimentalUI
 fun ParentDefinedContext<*>.panel(

@@ -21,8 +21,8 @@ fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ChildDefin
     children(init) { width, _, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val verticalSpacingValue = verticalSpacing.apply(availableHeight)
         val horizontalSpacingValue = horizontalSpacing.apply(availableWidth)
-        val rows = mutableListOf<List<SizeResolvedComponent<ChildDefinesMe, ChildDefinesMe>>>()
-        val thisRow = mutableListOf<SizeResolvedComponent<ChildDefinesMe, ChildDefinesMe>>()
+        val rows = mutableListOf<List<ResolvedComponentSizePhase<ChildDefinesMe, ChildDefinesMe>>>()
+        val thisRow = mutableListOf<ResolvedComponentSizePhase<ChildDefinesMe, ChildDefinesMe>>()
         var thisRowAccumulatedWidth = 0f
 
         for (child in if (reversed) children.reversed() else children) {
@@ -48,7 +48,7 @@ fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ChildDefin
         val sumHeight = rowHeights.fold(0f) { a, b -> a + b }
         val totalHeight = sumHeight + verticalSpacingValue * (rows.size - 1)
 
-        SizeResolvedComponent(nothingForParent(), fixForParent(totalHeight)) { r ->
+        ResolvedComponentSizePhase(nothingForParent(), fixForParent(totalHeight)) { r ->
             var lastY = 0f
             val positionResolvedChildren = (if (reverseRows) rows.withIndex().reversed() else rows.withIndex()).flatMap { (rowIndex, row) ->
                 val rowWidth = rowWidths[rowIndex]

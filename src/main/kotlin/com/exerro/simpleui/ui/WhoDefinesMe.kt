@@ -13,99 +13,99 @@ object ChildDefinesMe: WhoDefinesMe
 
 @UndocumentedExperimentalUI
 @JvmInline
-value class SomeValueForParent<T: WhoDefinesMe> @Deprecated("Use fixForParent* methods to construct this value safely") constructor(
+value class SizeForParent<T: WhoDefinesMe> @Deprecated("Use fixForParent* methods to construct this value safely") constructor(
     @Deprecated("Use fixFromChild* methods to access this value safely", level = DeprecationLevel.WARNING)
     val value: Float,
 )
 
 @UndocumentedExperimentalUI
 @JvmInline
-value class SomeValueForChild<T: WhoDefinesMe> @Deprecated("Use fixForChild* methods to construct this value safely") constructor(
+value class SizeForChild<T: WhoDefinesMe> @Deprecated("Use fixForChild* methods to construct this value safely") constructor(
     @Deprecated("Use fixFromParent* methods to access this value safely")
     val value: Float,
 )
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun <T: WhoDefinesMe> fixForParentAny(value: Float): SomeValueForParent<T> = SomeValueForParent(value)
+inline fun <T: WhoDefinesMe> fixForParentAny(value: Float): SizeForParent<T> = SizeForParent(value)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixForParent(value: Float): SomeValueForParent<ChildDefinesMe> = SomeValueForParent(value)
+inline fun fixForParent(value: Float): SizeForParent<ChildDefinesMe> = SizeForParent(value)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun nothingForParent(): SomeValueForParent<ParentDefinesMe> = SomeValueForParent(0f)
+inline fun nothingForParent(): SizeForParent<ParentDefinesMe> = SizeForParent(0f)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun <T: WhoDefinesMe> fixForChildAny(value: Float): SomeValueForChild<T> = SomeValueForChild(value)
+inline fun <T: WhoDefinesMe> fixForChildAny(value: Float): SizeForChild<T> = SizeForChild(value)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixForChild(value: Float): SomeValueForChild<ParentDefinesMe> = SomeValueForChild(value)
+inline fun fixForChild(value: Float): SizeForChild<ParentDefinesMe> = SizeForChild(value)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun nothingForChild(): SomeValueForChild<ChildDefinesMe> = SomeValueForChild(0f)
+inline fun nothingForChild(): SizeForChild<ChildDefinesMe> = SizeForChild(0f)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixFromParentAny(value: SomeValueForChild<*>): Float = value.value
+inline fun fixFromParentAny(value: SizeForChild<*>): Float = value.value
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
 inline fun <reified T: WhoDefinesMe> fixFromParentAnyOptional(
-    value: SomeValueForChild<T>
+    value: SizeForChild<T>
 ): Float? = if (ParentDefinesMe is T) value.value else null
 
 @UndocumentedExperimentalUI
 @JvmName("fixFromParentParentDefinesMe")
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixFromParent(value: SomeValueForChild<ParentDefinesMe>) = value.value
+inline fun fixFromParent(value: SizeForChild<ParentDefinesMe>) = value.value
 
 @UndocumentedExperimentalUI
 @JvmName("fixFromParentChildDefinesMe")
 @Suppress("NOTHING_TO_INLINE")
-inline fun fixFromParent(value: SomeValueForChild<ChildDefinesMe>): Float? = null
+inline fun fixFromParent(value: SizeForChild<ChildDefinesMe>): Float? = null
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixFromChildAny(value: SomeValueForParent<*>): Float = value.value
+inline fun fixFromChildAny(value: SizeForParent<*>): Float = value.value
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
 inline fun <reified T: WhoDefinesMe> fixFromChildAnyOptional(
-    value: SomeValueForParent<T>
+    value: SizeForParent<T>
 ): Float? = if (ChildDefinesMe is T) value.value else null
 
 @UndocumentedExperimentalUI
 @JvmName("fixFromChildParentDefinesMe")
 @Suppress("NOTHING_TO_INLINE")
-inline fun fixFromChild(value: SomeValueForParent<ParentDefinesMe>): Float? = null
+inline fun fixFromChild(value: SizeForParent<ParentDefinesMe>): Float? = null
 
 @UndocumentedExperimentalUI
 @JvmName("fixFromChildChildDefinesMe")
 @Suppress("DEPRECATION", "NOTHING_TO_INLINE")
-inline fun fixFromChild(value: SomeValueForParent<ChildDefinesMe>) = value.value
+inline fun fixFromChild(value: SizeForParent<ChildDefinesMe>) = value.value
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION")
 inline fun <reified T: WhoDefinesMe> invert(
-    value: SomeValueForChild<T>,
+    value: SizeForChild<T>,
     eval: () -> Float
-): SomeValueForParent<T> = SomeValueForParent(if (ParentDefinesMe is T) 0f else eval())
+): SizeForParent<T> = SizeForParent(if (ParentDefinesMe is T) 0f else eval())
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION")
 inline fun <reified T: WhoDefinesMe> map(
-    value: SomeValueForChild<T>,
+    value: SizeForChild<T>,
     map: (Float) -> Float
-): SomeValueForChild<T> = SomeValueForChild(if (ParentDefinesMe is T) map(value.value) else value.value)
+): SizeForChild<T> = SizeForChild(if (ParentDefinesMe is T) map(value.value) else value.value)
 
 @UndocumentedExperimentalUI
 @Suppress("DEPRECATION")
 inline fun <reified T: WhoDefinesMe> map(
-    value: SomeValueForParent<T>,
+    value: SizeForParent<T>,
     map: (Float) -> Float
-): SomeValueForParent<T> = SomeValueForParent(if (ChildDefinesMe is T) map(value.value) else value.value)
+): SizeForParent<T> = SizeForParent(if (ChildDefinesMe is T) map(value.value) else value.value)

@@ -3,6 +3,7 @@ package com.exerro.simpleui
 import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
+import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
 import com.exerro.simpleui.ui.hooks.useOnce
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.*
@@ -25,16 +26,18 @@ fun blobsController() = UIController {
             renderPrimaryOption = { withPadding(12.px, 24.px).label("${it.toInt()}px", horizontalAlignment = 0f) },
         )
 
-        withAlignment(0.5f, 0f).withWidth(width.px).withDecoration {
-            shadow(cornerRadius = 16.px)
-            roundedRectangle(cornerRadius = 16.px, colour = model.style[Style.BackgroundColour])
-        } .withPadding(32.px).flow(
+        withPadding(32.px).withAlignment(0.5f, 0f).withWidth(width.px).withDecoration {
+            withRegion(region.withPadding((-32).px)) {
+                shadow(cornerRadius = 16.px)
+                roundedRectangle(cornerRadius = 16.px, colour = model.style[Style.BackgroundColour])
+            }
+        } .flow(
             verticalSpacing = 16.px,
             horizontalSpacing = 16.px,
             verticalRowAlignment = 0f,
             horizontalRowAlignment = 0f,
         ) {
-            for (i in 1 .. 32) {
+            for (i in 1 .. 1) {
                 animatedRegion {
                     component {
                         val (width, height) = useOnce { (128 + random() * 128) to (64 + random() * 64) }

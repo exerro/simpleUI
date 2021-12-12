@@ -4,6 +4,8 @@ import com.exerro.simpleui.Alignment
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.ModifiedSizes
+import com.exerro.simpleui.ui.extensions.regionModifier
 
 @UndocumentedExperimentalUI
 fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ParentDefinesMe>.withAlignment(

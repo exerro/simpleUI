@@ -2,6 +2,8 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.standardActions.*
 

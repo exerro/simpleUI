@@ -2,6 +2,8 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.withDecoration
 import com.exerro.simpleui.ui.modifiers.withLayer
@@ -32,7 +34,7 @@ ComponentChildrenContext<Model, Width, Height>.dropdown(
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, updateOnVaryingInitialValue = true)
     val (stateIsExpanded, setExpandedState) = useState(false)
     val (selectedOptionIndex, setSelectedOptionIndex) = useState(0)
-    val cornerRadius = 8.px
+    val cornerRadius = model.style[Style.DropdownCornerRadius]
     val isExpanded = stateIsExpanded && focused
 
     if (focused) bind(toggleVisibleAction) {

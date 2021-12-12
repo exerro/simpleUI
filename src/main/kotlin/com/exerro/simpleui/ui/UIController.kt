@@ -1,6 +1,7 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.*
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.internal.ComponentInstance
 import com.exerro.simpleui.ui.internal.PersistentComponentData
 
@@ -55,7 +56,7 @@ class UIController<Model: UIModel>(
     @UndocumentedExperimentalUI
     fun load() = c.refresh()
 
-    private lateinit var positionResolvedContent: PositionResolvedComponent
+    private lateinit var positionResolvedContent: ResolvedComponentPositionPhase
     private var currentModel = initialModel
     private val persistentData = mutableMapOf<Id, PersistentComponentData>()
     private var eventHandlers = emptyList<ComponentEventHandler>()

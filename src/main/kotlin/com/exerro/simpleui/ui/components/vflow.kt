@@ -6,6 +6,7 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.internal.joinEventHandlers
+import com.exerro.simpleui.ui.internal.resolveFlowChildSizes
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -22,18 +23,18 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
 
     children(init) { width, _, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(availableHeight) + separatorThickness
-        val sizeResolvedChildren = (if (reversed) children.reversed() else children).map { child ->
-            child(width, nothingForChild(), availableWidth, availableHeight)
-        }
-        val childWidth = if (sizeResolvedChildren.isNotEmpty()) sizeResolvedChildren.maxOf { fixFromChildAny(it.width) } else 0f
-        val sumHeight = sizeResolvedChildren.fold(0f) { a, b -> a + fixFromChild(b.height) }
+        val resolvedChildrenSizePhase = resolveFlowChildSizes(reversed, width, nothingForChild(), availableWidth, availableHeight, children)
+        val childWidth = resolvedChildrenSizePhase.maxOfOrNull { fixFromChildAny(it.width) } ?: 0f
+        val sumHeight = resolvedChildrenSizePhase.fold(0f) { a, b -> a + fixFromChild(b.height) }
         val totalHeight = sumHeight + spacingValue * (children.size - 1)
 
-        SizeResolvedComponent(fixForParentAny(childWidth), fixForParent(totalHeight)) { r ->
+        ResolvedComponentSizePhase(fixForParentAny(childWidth), fixForParent(totalHeight)) { r ->
             var lastY = 0f
-            val positionResolvedChildren = sizeResolvedChildren.map { c ->
+            val separators = mutableListOf<Float>()
+            val resolvedChildrenPositionPhase = resolvedChildrenSizePhase.map { c ->
                 val thisY = lastY
 
+                if (showSeparators) separators += thisY + floor(-spacingValue + (spacingValue - separatorThickness) / 2)
                 lastY += round(fixFromChild(c.height) + spacingValue)
 
                 c.positionResolver(r
@@ -41,20 +42,18 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
                     .copy(y = r.y + thisY))
             }
 
-            PositionResolvedComponent(r, joinEventHandlers(eventHandlers, positionResolvedChildren)) {
-                var separatorY = 0f
+            separators.removeFirstOrNull()
+
+            ResolvedComponentPositionPhase(r, joinEventHandlers(eventHandlers, resolvedChildrenPositionPhase)) {
                 for (f in drawFunctions) f(this)
 
-                for ((i, child) in positionResolvedChildren.withIndex()) {
-                    if (showSeparators && i > 0)
-                        withRegion(r.copy(
-                            y = r.y + separatorY + floor(-spacingValue + (spacingValue - separatorThickness) / 2),
-                            height = separatorThickness
-                        )) { fill(separatorColour) }
+                for (s in separators) withRegion(r.copy(
+                    y = r.y + s + floor(-spacingValue + (spacingValue - separatorThickness) / 2),
+                    height = separatorThickness
+                )) { fill(separatorColour) }
 
+                for (child in resolvedChildrenPositionPhase) {
                     withRegion(child.region, draw = child.draw)
-
-                    separatorY += round(fixFromChild(sizeResolvedChildren[i].height) + spacingValue)
                 }
             }
         }

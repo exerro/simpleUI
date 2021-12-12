@@ -145,6 +145,16 @@ interface Style {
         6.px
     )
 
+    @UndocumentedExperimentalUI
+    object TextInputCornerRadius: Key.WithDefault<Pixels>(
+        4.px
+    )
+
+    @UndocumentedExperimentalUI
+    object DropdownCornerRadius: Key.WithDefault<Pixels>(
+        8.px
+    )
+
     companion object {
         @UndocumentedExperimentalUI
         operator fun invoke(vararg values: KeyValuePair<*>, attributes: Attributes = Attributes()) =

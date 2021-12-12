@@ -4,6 +4,8 @@ import com.exerro.simpleui.Pixels
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.ModifiedSizes
+import com.exerro.simpleui.ui.extensions.modifier
 
 @UndocumentedExperimentalUI
 inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, Width, Height>.withPadding(
@@ -26,7 +28,7 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefi
         val heightDelta = topValue + bottom.apply(availableHeight)
         val cw = map(childWidth) { it + widthDelta }
         val ch = map(childHeight) { it + heightDelta }
-        SizeResolvedComponent(cw, ch) { r ->
+        ResolvedComponentSizePhase(cw, ch) { r ->
             positionResolver(r.withPadding(top = top, right = right, bottom = bottom, left = left))
         }
     }

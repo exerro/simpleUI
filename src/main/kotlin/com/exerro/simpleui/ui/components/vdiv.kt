@@ -4,7 +4,7 @@ import com.exerro.simpleui.Alignment
 import com.exerro.simpleui.Pixels
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
-import com.exerro.simpleui.ui.internal.divCalculateOverflow
+import com.exerro.simpleui.ui.internal.calculateDivOverflow
 import com.exerro.simpleui.ui.internal.standardChildRendering
 import kotlin.math.round
 
@@ -24,17 +24,17 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
 ) = component("vdiv") {
     children(init) { width, height, availableWidth, _, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(fixFromParent(height))
-        val overflowAllocation = divCalculateOverflow(partitions, children.size, spacing).apply(fixFromParent(height))
+        val overflowAllocation = calculateDivOverflow(partitions, children.size, spacingValue.px).apply(fixFromParent(height))
         val appliedHeights = partitions.map { it.apply(fixFromParent(height)) } + (partitions.size until children.size).map { overflowAllocation }
-        val allocatedChildren = if (reversed) children.zip(appliedHeights).reversed() else children.zip(appliedHeights)
-        val sizeResolvedChildren = allocatedChildren.map { (child, allocatedHeight) ->
+        val allocatedChildren = if (reversed) children.zip(appliedHeights).asReversed() else children.zip(appliedHeights)
+        val resolvedChildrenSizePhase = allocatedChildren.map { (child, allocatedHeight) ->
             child(width, fixForChild(allocatedHeight), availableWidth, allocatedHeight)
         }
-        val childWidth = if (sizeResolvedChildren.isNotEmpty()) sizeResolvedChildren.maxOf { fixFromChildAny(it.width) } else 0f
+        val childWidth = resolvedChildrenSizePhase.maxOfOrNull { fixFromChildAny(it.width) } ?: 0f
 
-        SizeResolvedComponent(fixForParentAny(childWidth), nothingForParent()) { r ->
+        ResolvedComponentSizePhase(fixForParentAny(childWidth), nothingForParent()) { r ->
             var lastY = 0f
-            val positionResolvedChildren = sizeResolvedChildren.mapIndexed { i, c ->
+            val resolvedChildrenPositionPhase = resolvedChildrenSizePhase.mapIndexed { i, c ->
                 val allocatedHeight = if (i == children.lastIndex && children.size > partitions.size) fixFromParent(height) - lastY else round(appliedHeights[i])
                 val thisY = lastY
 
@@ -45,7 +45,7 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
                     .copy(y = r.y + thisY, height = allocatedHeight))
             }
 
-            standardChildRendering(r, drawFunctions, eventHandlers, positionResolvedChildren)
+            standardChildRendering(r, drawFunctions, eventHandlers, resolvedChildrenPositionPhase)
         }
     }
 }

@@ -10,9 +10,9 @@ fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ParentDefi
 ) = component("stack") {
     children(init) { width, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val sizeResolvedChildren = children.map { f -> f(width, height, availableWidth, availableHeight) }
-        SizeResolvedComponent(nothingForParent(), nothingForParent()) { r ->
+        ResolvedComponentSizePhase(nothingForParent(), nothingForParent()) { r ->
             val positionResolvedChildren = sizeResolvedChildren.map { it.positionResolver(r) }
-            PositionResolvedComponent(r, joinEventHandlers(eventHandlers, positionResolvedChildren)) {
+            ResolvedComponentPositionPhase(r, joinEventHandlers(eventHandlers, positionResolvedChildren)) {
                 for (f in drawFunctions) f(this)
                 for (child in positionResolvedChildren) child.draw(this)
             }

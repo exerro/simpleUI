@@ -1,4 +1,4 @@
-package com.exerro.simpleui.extensions
+package com.exerro.simpleui.ui.internal
 
 import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.Pixels
@@ -11,7 +11,7 @@ import com.exerro.simpleui.px
  *  (0-1 inclusive, where 1 is right and "complete" or "full").
  *
  *  **Note:** The standard size for sliders is (192px, 16px). */
-fun DrawContext.slider(
+internal fun DrawContext.slider(
     value: Float,
     backgroundColour: Colour,
     highlightColour: Colour? = null,

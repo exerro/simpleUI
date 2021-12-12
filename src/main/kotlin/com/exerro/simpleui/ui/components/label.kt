@@ -3,6 +3,7 @@ package com.exerro.simpleui.ui.components
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
 import kotlin.math.ceil
 
 @UndocumentedExperimentalUI

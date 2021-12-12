@@ -5,6 +5,8 @@ import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimentalUI

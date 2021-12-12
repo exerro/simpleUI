@@ -1,12 +1,12 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.extensions.progress
-import com.exerro.simpleui.extensions.slider
-import com.exerro.simpleui.extensions.textInput
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
+import com.exerro.simpleui.ui.extensions.*
 import com.exerro.simpleui.ui.hooks.useState
+import com.exerro.simpleui.ui.internal.progress
+import com.exerro.simpleui.ui.internal.slider
 import com.exerro.simpleui.ui.modifiers.withHeight
 import com.exerro.simpleui.ui.modifiers.withHorizontalAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
@@ -98,72 +98,28 @@ fun main() {
                     labelledSection("Text inputs") {
                         horizontalSelector(selectedRow == 1, maximumValue = 3) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
-                                component {
-                                    val focused = selectedElement == 0
-                                    val textBuffer = TextBufferBuilder {
-                                        if (focused) emitCursor(model.style[Style.PrimaryBackgroundColour])
-                                        emitText("Placeholder...", model.style[Style.AlternateForegroundColour])
-                                    }
+                                textInput(TextBufferBuilder {
+                                    if (selectedElement == 0) emitCursor(model.style[Style.PrimaryBackgroundColour])
+                                    emitText("Placeholder...", model.style[Style.AlternateForegroundColour])
+                                }, focused = selectedElement == 0)
 
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
+                                textInput(TextBufferBuilder(defaultColour = model.style[Style.ForegroundColour]) {
+                                    emitText("I")
+                                    if (selectedElement == 1) beginDecoration(TextBuffer.Decoration.Highlight, Colours.red.withAlpha(0.4f))
+                                    emitText("nva")
+                                    if (selectedElement == 1) stopDecoration(TextBuffer.Decoration.Highlight)
+                                    if (selectedElement == 1) emitCursor(Colours.red)
+                                    emitText("lid")
+                                }, focused = selectedElement == 1, type = TextInputType.Invalid)
 
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
+                                textInput(TextBufferBuilder {
+                                    emitText("Disabled", model.style[Style.ForegroundColour])
+                                }, focused = selectedElement == 2, type = TextInputType.Disabled)
 
-                                component {
-                                    val focused = selectedElement == 1
-                                    val textBuffer = TextBufferBuilder(defaultColour = model.style[Style.ForegroundColour]) {
-                                        emitText("I")
-                                        if (focused) beginDecoration(TextBuffer.Decoration.Highlight, Colours.red.withAlpha(0.4f))
-                                        emitText("nva")
-                                        if (focused) stopDecoration(TextBuffer.Decoration.Highlight)
-                                        if (focused) emitCursor(Colours.red)
-                                        emitText("lid")
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.ErrorBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
-
-                                component {
-                                    val focused = selectedElement == 2
-                                    val textBuffer = TextBufferBuilder {
-                                        emitText("Disabled", model.style[Style.ForegroundColour])
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.DisabledBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
-
-                                component {
-                                    val focused = selectedElement == 3
-                                    val textBuffer = TextBufferBuilder {
-                                        emitText("Something", model.style[Style.ForegroundColour])
-                                        if (focused) emitCursor(model.style[Style.PrimaryBackgroundColour])
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused, icon = "images/search.png", iconColour = model.style[Style.ForegroundColour])
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
+                                textInput(TextBufferBuilder {
+                                    emitText("Something", model.style[Style.ForegroundColour])
+                                    if (selectedElement == 3) emitCursor(model.style[Style.PrimaryBackgroundColour])
+                                }, focused = selectedElement == 3, icon = Image("images/search.png"))
                             }
                         }
                     }

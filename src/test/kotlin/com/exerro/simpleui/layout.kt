@@ -8,8 +8,8 @@ import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.stack
 import com.exerro.simpleui.ui.components.vdiv
 import com.exerro.simpleui.ui.components.vflow
+import com.exerro.simpleui.ui.extensions.noChildren
 import com.exerro.simpleui.ui.modifiers.*
-import com.exerro.simpleui.ui.noChildren
 
 fun ParentDefinedContext<*>.drawElement(fn: DrawContext.() -> Unit) = component {
     onDraw(fn)
