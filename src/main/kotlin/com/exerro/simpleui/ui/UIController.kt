@@ -13,23 +13,31 @@ class UIController<Model: UIModel>(
     val events = PushableEventBus<Event>()
 
     @UndocumentedExperimentalUI
-    fun pushEvent(event: WindowEvent): Boolean {
-        for (eventHandler in eventHandlers.reversed()) {
-            if (eventHandler(event)) return true
-        }
-        return false
+    fun load(width: Float, height: Float) {
+        c.update()
+        setSizeDirect(width, height)
+        recomputePositioning(force = true)
     }
 
     @UndocumentedExperimentalUI
-    fun reposition(width: Float, height: Float, force: Boolean = false) {
-        if (!force && width == lastWidth && height == lastHeight) return
+    fun setSizeDirect(width: Float, height: Float) {
+        contentWidth = width
+        contentHeight = height
+        recomputePositioning(force = false)
+    }
 
-        lastWidth = width
-        lastHeight = height
-        positionResolvedContent = c.transient
-            .sizeResolver(fixForChild(width), fixForChild(height), width, height)
-            .positionResolver(Region(0f, 0f, width, height))
-        eventHandlers = positionResolvedContent.eventHandlers
+    @UndocumentedExperimentalUI
+    fun pushEvent(event: WindowEvent): Boolean {
+        if (event is EWindowResized) {
+            setSizeDirect(event.width.toFloat(), event.height.toFloat())
+            return true
+        }
+
+        for (eventHandler in eventHandlers.reversed()) {
+            if (eventHandler(event)) return true
+        }
+
+        return false
     }
 
     @UndocumentedExperimentalUI
@@ -37,11 +45,7 @@ class UIController<Model: UIModel>(
         positionResolvedContent.draw(context)
     }
 
-    @UndocumentedExperimentalUI
-    fun repositionAndDraw(context: DrawContext) {
-        reposition(context.region.width, context.region.height)
-        draw(context)
-    }
+    ////////////////////////////////////////////////////////////////////////////
 
     @UndocumentedExperimentalUI
     fun getModel() = currentModel
@@ -49,17 +53,17 @@ class UIController<Model: UIModel>(
     @UndocumentedExperimentalUI
     fun setModel(model: Model) {
         currentModel = model
-        c.refresh()
+        c.update()
     }
 
     @UndocumentedExperimentalUI
     fun updateModel(update: (Model) -> Model) =
         setModel(update(getModel()))
 
-    @UndocumentedExperimentalUI
-    fun load() = c.refresh()
-
     private lateinit var positionResolvedContent: ResolvedComponentPositionPhase
+    private val pendingRefCountChildrenIds = mutableSetOf<Id>()
+    private var contentWidth = 0f
+    private var contentHeight = 0f
     private var lastWidth = 0f
     private var lastHeight = 0f
     private var currentModel = initialModel
@@ -86,40 +90,80 @@ class UIController<Model: UIModel>(
         return newPersistentData
     }
 
-    @UndocumentedExperimentalUI
-    internal fun notifyRefreshing(completed: Boolean) {
+    internal fun getPersistentData(id: Id): PersistentComponentData? {
+        return persistentData[id]
+    }
+
+    internal fun updateRefCountLater(id: Id, refs: Int) {
+        val persistent = persistentData[id] ?: return
+        persistent.refCount += refs
+        pendingRefCountChildrenIds.add(id)
+    }
+
+    internal fun notifyUpdating(completed: Boolean) {
         if (completed) {
             if (--refreshingCounter == 0) {
-                if (waitingForRefresh == 0) onRefreshed()
+                if (waitingForRefresh == 0) onUpdate()
                 else refreshedDuringWait = true
             }
         }
         else ++refreshingCounter
     }
 
-    @UndocumentedExperimentalUI
-    internal fun setWaitingForRefresh(done: Boolean = false) {
+    internal fun setWaitingForUpdatePropagation(done: Boolean = false) {
         if (!done) {
             ++waitingForRefresh
         }
         if (done) {
             if (--waitingForRefresh == 0 && refreshedDuringWait) {
-                onRefreshed()
+                onUpdate()
                 refreshedDuringWait = false
             }
         }
     }
 
-    private fun onRefreshed() {
-        lastWidth = 0f
-        lastHeight = 0f
-        events.push(Event.Refreshed)
+    private fun onUpdate() {
+        for (refsUpdatedId in pendingRefCountChildrenIds) {
+            val refsUpdatedChild = persistentData[refsUpdatedId] ?: continue
+
+            if (refsUpdatedChild.refCount == 0 && refsUpdatedChild.isMounted) {
+                for (f in refsUpdatedChild.lifecycleHooks.filterIsInstance<LifecycleHook.UnloadHook>()) {
+                    f.onUnload()
+                }
+
+                refsUpdatedChild.isMounted = false
+                persistentData.remove(refsUpdatedChild.id)
+            }
+            else if (refsUpdatedChild.refCount > 0 && !refsUpdatedChild.isMounted) {
+                for (f in refsUpdatedChild.lifecycleHooks.filterIsInstance<LifecycleHook.LoadHook>()) {
+                    f.onLoad()
+                }
+
+                refsUpdatedChild.isMounted = true
+            }
+        }
+
+        recomputePositioning(force = true)
+
+        events.push(Event.Updated)
+        pendingRefCountChildrenIds.clear()
+    }
+
+    private fun recomputePositioning(force: Boolean) {
+        if (!force && contentWidth == lastWidth && contentHeight == lastHeight) return
+
+        lastWidth = contentWidth
+        lastHeight = contentHeight
+        positionResolvedContent = c.transient
+            .sizeResolver(fixForChild(contentWidth), fixForChild(contentHeight), contentWidth, contentHeight)
+            .positionResolver(Region(0f, 0f, contentWidth, contentHeight))
+        eventHandlers = positionResolvedContent.eventHandlers
     }
 
     @UndocumentedExperimentalUI
     sealed interface Event {
         @UndocumentedExperimentalUI
-        object Refreshed: Event
+        object Updated: Event
     }
 
     companion object {
@@ -136,9 +180,9 @@ class UIController<Model: UIModel>(
             val window = GLFWWindowCreator.createWindow(title)
             val controller = UIController(UIModel()) { init(window) }
 
-            controller.events.connect { window.draw { controller.repositionAndDraw(this) } }
+            controller.events.connect { window.draw { controller.draw(this) } }
             window.events.connect(controller::pushEvent)
-            controller.load()
+            controller.load(window.currentWidth.toFloat(), window.currentHeight.toFloat())
 
             while (!window.isClosed) GLFWWindowCreator.update()
         }

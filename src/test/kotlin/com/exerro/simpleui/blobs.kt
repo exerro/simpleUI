@@ -4,8 +4,7 @@ import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
-import com.exerro.simpleui.ui.hooks.useOnce
-import com.exerro.simpleui.ui.hooks.useState
+import com.exerro.simpleui.ui.extensions.useState
 import com.exerro.simpleui.ui.modifiers.*
 import java.lang.Math.random
 
@@ -39,9 +38,9 @@ fun blobsController() = UIController {
         ) {
             for (i in 1 .. 32) {
                 withAnimatedRegion().component {
-                    val width = useOnce { 128 + random() * 128 }
-                    val height = useOnce { 64 + random() * 64 }
-                    val colour = useOnce { Colours.random() }
+                    val width by useOrderedStorageCell { 128 + random() * 128 }
+                    val height by useOrderedStorageCell { 64 + random() * 64 }
+                    val colour by useOrderedStorageCell { Colours.random() }
 
                     onDraw {
                         shadow(cornerRadius = 8.px)
@@ -59,9 +58,9 @@ fun main() {
     val window = GLFWWindowCreator.createWindow("UI")
     val controller = blobsController()
 
-    controller.events.connect { window.draw { controller.repositionAndDraw(this) } }
+    controller.events.connect { window.draw { controller.draw(this) } }
     window.events.connect(controller::pushEvent)
-    controller.load()
+    controller.load(window.currentWidth.toFloat(), window.currentHeight.toFloat())
 
     while (!window.isClosed) GLFWWindowCreator.update()
 }

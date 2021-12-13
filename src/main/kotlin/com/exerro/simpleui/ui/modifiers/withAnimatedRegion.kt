@@ -3,8 +3,6 @@ package com.exerro.simpleui.ui.modifiers
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
-import com.exerro.simpleui.ui.ComponentSizeResolver
-import com.exerro.simpleui.ui.hooks.useMemory
 import kotlin.math.min
 import kotlin.time.Duration
 
@@ -16,9 +14,9 @@ ComponentChildrenContext<Model, Width, Height>.withAnimatedRegion(
 ) = object: ComponentChildrenContext<Model, Width, Height> by this {
     override fun component(elementType: String, id: Id, init: ComponentContext<Model, Width, Height>.() -> ComponentIsResolved) = this@withAnimatedRegion.component(elementType, id) {
         val outerComponentContext = this
-        val (getLastPositionedRegion, setLastPositionedRegion) = useMemory<Region>()
-        val (getAnimatingFromRegion, setAnimatingFromRegion) = useMemory<Region>()
-        val (getAnimatingFromTime, setAnimatingFromTime) = useMemory<Long>()
+        val lastPositionedRegionMemory = useOrderedStorageCell<Region?> { null }
+        val animatingFromRegionMemory = useOrderedStorageCell<Region?> { null }
+        val animatingFromTimeMemory = useOrderedStorageCell<Long?> { null }
 
         init(object: ComponentContext<Model, Width, Height> by outerComponentContext {
             override fun <SubWidth : WhoDefinesMe, SubHeight : WhoDefinesMe> children(
@@ -30,14 +28,14 @@ ComponentChildrenContext<Model, Width, Height>.withAnimatedRegion(
                 sizeResolved.copy { r ->
                     val resolved = sizeResolved.positionResolver(r)
                     val currentPositionedRegion = resolved.region
-                    val lastPositionedRegion = getLastPositionedRegion()
+                    val lastPositionedRegion = lastPositionedRegionMemory.get()
 
                     if (lastPositionedRegion != null && lastPositionedRegion != currentPositionedRegion) {
                         val time = System.nanoTime()
-                        val currentlyAt = when (val animatingFromRegion = getAnimatingFromRegion()) {
+                        val currentlyAt = when (val animatingFromRegion = animatingFromRegionMemory.get()) {
                             null -> lastPositionedRegion
                             else -> {
-                                val t = min(1f, (Duration.nanoseconds(time - getAnimatingFromTime()!!) / duration).toFloat())
+                                val t = min(1f, (Duration.nanoseconds(time - animatingFromTimeMemory.get()!!) / duration).toFloat())
 
                                 Region(
                                     x = easing(t, animatingFromRegion.x, lastPositionedRegion.x),
@@ -48,21 +46,21 @@ ComponentChildrenContext<Model, Width, Height>.withAnimatedRegion(
                             }
                         }
 
-                        setAnimatingFromRegion(currentlyAt)
-                        setAnimatingFromTime(time)
+                        animatingFromRegionMemory.set(currentlyAt)
+                        animatingFromTimeMemory.set(time)
                     }
 
                     val a = resolved.copy(draw = {
                         val time = System.nanoTime()
-                        val animatingFromRegion = getAnimatingFromRegion()
-                        val animatingFromTime = getAnimatingFromTime()
+                        val animatingFromRegion = animatingFromRegionMemory.get()
+                        val animatingFromTime = animatingFromTimeMemory.get()
                         // we're not animating
                         if (animatingFromRegion == null || time > animatingFromTime!! + duration.inWholeNanoseconds) {
                             resolved.draw(this)
                         }
                         // we're animating
                         else {
-                            val t = (Duration.nanoseconds(time - getAnimatingFromTime()!!) / duration).toFloat()
+                            val t = (Duration.nanoseconds(time - animatingFromTimeMemory.get()!!) / duration).toFloat()
                             val drawRegion = Region(
                                 x = easing(t, animatingFromRegion.x, region.x),
                                 y = easing(t, animatingFromRegion.y, region.y),
@@ -75,7 +73,7 @@ ComponentChildrenContext<Model, Width, Height>.withAnimatedRegion(
                         }
                     })
 
-                    setLastPositionedRegion(currentPositionedRegion)
+                    lastPositionedRegionMemory.set(currentPositionedRegion)
 
                     a
                 }

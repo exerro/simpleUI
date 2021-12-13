@@ -1,7 +1,6 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.ui.internal.standardChildRendering
 
 @UndocumentedExperimentalUI
 @UIContextType
@@ -17,7 +16,13 @@ interface ComponentContext<
     fun refresh()
 
     @UndocumentedExperimentalUI
-    fun <H: HookState> getHookStateOrNew(newHook: () -> H): H
+    fun <T> useOrderedStorageCell(getInitialValue: () -> T): PersistentStorageCell<T>
+
+    @UndocumentedExperimentalUI
+    fun <T: Any> useOrderedLateInitStorageCell(): PersistentStorageCell<T>
+
+    @UndocumentedExperimentalUI
+    fun attachHook(hook: LifecycleHook)
 
     @UndocumentedExperimentalUI
     fun onDraw(draw: ComponentDrawFunction)

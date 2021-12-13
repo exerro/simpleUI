@@ -37,7 +37,9 @@ ComponentChildrenContext<Model, OldWidth, OldHeight>.modifier(
                 override val model get() = pContext.model
                 override fun setModel(model: Model) = pContext.setModel(model)
                 override fun refresh() = pContext.refresh()
-                override fun <H : HookState> getHookStateOrNew(newHook: () -> H) = pContext.getHookStateOrNew(newHook)
+                override fun attachHook(hook: LifecycleHook) = pContext.attachHook(hook)
+                override fun <T> useOrderedStorageCell(getInitialValue: () -> T) = pContext.useOrderedStorageCell(getInitialValue)
+                override fun <T: Any> useOrderedLateInitStorageCell() = pContext.useOrderedLateInitStorageCell<T>()
                 override fun onDraw(draw: ComponentDrawFunction) = pContext.onDraw(draw)
                 override fun connectEventHandler(handler: ComponentEventHandler) = pContext.connectEventHandler(handler)
 

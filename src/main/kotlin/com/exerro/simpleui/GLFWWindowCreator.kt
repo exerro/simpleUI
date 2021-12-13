@@ -91,6 +91,11 @@ object GLFWWindowCreator: WindowCreator {
             worker.reloop()
         }
 
+        GLFW.glfwSetFramebufferSizeCallback(windowID) { _, w, h ->
+            pushEvent(EWindowResized(w, h))
+            worker.reloop()
+        }
+
         GLFW.glfwSetKeyCallback(windowID) { _, key, scancode, action, mods ->
             val repeat = action == GLFW.GLFW_REPEAT
             val pressed = action == GLFW.GLFW_PRESS || repeat
@@ -260,6 +265,18 @@ object GLFWWindowCreator: WindowCreator {
                 EventBus.Connection {
                     synchronized(onEventList) { onEventList.remove(onEvent) }
                 }
+            }
+
+            override val currentWidth: Int get() {
+                val w = IntArray(1)
+                GLFW.glfwGetFramebufferSize(windowID, w, intArrayOf(0))
+                return w[0]
+            }
+
+            override val currentHeight: Int get() {
+                val h = IntArray(1)
+                GLFW.glfwGetFramebufferSize(windowID, intArrayOf(0), h)
+                return h[0]
             }
 
             override fun draw(layers: LayerComposition, onDraw: DrawContext.(deltaTime: Duration) -> Unit) {

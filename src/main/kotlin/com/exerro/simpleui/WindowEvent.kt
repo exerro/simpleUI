@@ -8,6 +8,12 @@ object EWindowClosed: WindowEvent {
     override fun toString() = this::class.simpleName!!
 }
 
+/** Emitted when the window is resized. */
+data class EWindowResized(
+    val width: Int,
+    val height: Int,
+): WindowEvent
+
 /** Emitted when a key is pressed. */
 data class EKeyPressed(
     val name: String,

@@ -6,11 +6,10 @@ import com.exerro.simpleui.ui.components.controller
 import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.panel
 import com.exerro.simpleui.ui.get
-import com.exerro.simpleui.ui.hooks.useOnce
 import com.exerro.simpleui.ui.modifiers.withPadding
 
 fun main() = UIController.runDefaultApp("UI") {
-    val blobs = useOnce { blobsController() }
+    val blobs by useOrderedStorageCell { blobsController() }
 
     onDraw {
         fill(model.style[Style.AlternateBackgroundColour])

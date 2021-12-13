@@ -24,6 +24,12 @@ interface Window {
     /** [TimeMark] representing when the window was created. */
     val createdAt: TimeMark
 
+    /** Current width of the window, in pixels. */
+    val currentWidth: Int
+
+    /** Current height of the window, in pixels. */
+    val currentHeight: Int
+
     /** Submit a render function to render the window both now
      *  and whenever the window's framebuffer is refreshed
      *  (e.g. after resizing or restoring). */

@@ -34,7 +34,7 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
             val resolvedChildrenPositionPhase = resolvedChildrenSizePhase.map { c ->
                 val thisY = lastY
 
-                if (showSeparators) separators += thisY + floor(-spacingValue + (spacingValue - separatorThickness) / 2)
+                if (showSeparators) separators += thisY - floor((spacingValue + separatorThickness) / 2)
                 lastY += round(fixFromChild(c.height) + spacingValue)
 
                 c.positionResolver(r
@@ -48,7 +48,7 @@ inline fun <Model: UIModel, reified Width: WhoDefinesMe> ComponentChildrenContex
                 for (f in drawFunctions) f(this)
 
                 for (s in separators) withRegion(r.copy(
-                    y = r.y + s + floor(-spacingValue + (spacingValue - separatorThickness) / 2),
+                    y = r.y + s,
                     height = separatorThickness
                 )) { fill(separatorColour) }
 

@@ -4,7 +4,7 @@ import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.extensions.bind
 import com.exerro.simpleui.ui.extensions.singleChild
-import com.exerro.simpleui.ui.hooks.useState
+import com.exerro.simpleui.ui.extensions.useState
 import com.exerro.simpleui.ui.modifiers.withDecoration
 import com.exerro.simpleui.ui.modifiers.withLayer
 import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
