@@ -1,11 +1,11 @@
 package com.exerro.simpleui.ui
 
+import com.exerro.simpleui.Region
 import com.exerro.simpleui.UndocumentedExperimentalUI
 
 @UndocumentedExperimentalUI
-data class ResolvedComponent<out W: Float?, out H: Float?>(
-    val width: W,
-    val height: H,
+data class ResolvedComponentPositionPhase(
+    val region: Region,
     val eventHandlers: List<ComponentEventHandler>,
     val draw: ComponentDrawFunction,
 )

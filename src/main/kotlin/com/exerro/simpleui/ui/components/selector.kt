@@ -2,53 +2,56 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.hooks.useState
-import com.exerro.simpleui.ui.standardActions.MoveFocusDown
-import com.exerro.simpleui.ui.standardActions.MoveFocusLeft
-import com.exerro.simpleui.ui.standardActions.MoveFocusRight
-import com.exerro.simpleui.ui.standardActions.MoveFocusUp
+import com.exerro.simpleui.ui.standardActions.*
 
 // TODO: wrapping on min/max
 // TODO: tabSelector
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.selector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.selector(
     focused: Boolean,
-    decreaseSelectionAction: Action,
-    increaseSelectionAction: Action,
+    decreaseSelectionActions: Set<Action>,
+    increaseSelectionActions: Set<Action>,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = component("selector") {
     val (selected, setSelected) = useState(initialValue)
 
-    if (focused && (minimumValue == null || selected > minimumValue)) bind(decreaseSelectionAction) {
-        setSelected(selected - 1)
-        true
+    if (focused && (minimumValue == null || selected > minimumValue)) {
+        for (decreaseSelectionAction in decreaseSelectionActions) bind(decreaseSelectionAction) {
+            setSelected(selected - 1)
+            true
+        }
     }
 
-    if (focused && (maximumValue == null || selected < maximumValue)) bind(increaseSelectionAction) {
-        setSelected(selected + 1)
-        true
+    if (focused && (maximumValue == null || selected < maximumValue)) {
+        for (increaseSelectionAction in increaseSelectionActions) bind(increaseSelectionAction) {
+            setSelected(selected + 1)
+            true
+        }
     }
 
-    init(selected.takeIf { focused })
+    singleChild.init(selected.takeIf { focused })
 }
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.horizontalSelector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.horizontalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
-    decreaseSelectionAction = MoveFocusLeft,
-    increaseSelectionAction = MoveFocusRight,
+    decreaseSelectionActions = setOf(MoveFocusLeft, FocusPreviousElement),
+    increaseSelectionActions = setOf(MoveFocusRight, FocusNextElement),
     minimumValue = minimumValue,
     maximumValue = maximumValue,
     initialValue = initialValue,
@@ -56,17 +59,17 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
 )
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ParentWidth: Float?, ChildHeight: Float?, ChildWidth: Float?>
-        ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.verticalSelector(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe>
+        ComponentChildrenContext<Model, Width, Height>.verticalSelector(
     focused: Boolean,
     minimumValue: Int? = 0,
     maximumValue: Int? = null,
     initialValue: Int = 0,
-    init: ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(selected: Int?) -> ComponentIsResolved
+    init: ComponentChildrenContext<Model, Width, Height>.(selected: Int?) -> ComponentIsResolved
 ) = selector(
     focused = focused,
-    decreaseSelectionAction = MoveFocusUp,
-    increaseSelectionAction = MoveFocusDown,
+    decreaseSelectionActions = setOf(MoveFocusUp, FocusPreviousElement),
+    increaseSelectionActions = setOf(MoveFocusDown, FocusNextElement),
     minimumValue = minimumValue,
     maximumValue = maximumValue,
     initialValue = initialValue,

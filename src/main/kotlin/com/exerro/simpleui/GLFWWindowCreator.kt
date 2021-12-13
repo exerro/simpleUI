@@ -23,7 +23,7 @@ object GLFWWindowCreator: WindowCreator {
     override fun createWindow(
         title: String
     ): Window {
-        val worker = WorkerThread()
+        val worker = RenderThread()
         val onEventList = mutableListOf<(WindowEvent) -> Unit>()
         var isClosed = false
         lateinit var nvgGraphics: NVGGraphics
@@ -273,7 +273,6 @@ object GLFWWindowCreator: WindowCreator {
                     val r = Region(0f, 0f, width[0].toFloat(), height[0].toFloat())
 
                     val (d) = DrawContext.buffer(nvgGraphics, Layer.Default, r, r, nvgRenderer) {
-                        val time = System.nanoTime()
                         onDraw(Duration.nanoseconds(time - lastFrame))
                         lastFrame = time
                     }
@@ -295,7 +294,7 @@ object GLFWWindowCreator: WindowCreator {
                     NanoVG.nvgEndFrame(nvgGraphics.context)
                     GLFW.glfwSwapBuffers(windowID)
 
-                    d.hasDynamicContent
+                    d.contentChangesDynamicallyIn
                 }
             }
 
@@ -317,7 +316,7 @@ object GLFWWindowCreator: WindowCreator {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    private class WorkerThread {
+    private class RenderThread {
         var onFinish: () -> Unit = {}
 
         fun start(name: String, init: () -> Unit) {
@@ -328,14 +327,9 @@ object GLFWWindowCreator: WindowCreator {
                 c.countDown()
 
                 while (running) {
-                    try {
-                        if (dirty) { dirty = false; dirty = nextLoop() || dirty }
-                        Thread.sleep(8)
-                    }
+                    try { Thread.sleep(nextLoop().inWholeMilliseconds) }
                     catch (e: InterruptedException) { /* do nothing */ }
-                    catch (e: Throwable) {
-                        e.printStackTrace(System.err)
-                    }
+                    catch (e: Throwable) { e.printStackTrace(System.err) }
                 }
 
                 onFinish()
@@ -344,24 +338,23 @@ object GLFWWindowCreator: WindowCreator {
             c.await()
         }
 
-        fun loop(fn: () -> Boolean) {
+        fun loop(fn: () -> Duration) {
             nextLoop = fn
             reloop()
         }
 
         fun reloop() {
-            dirty = true
             thread.interrupt()
         }
 
         fun stop() {
             running = false
+            thread.interrupt()
             thread.join()
         }
 
         private lateinit var thread: Thread
-        private var dirty = true
-        private var nextLoop: () -> Boolean = { false }
+        private var nextLoop: () -> Duration = { Duration.INFINITE }
         private var running = true
     }
 

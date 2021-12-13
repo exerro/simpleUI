@@ -1,5 +1,6 @@
 package com.exerro.simpleui.ui
 
+import com.exerro.simpleui.KeyModifier
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.standardActions.*
 
@@ -29,6 +30,8 @@ interface ActionKeybinds {
 
         @UndocumentedExperimentalUI
         val Default = create(
+            ActionKeybind("tab") to FocusNextElement,
+            ActionKeybind("tab", modifiers = setOf(KeyModifier.Shift)) to FocusPreviousElement,
             ActionKeybind("left") to MoveFocusLeft,
             ActionKeybind("right") to MoveFocusRight,
             ActionKeybind("up") to MoveFocusUp,

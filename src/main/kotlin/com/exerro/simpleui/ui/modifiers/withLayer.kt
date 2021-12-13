@@ -5,13 +5,6 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.*
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.withLayer(
+fun <Model: UIModel, Width: WhoDefinesMe, Height: WhoDefinesMe> ComponentChildrenContext<Model, Width, Height>.withLayer(
     layer: Layer,
-) = modifier<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight, ParentWidth, ParentHeight, ChildWidth, ChildHeight>(
-    { w, h, aw, ah -> ModifiedSizes(w, h, aw, ah) },
-    { _, _, _, _, _, (childWidth, childHeight, eventHandlers, draw) ->
-        ResolvedComponent(childWidth, childHeight, eventHandlers) {
-            withLayer(layer, draw)
-        }
-    }
-)
+) = withDrawModifier { draw -> withLayer(layer, draw) }

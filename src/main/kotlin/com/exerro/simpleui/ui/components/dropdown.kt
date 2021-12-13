@@ -2,10 +2,12 @@ package com.exerro.simpleui.ui.components
 
 import com.exerro.simpleui.*
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.hooks.useState
 import com.exerro.simpleui.ui.modifiers.withDecoration
 import com.exerro.simpleui.ui.modifiers.withLayer
-import com.exerro.simpleui.ui.modifiers.withVerticalAlignment2
+import com.exerro.simpleui.ui.modifiers.withVerticalAlignment
 import com.exerro.simpleui.ui.standardActions.MoveFocusDown
 import com.exerro.simpleui.ui.standardActions.MoveFocusUp
 import com.exerro.simpleui.ui.standardActions.SelectEntity
@@ -14,25 +16,25 @@ import com.exerro.simpleui.ui.standardActions.SelectEntity
 // TODO: context groupUpdates { ... } to avoid multiple refreshes
 
 @UndocumentedExperimentalUI
-fun <T, Model: UIModel, ParentWidth: Float?, ParentHeight: Float?, ChildWidth: Float?, ChildHeight: Float?>
-ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.dropdown(
+inline fun <T, Model: UIModel, reified Width: WhoDefinesMe, reified Height: WhoDefinesMe>
+ComponentChildrenContext<Model, Width, Height>.dropdown(
     initialSelectedOption: T,
     options: List<T>,
     focused: Boolean = false,
     spacing: Pixels = 0.px,
     horizontalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = true,
-    onOptionChanged: (T) -> Unit = {},
+    crossinline onOptionChanged: (T) -> Unit = {},
     toggleVisibleAction: Action = SelectEntity,
     selectNextOptionAction: Action = MoveFocusDown, // TODO
     selectPreviousOptionAction: Action = MoveFocusUp, // TODO
-    renderOption: DeferredComponentContext<Model, ParentWidth, Nothing?, ChildWidth, Float>.(T) -> ComponentIsResolved,
-    renderPrimaryOption: DeferredComponentContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeight>.(T) -> ComponentIsResolved,
+    crossinline renderOption: ComponentChildContext<Model, Width, ChildDefinesMe>.(T) -> ComponentIsResolved,
+    crossinline renderPrimaryOption: ComponentChildContext<Model, Width, Height>.(T) -> ComponentIsResolved,
 ) = component("dropdown") {
     val (selectedOption, setSelectedOption) = useState(initialSelectedOption, updateOnVaryingInitialValue = true)
     val (stateIsExpanded, setExpandedState) = useState(false)
     val (selectedOptionIndex, setSelectedOptionIndex) = useState(0)
-    val cornerRadius = 8.px
+    val cornerRadius = model.style[Style.DropdownCornerRadius]
     val isExpanded = stateIsExpanded && focused
 
     if (focused) bind(toggleVisibleAction) {
@@ -61,7 +63,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
     if (isExpanded) {
         lateinit var parentRegion: Region
 
-        withLayer(Layer.Foreground).withVerticalAlignment2(verticalAlignment = 0f).withDecoration {
+        singleChild.withLayer(Layer.Foreground).withVerticalAlignment(verticalAlignment = 0f).withDecoration {
             parentRegion = region
             shadow(cornerRadius = cornerRadius, colour = model.style[Style.ShadowColour])
             roundedRectangle(cornerRadius = cornerRadius, colour = model.style[Style.ElementBackgroundColour])
@@ -81,7 +83,7 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
                         }
                     }
 
-                    renderOption(this, option)
+                    singleChild.renderOption(option)
                 }
             }
         }
@@ -103,6 +105,6 @@ ComponentChildrenContext<Model, ParentWidth, ParentHeight, ChildWidth, ChildHeig
                 }
         }
 
-        renderPrimaryOption(selectedOption)
+        singleChild.renderPrimaryOption(selectedOption)
     }
 }

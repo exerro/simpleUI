@@ -5,16 +5,18 @@ import com.exerro.simpleui.colour.Colours
 import com.exerro.simpleui.percent
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
 import com.exerro.simpleui.ui.standardActions.SelectEntity
 
 @UndocumentedExperimentalUI
-fun ComponentChildrenContext<*, *, *, *, *>.iconButton(
+inline fun <reified Width: WhoDefinesMe, reified Height: WhoDefinesMe> ComponentChildrenContext<*, Width, Height>.iconButton(
     icon: Image,
     type: ButtonType = ButtonType.Default,
     focused: Boolean = false,
     action: Action = SelectEntity,
-    behaviour: () -> Unit = {},
-) = rawComponent("iconButton") {
+    crossinline behaviour: () -> Unit = {},
+) = component("iconButton") {
     val backgroundColourKey = when (type) {
         ButtonType.Default -> Style.ElementBackgroundColour
         ButtonType.Primary -> Style.PrimaryBackgroundColour

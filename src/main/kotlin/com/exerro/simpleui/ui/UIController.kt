@@ -1,16 +1,14 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.DrawContext
-import com.exerro.simpleui.GLFWWindowCreator
-import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.WindowEvent
+import com.exerro.simpleui.*
+import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.internal.ComponentInstance
 import com.exerro.simpleui.ui.internal.PersistentComponentData
 
 @UndocumentedExperimentalUI
 class UIController<Model: UIModel>(
     initialModel: Model,
-    init: DeferredComponentContext<Model, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved,
+    init: ComponentChildContext<Model, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved,
 ) {
     val events = PushableEventBus<Event>()
 
@@ -23,10 +21,26 @@ class UIController<Model: UIModel>(
     }
 
     @UndocumentedExperimentalUI
+    fun reposition(width: Float, height: Float, force: Boolean = false) {
+        if (!force && width == lastWidth && height == lastHeight) return
+
+        lastWidth = width
+        lastHeight = height
+        positionResolvedContent = c.transient
+            .sizeResolver(fixForChild(width), fixForChild(height), width, height)
+            .positionResolver(Region(0f, 0f, width, height))
+        eventHandlers = positionResolvedContent.eventHandlers
+    }
+
+    @UndocumentedExperimentalUI
     fun draw(context: DrawContext) {
-        val readyToDraw = c.transient.resolver(context.region.width, context.region.height, context.region.width, context.region.height)
-        eventHandlers = readyToDraw.eventHandlers
-        readyToDraw.draw(context)
+        positionResolvedContent.draw(context)
+    }
+
+    @UndocumentedExperimentalUI
+    fun repositionAndDraw(context: DrawContext) {
+        reposition(context.region.width, context.region.height)
+        draw(context)
     }
 
     @UndocumentedExperimentalUI
@@ -45,6 +59,9 @@ class UIController<Model: UIModel>(
     @UndocumentedExperimentalUI
     fun load() = c.refresh()
 
+    private lateinit var positionResolvedContent: ResolvedComponentPositionPhase
+    private var lastWidth = 0f
+    private var lastHeight = 0f
     private var currentModel = initialModel
     private val persistentData = mutableMapOf<Id, PersistentComponentData>()
     private var eventHandlers = emptyList<ComponentEventHandler>()
@@ -54,8 +71,8 @@ class UIController<Model: UIModel>(
     private val c = ComponentInstance(
         controller = this,
         persistent = PersistentComponentData(Id.Root, "root"),
-        init = ComponentInstance.convertComponentFunction<Model, Float, Float, Nothing?, Nothing?> {
-            init(DeferredComponentContext(this))
+        init = ComponentInstance.convertComponentFunction<Model, ParentDefinesMe, ParentDefinesMe> {
+            singleChild.init()
         }
     )
 
@@ -73,7 +90,7 @@ class UIController<Model: UIModel>(
     internal fun notifyRefreshing(completed: Boolean) {
         if (completed) {
             if (--refreshingCounter == 0) {
-                if (waitingForRefresh == 0) events.push(Event.Refreshed)
+                if (waitingForRefresh == 0) onRefreshed()
                 else refreshedDuringWait = true
             }
         }
@@ -87,10 +104,16 @@ class UIController<Model: UIModel>(
         }
         if (done) {
             if (--waitingForRefresh == 0 && refreshedDuringWait) {
-                events.push(Event.Refreshed)
+                onRefreshed()
                 refreshedDuringWait = false
             }
         }
+    }
+
+    private fun onRefreshed() {
+        lastWidth = 0f
+        lastHeight = 0f
+        events.push(Event.Refreshed)
     }
 
     @UndocumentedExperimentalUI
@@ -102,18 +125,18 @@ class UIController<Model: UIModel>(
     companion object {
         @UndocumentedExperimentalUI
         operator fun invoke(
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+            init: ComponentChildContext<UIModel, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved
         ) = UIController(UIModel(), init)
 
         @UndocumentedExperimentalUI
         fun runDefaultApp(
             title: String = "Default UI App",
-            init: DeferredComponentContext<UIModel, Float, Float, Nothing?, Nothing?>.() -> ComponentIsResolved
+            init: ComponentChildContext<UIModel, ParentDefinesMe, ParentDefinesMe>.(window: Window) -> ComponentIsResolved
         ) {
             val window = GLFWWindowCreator.createWindow(title)
-            val controller = UIController(UIModel(), init)
+            val controller = UIController(UIModel()) { init(window) }
 
-            controller.events.connect { window.draw { controller.draw(this) } }
+            controller.events.connect { window.draw { controller.repositionAndDraw(this) } }
             window.events.connect(controller::pushEvent)
             controller.load()
 

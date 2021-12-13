@@ -8,8 +8,8 @@ import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.stack
 import com.exerro.simpleui.ui.components.vdiv
 import com.exerro.simpleui.ui.components.vflow
+import com.exerro.simpleui.ui.extensions.noChildren
 import com.exerro.simpleui.ui.modifiers.*
-import com.exerro.simpleui.ui.noChildren
 
 fun ParentDefinedContext<*>.drawElement(fn: DrawContext.() -> Unit) = component {
     onDraw(fn)
@@ -96,7 +96,7 @@ fun main() {
     }
 
     controller.events
-        .connect { window.draw { controller.draw(this) } }
+        .connect { window.draw { controller.repositionAndDraw(this) } }
 
     window.events.connect(controller::pushEvent)
 

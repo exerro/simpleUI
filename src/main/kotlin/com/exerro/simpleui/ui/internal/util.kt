@@ -1,17 +1,25 @@
 package com.exerro.simpleui.ui.internal
 
-import com.exerro.simpleui.Pixels
-import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.percent
-import com.exerro.simpleui.px
-import com.exerro.simpleui.ui.ComponentEventHandler
-import com.exerro.simpleui.ui.ResolvedComponent
+import com.exerro.simpleui.*
+import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.hdiv
 import com.exerro.simpleui.ui.components.vdiv
 
+@UndocumentedExperimentalUI
+fun <Width: WhoDefinesMe, Height: WhoDefinesMe> resolveFlowChildSizes(
+    reversed: Boolean,
+    width: SizeForChild<Width>,
+    height: SizeForChild<Height>,
+    availableWidth: Float,
+    availableHeight: Float,
+    children: List<ComponentSizeResolver<Width, Height>>
+) = (if (reversed) children.asReversed() else children).map { child ->
+    child(width, height, availableWidth, availableHeight)
+}
+
 /** Calculate the size in [Pixels] of children that overflow the explicit
  *  partition sizes of a dividing element (see: [hdiv], [vdiv]). */
-internal fun divCalculateOverflow(
+fun calculateDivOverflow(
     partitions: Array<out Pixels>,
     childCount: Int,
     spacing: Pixels
@@ -35,10 +43,24 @@ internal fun divCalculateOverflow(
     }
 
 @UndocumentedExperimentalUI
-internal fun joinEventHandlers(
+fun joinEventHandlers(
     thisEventHandlers: List<ComponentEventHandler>,
-    children: List<ResolvedComponent<*, *>>
+    children: List<ResolvedComponentPositionPhase>
 ) = thisEventHandlers + children.flatMap { it.eventHandlers }
+
+@UndocumentedExperimentalUI
+fun standardChildRendering(
+    region: Region,
+    drawFunctions: List<ComponentDrawFunction>,
+    eventHandlers: List<ComponentEventHandler>,
+    children: List<ResolvedComponentPositionPhase>
+) = ResolvedComponentPositionPhase(region, joinEventHandlers(eventHandlers, children)) {
+    for (f in drawFunctions) f(this)
+
+    for (child in children) {
+        withRegion(child.region, draw = child.draw)
+    }
+}
 
 @UndocumentedExperimentalUI
 @Suppress("UNCHECKED_CAST")

@@ -5,6 +5,8 @@ import com.exerro.simpleui.ui.components.ButtonType
 import com.exerro.simpleui.ui.components.button
 import com.exerro.simpleui.ui.components.flow
 import com.exerro.simpleui.ui.components.vdiv
+import com.exerro.simpleui.ui.extensions.bind
+import com.exerro.simpleui.ui.extensions.noChildren
 import com.exerro.simpleui.ui.modifiers.withAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
 import com.exerro.simpleui.ui.modifiers.withWidth
@@ -86,7 +88,7 @@ fun main() {
     controller.events.connect { event -> when (event) {
         // when the controller emits a "Refreshed" event, it needs to be
         // redrawn, so tell the window to redraw by drawing the controller.
-        UIController.Event.Refreshed -> window.draw { controller.draw(this) }
+        UIController.Event.Refreshed -> window.draw { controller.repositionAndDraw(this) }
     } }
 
     // Pass window events into the controller.

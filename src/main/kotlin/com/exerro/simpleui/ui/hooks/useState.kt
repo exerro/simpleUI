@@ -12,7 +12,7 @@ internal class StateHookState<T>(
 ): HookState
 
 @UndocumentedExperimentalUI
-fun <T> ComponentContext<*, *, *, *, *>.useState(
+fun <T> ComponentContext<*, *, *>.useState(
     initialValue: T,
     updateOnVaryingInitialValue: Boolean = false,
 ): Triple<T, (T) -> Unit, Boolean> {

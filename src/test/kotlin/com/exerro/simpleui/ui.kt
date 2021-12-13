@@ -1,12 +1,12 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
-import com.exerro.simpleui.extensions.progress
-import com.exerro.simpleui.extensions.slider
-import com.exerro.simpleui.extensions.textInput
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
+import com.exerro.simpleui.ui.extensions.*
 import com.exerro.simpleui.ui.hooks.useState
+import com.exerro.simpleui.ui.internal.progress
+import com.exerro.simpleui.ui.internal.slider
 import com.exerro.simpleui.ui.modifiers.withHeight
 import com.exerro.simpleui.ui.modifiers.withHorizontalAlignment
 import com.exerro.simpleui.ui.modifiers.withPadding
@@ -24,9 +24,9 @@ data class MyModel(
     }
 }
 
-fun <Model: UIModel> ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.labelledSection(
+fun <Model: UIModel> ComponentChildrenContext<Model, ParentDefinesMe, ChildDefinesMe>.labelledSection(
     label: String,
-    init: ComponentChildrenContext<Model, Float, Nothing?, Nothing?, Float>.() -> Unit,
+    init: ComponentChildrenContext<Model, ParentDefinesMe, ChildDefinesMe>.() -> Unit,
 ) = withPadding(bottom = 16.px).vflow(spacing = 8.px) {
     component {
         onDraw {
@@ -82,7 +82,7 @@ fun main() {
                                 button("DISABLED", type = ButtonType.Disabled, focused = selectedElement == 2)
                                 component {
                                     val (count, setCount) = useState(0)
-                                    button("ACTION $count", type = ButtonType.Default, focused = selectedElement == 3) {
+                                    singleChild.button("ACTION $count", type = ButtonType.Default, focused = selectedElement == 3) {
                                         setCount(count + 1)
                                     }
                                 }
@@ -98,77 +98,33 @@ fun main() {
                     labelledSection("Text inputs") {
                         horizontalSelector(selectedRow == 1, maximumValue = 3) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
-                                component {
-                                    val focused = selectedElement == 0
-                                    val textBuffer = TextBufferBuilder {
-                                        if (focused) emitCursor(model.style[Style.PrimaryBackgroundColour])
-                                        emitText("Placeholder...", model.style[Style.AlternateForegroundColour])
-                                    }
+                                textInput(TextBufferBuilder {
+                                    if (selectedElement == 0) emitCursor(model.style[Style.PrimaryBackgroundColour], window.createdAt)
+                                    emitText("Placeholder...", model.style[Style.AlternateForegroundColour])
+                                }, focused = selectedElement == 0)
 
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
+                                textInput(TextBufferBuilder(defaultColour = model.style[Style.ForegroundColour]) {
+                                    emitText("I")
+                                    if (selectedElement == 1) beginDecoration(TextBuffer.Decoration.Highlight, Colours.red.withAlpha(0.4f))
+                                    emitText("nva")
+                                    if (selectedElement == 1) stopDecoration(TextBuffer.Decoration.Highlight)
+                                    if (selectedElement == 1) emitCursor(Colours.red)
+                                    emitText("lid")
+                                }, focused = selectedElement == 1, type = TextInputType.Invalid)
 
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
+                                textInput(TextBufferBuilder {
+                                    emitText("Disabled", model.style[Style.ForegroundColour])
+                                }, focused = selectedElement == 2, type = TextInputType.Disabled)
 
-                                component {
-                                    val focused = selectedElement == 1
-                                    val textBuffer = TextBufferBuilder(defaultColour = model.style[Style.ForegroundColour]) {
-                                        emitText("I")
-                                        if (focused) beginDecoration(TextBuffer.Decoration.Highlight, Colours.red.withAlpha(0.4f))
-                                        emitText("nva")
-                                        if (focused) stopDecoration(TextBuffer.Decoration.Highlight)
-                                        if (focused) emitCursor(Colours.red)
-                                        emitText("lid")
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.ErrorBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
-
-                                component {
-                                    val focused = selectedElement == 2
-                                    val textBuffer = TextBufferBuilder {
-                                        emitText("Disabled", model.style[Style.ForegroundColour])
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.DisabledBackgroundColour], model.style[Style.ShadowColour], focused)
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
-
-                                component {
-                                    val focused = selectedElement == 3
-                                    val textBuffer = TextBufferBuilder {
-                                        emitText("Something", model.style[Style.ForegroundColour])
-                                        if (focused) emitCursor(model.style[Style.PrimaryBackgroundColour])
-                                    }
-
-                                    onDraw {
-                                        withRegion(region.resizeTo(height = 48.px)) {
-                                            textInput(textBuffer, model.style[Style.ElementBackgroundColour], model.style[Style.PrimaryBackgroundColour], model.style[Style.ShadowColour], focused, icon = "images/search.png", iconColour = model.style[Style.ForegroundColour])
-                                        }
-                                    }
-
-                                    noChildrenDefineDefaultSize(192f, 48f)
-                                }
+                                textInput(TextBufferBuilder {
+                                    emitText("Something", model.style[Style.ForegroundColour])
+                                    if (selectedElement == 3) emitCursor(model.style[Style.PrimaryBackgroundColour])
+                                }, focused = selectedElement == 3, icon = Image("images/search.png"))
                             }
                         }
                     }
 
-                    labelledSection("Sliders") {
+                    labelledSection("Sliders (NYI)") {
                         horizontalSelector(selectedRow == 2, maximumValue = 0) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 component {
@@ -214,12 +170,13 @@ fun main() {
                                 component {
                                     val (num, setNum) = useState(initialValue = 3)
 
-                                    withHeight(48.px).hflow(spacing = 16.px) {
+                                    singleChild.withHeight(48.px).hflow(spacing = 16.px) {
                                         dropdown(
                                             initialSelectedOption = num,
                                             options = listOf(1, 2, 3, 4),
                                             focused = selectedElement == 0,
                                             onOptionChanged = setNum,
+                                            spacing = 0.px,
                                             renderOption = { option ->
                                                 withPadding(8.px, 16.px).label("Option $option", horizontalAlignment = 0f)
                                             },
@@ -235,7 +192,7 @@ fun main() {
                         }
                     }
 
-                    labelledSection("Toggles") {
+                    labelledSection("Toggles (NYI)") {
                         horizontalSelector(selectedRow == 4, maximumValue = 2) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 component {
@@ -338,7 +295,7 @@ fun main() {
     }
 
     component.events.connect {
-        window.draw { component.draw(this) }
+        window.draw { component.repositionAndDraw(this) }
     }
 
     window.events.connect(component::pushEvent)

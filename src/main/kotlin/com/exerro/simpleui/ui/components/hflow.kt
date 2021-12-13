@@ -6,47 +6,55 @@ import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.px
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.internal.joinEventHandlers
+import com.exerro.simpleui.ui.internal.resolveFlowChildSizes
 import kotlin.math.floor
 import kotlin.math.round
 
 @UndocumentedExperimentalUI
-fun <Model: UIModel, ParentHeight: Float?, ChildHeight: Float?> ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.hflow(
+inline fun <Model: UIModel, reified Height: WhoDefinesMe> ComponentChildrenContext<Model, ChildDefinesMe, Height>.hflow(
     spacing: Pixels = 0.px,
     reversed: Boolean = false,
     verticalAlignment: Alignment = 0.5f,
     showSeparators: Boolean = false,
-    init: ComponentChildrenContext<Model, Nothing?, ParentHeight, Float, ChildHeight>.() -> Unit
-) = rawComponent("hflow") {
+    noinline init: ComponentChildrenContext<Model, ChildDefinesMe, Height>.() -> Unit
+) = component("hflow") {
     val separatorThickness = model.style[Style.SeparatorThickness].toFloat()
     val separatorColour = model.style[Style.SeparatorColour]
 
     children(init) { _, height, availableWidth, availableHeight, drawFunctions, eventHandlers, children ->
         val spacingValue = spacing.apply(availableWidth) + separatorThickness
-        val appliedChildren = (if (reversed) children.reversed() else children).map { child ->
-            child(null, height, availableWidth, availableHeight)
-        }
-        val childHeight = (if (height == null) if (appliedChildren.isNotEmpty()) appliedChildren.maxOf { it.height as Float } else 0f else null) as ChildHeight
-        val sumWidth = appliedChildren.fold(0f) { a, b -> a + b.width }
+        val resolvedChildrenSizePhase = resolveFlowChildSizes(reversed, nothingForChild(), height, availableWidth, availableHeight, children)
+        val childHeight = resolvedChildrenSizePhase.maxOfOrNull { fixFromChildAny(it.height) } ?: 0f
+        val sumWidth = resolvedChildrenSizePhase.fold(0f) { a, b -> a + fixFromChild(b.width) }
         val totalWidth = sumWidth + spacingValue * (children.size - 1)
 
-        ResolvedComponent(totalWidth, childHeight, joinEventHandlers(eventHandlers, appliedChildren)) {
+        ResolvedComponentSizePhase(fixForParent(totalWidth), fixForParentAny(childHeight)) { r ->
             var lastX = 0f
+            val separators = mutableListOf<Float>()
+            val resolvedChildrenPositionPhase = resolvedChildrenSizePhase.map { c ->
+                val thisX = lastX
 
-            for (f in drawFunctions) f(this)
+                if (showSeparators) separators += thisX + floor(-spacingValue + (spacingValue - separatorThickness) / 2)
+                lastX += round(fixFromChild(c.width) + spacingValue)
 
-            appliedChildren.forEachIndexed { i, c ->
-                if (showSeparators && i > 0)
-                    withRegion(region.copy(
-                        x = region.x + lastX - floor((spacingValue + separatorThickness) / 2),
-                        width = separatorThickness
-                    )) { fill(separatorColour) }
+                c.positionResolver(r
+                    .resizeTo(width = fixFromChild(c.width).px, height = (fixFromChildAnyOptional(c.height) ?: r.height).px, verticalAlignment = verticalAlignment)
+                    .copy(x = r.x + thisX))
+            }
 
-                withRegion(region
-                    .resizeTo(width = c.width.px, height = (c.height ?: region.height).px, verticalAlignment = verticalAlignment)
-                    .copy(x = region.x + lastX),
-                    draw = c.draw)
+            separators.removeFirstOrNull()
 
-                lastX += round(c.width + spacingValue)
+            ResolvedComponentPositionPhase(r, joinEventHandlers(eventHandlers, resolvedChildrenPositionPhase)) {
+                for (f in drawFunctions) f(this)
+
+                for (s in separators) withRegion(r.copy(
+                    x = r.x + s + floor(-spacingValue + (spacingValue - separatorThickness) / 2),
+                    width = separatorThickness
+                )) { fill(separatorColour) }
+
+                for (child in resolvedChildrenPositionPhase) {
+                    withRegion(child.region, draw = child.draw)
+                }
             }
         }
     }
