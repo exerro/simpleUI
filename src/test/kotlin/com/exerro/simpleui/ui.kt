@@ -99,7 +99,7 @@ fun main() {
                         horizontalSelector(selectedRow == 1, maximumValue = 3) { selectedElement ->
                             withHorizontalAlignment(0f).hflow(spacing = 32.px) {
                                 textInput(TextBufferBuilder {
-                                    if (selectedElement == 0) emitCursor(model.style[Style.PrimaryBackgroundColour])
+                                    if (selectedElement == 0) emitCursor(model.style[Style.PrimaryBackgroundColour], window.createdAt)
                                     emitText("Placeholder...", model.style[Style.AlternateForegroundColour])
                                 }, focused = selectedElement == 0)
 

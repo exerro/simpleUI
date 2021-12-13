@@ -21,11 +21,14 @@ class UIController<Model: UIModel>(
     }
 
     @UndocumentedExperimentalUI
-    fun reposition(width: Float, height: Float) {
+    fun reposition(width: Float, height: Float, force: Boolean = false) {
+        if (!force && width == lastWidth && height == lastHeight) return
+
+        lastWidth = width
+        lastHeight = height
         positionResolvedContent = c.transient
             .sizeResolver(fixForChild(width), fixForChild(height), width, height)
             .positionResolver(Region(0f, 0f, width, height))
-
         eventHandlers = positionResolvedContent.eventHandlers
     }
 
@@ -57,6 +60,8 @@ class UIController<Model: UIModel>(
     fun load() = c.refresh()
 
     private lateinit var positionResolvedContent: ResolvedComponentPositionPhase
+    private var lastWidth = 0f
+    private var lastHeight = 0f
     private var currentModel = initialModel
     private val persistentData = mutableMapOf<Id, PersistentComponentData>()
     private var eventHandlers = emptyList<ComponentEventHandler>()
@@ -106,6 +111,8 @@ class UIController<Model: UIModel>(
     }
 
     private fun onRefreshed() {
+        lastWidth = 0f
+        lastHeight = 0f
         events.push(Event.Refreshed)
     }
 
@@ -124,10 +131,10 @@ class UIController<Model: UIModel>(
         @UndocumentedExperimentalUI
         fun runDefaultApp(
             title: String = "Default UI App",
-            init: ComponentChildContext<UIModel, ParentDefinesMe, ParentDefinesMe>.() -> ComponentIsResolved
+            init: ComponentChildContext<UIModel, ParentDefinesMe, ParentDefinesMe>.(window: Window) -> ComponentIsResolved
         ) {
             val window = GLFWWindowCreator.createWindow(title)
-            val controller = UIController(UIModel(), init)
+            val controller = UIController(UIModel()) { init(window) }
 
             controller.events.connect { window.draw { controller.repositionAndDraw(this) } }
             window.events.connect(controller::pushEvent)

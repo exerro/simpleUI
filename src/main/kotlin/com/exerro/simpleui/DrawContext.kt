@@ -39,7 +39,7 @@ interface DrawContext {
      *  When [changesIn] is null, the content is assumed to change
      *  "immediately" e.g. for high refresh rate continuous animations. */
     fun dynamicContent(
-        changesIn: Duration? = null
+        changesIn: Duration = Duration.ZERO
     )
 
     /** Fill the region with a [colour]. */
@@ -145,8 +145,7 @@ interface DrawContext {
     /** Represents a set of draw calls that have been collected but yet
      *  executed, grouped by [Layer]. */
     data class DeferredDrawCalls(
-        val hasDynamicContent: Boolean,
-        val dynamicContentChangesIn: Duration,
+        val contentChangesDynamicallyIn: Duration,
         val layers: Map<Layer, List<DeferredLayer>>,
     ) {
         /** A sequence of draw calls in a given [Layer], within a defined
@@ -169,8 +168,7 @@ interface DrawContext {
             draw: DrawContext.() -> T
         ): Pair<DeferredDrawCalls, T> {
             var currentDrawRegion = drawRegion
-            var hasDynamicContent = false
-            var dynamicContentChangesIn: Duration = Duration.INFINITE
+            var contentChangesDynamicallyIn = Duration.INFINITE
             val deferredDrawCalls = mutableListOf<DrawContextRenderer.DeferredDrawCall>()
             val result = mutableMapOf<Layer, MutableList<DeferredDrawCalls.DeferredLayer>>()
 
@@ -190,11 +188,10 @@ interface DrawContext {
                 override val region get() = currentDrawRegion
                 override val clipRegion = clipRegion
 
-                override fun dynamicContent(changesIn: Duration?) {
-                    hasDynamicContent = true
+                override fun dynamicContent(changesIn: Duration) {
+                    if (changesIn == Duration.INFINITE) return
 
-                    if (changesIn != null)
-                        dynamicContentChangesIn = minOf(changesIn, dynamicContentChangesIn)
+                    contentChangesDynamicallyIn = minOf(changesIn, contentChangesDynamicallyIn)
                 }
 
                 override fun fill(colour: Colour) {
@@ -230,14 +227,20 @@ interface DrawContext {
                     indentationSize: Int
                 ) {
                     deferredDrawCalls += impl.write(currentDrawRegion, buffer, font, horizontalAlignment, verticalAlignment, indentationSize)
+
+                    for (line in buffer.lines) {
+                        for (cursor in line.cursors) {
+                            dynamicContent(cursor.timeTillVisibilityChanged())
+                        }
+                    }
                 }
 
                 override fun <T> withLayer(layer: Layer, draw: DrawContext.() -> T): T {
                     addCurrentStuff()
+
                     val (additionalContent, r) = buffer(graphics, layer, currentDrawRegion, clipRegion, impl, draw)
 
-                    if (additionalContent.hasDynamicContent)
-                        dynamicContent(additionalContent.dynamicContentChangesIn)
+                    dynamicContent(additionalContent.contentChangesDynamicallyIn)
 
                     for ((l, ds) in additionalContent.layers) {
                         result.computeIfAbsent(l) { mutableListOf() } .addAll(ds)
@@ -249,10 +252,10 @@ interface DrawContext {
                 override fun <T> withRegion(region: Region, clip: Boolean, draw: DrawContext.() -> T): T {
                     return if (clip) {
                         addCurrentStuff()
+
                         val (additionalContent, r) = buffer(graphics, layer, region, region, impl, draw)
 
-                        if (additionalContent.hasDynamicContent)
-                            dynamicContent(additionalContent.dynamicContentChangesIn)
+                        dynamicContent(additionalContent.contentChangesDynamicallyIn)
 
                         for ((l, ds) in additionalContent.layers) {
                             result.computeIfAbsent(l) { mutableListOf() } .addAll(ds)
@@ -263,9 +266,9 @@ interface DrawContext {
                     else {
                         val oldDrawRegion = currentDrawRegion
                         currentDrawRegion = region
-                        val result = draw()
+                        val r = draw()
                         currentDrawRegion = oldDrawRegion
-                        result
+                        r
                     }
                 }
             }
@@ -274,7 +277,7 @@ interface DrawContext {
 
             addCurrentStuff()
 
-            return DeferredDrawCalls(hasDynamicContent, dynamicContentChangesIn, result) to r
+            return DeferredDrawCalls(contentChangesDynamicallyIn, result) to r
         }
     }
 }
