@@ -1,6 +1,8 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.event.EWindowResized
+import com.exerro.simpleui.event.filterIsInstance
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.extensions.noChildrenDefineDefaultSize
@@ -18,7 +20,7 @@ fun blobsController() = UIController {
     withPadding(32.px, 64.px).vdiv(48.px, spacing = 32.px) {
         withHorizontalAlignment(0.5f).dropdown(
             initialSelectedOption = outerWidth,
-            options = listOf(512f, 768f, 1024f, 1516f),
+            options = listOf(512f, 768f, 1024f, 1516f, 2048f),
             focused = true,
             onOptionChanged = setWidth,
             renderOption = { withPadding(12.px, 24.px).label("${it.toInt()}px", horizontalAlignment = 0f) },
@@ -59,8 +61,11 @@ fun main() {
     val controller = blobsController()
 
     controller.events.connect { window.draw { controller.draw(this) } }
-    window.events.connect(controller::pushEvent)
-    controller.load(window.currentWidth.toFloat(), window.currentHeight.toFloat())
+    window.events.filter { it !is EWindowResized } .connect(controller::pushEvent)
+    window.events.filterIsInstance<EWindowResized>().connect {
+        controller.setContentRegion(Region(0f, 0f, it.width.toFloat(), it.height.toFloat()))
+    }
+    controller.load(Region(0f, 0f, window.currentWidth.toFloat(), window.currentHeight.toFloat()))
 
     while (!window.isClosed) GLFWWindowCreator.update()
 }

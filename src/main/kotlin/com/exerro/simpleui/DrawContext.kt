@@ -4,6 +4,7 @@ import com.exerro.simpleui.colour.Colour
 import com.exerro.simpleui.colour.Greyscale
 import kotlin.time.Duration
 
+@Undocumented
 /** A [DrawContext] provides drawing capabilities. The context is associated
  *  with a [region], representing the area on-screen where content is drawn.
  *  Various methods draw content within this [region], such as [fill], and
@@ -26,7 +27,7 @@ interface DrawContext {
     /** Layer being drawn to. */
     val layer: Layer
 
-    /** Area on-screen where content is drawn relative to. */
+    /** Area representing the full region of this draw context. */
     val region: Region
 
     /** Area on-screen where content is visible. */
@@ -45,6 +46,7 @@ interface DrawContext {
     /** Fill the region with a [colour]. */
     fun fill(
         colour: Colour,
+        region: Region = this.region,
     )
 
     /** Draw a rounded rectangle, optionally providing a border. Note that the
@@ -54,6 +56,7 @@ interface DrawContext {
         colour: Colour,
         borderColour: Colour = colour,
         borderWidth: Pixels = 0.px,
+        region: Region = this.region,
     )
 
     /** Draw an ellipse spanning the full area of the [region]. Note that the
@@ -62,6 +65,7 @@ interface DrawContext {
         colour: Colour,
         borderColour: Colour = colour,
         borderWidth: Pixels = 0.px,
+        region: Region = this.region,
     )
 
     /** Draw a shadow at the outer-edge of the current [region]. [radius]
@@ -74,6 +78,7 @@ interface DrawContext {
         radius: Pixels = 10.px,
         offset: Pixels = 2f.px,
         cornerRadius: Pixels = 0.px,
+        region: Region = this.region,
     )
 
     /** Draw an image stretched to fit the [region]. If [isResource] is true,
@@ -85,6 +90,7 @@ interface DrawContext {
         path: String,
         tint: Colour? = null,
         isResource: Boolean = true,
+        region: Region = this.region,
     )
 
     /** Draw a [buffer] of text to the screen. */
@@ -94,6 +100,7 @@ interface DrawContext {
         horizontalAlignment: Alignment = 0.5f,
         verticalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
+        region: Region = this.region,
     )
 
     /** Create a [TextBuffer] representing [text], [colour] and [wordWrap] and
@@ -110,6 +117,7 @@ interface DrawContext {
         verticalAlignment: Alignment = 0.5f,
         indentationSize: Int = 4,
         wordWrap: Boolean = false,
+        region: Region = this.region,
     ) = write(
         buffer = graphics.wordWrap(TextBufferBuilder(text = text, colour = colour, splitSegments = wordWrap), font = font, indentationSize = indentationSize, availableWidth = region.width),
         font = font,
@@ -122,7 +130,7 @@ interface DrawContext {
      *  ordering to drawn content. See [Window.draw]. */
     fun <T> withLayer(
         layer: Layer,
-        draw: DrawContext.() -> T
+        draw: DrawContext.() -> T,
     ): T
 
     /** Draw content within another region. When [clip] is true, all content
@@ -194,29 +202,30 @@ interface DrawContext {
                     contentChangesDynamicallyIn = minOf(changesIn, contentChangesDynamicallyIn)
                 }
 
-                override fun fill(colour: Colour) {
-                    deferredDrawCalls += impl.fill(currentDrawRegion, colour)
+                override fun fill(colour: Colour, region: Region) {
+                    deferredDrawCalls += impl.fill(region, colour)
                 }
 
                 override fun roundedRectangle(
                     cornerRadius: Pixels,
                     colour: Colour,
                     borderColour: Colour,
-                    borderWidth: Pixels
+                    borderWidth: Pixels,
+                    region: Region,
                 ) {
-                    deferredDrawCalls += impl.roundedRectangle(currentDrawRegion, cornerRadius, colour, borderColour, borderWidth)
+                    deferredDrawCalls += impl.roundedRectangle(region, cornerRadius, colour, borderColour, borderWidth)
                 }
 
-                override fun ellipse(colour: Colour, borderColour: Colour, borderWidth: Pixels) {
-                    deferredDrawCalls += impl.ellipse(currentDrawRegion, colour, borderColour, borderWidth)
+                override fun ellipse(colour: Colour, borderColour: Colour, borderWidth: Pixels, region: Region) {
+                    deferredDrawCalls += impl.ellipse(region, colour, borderColour, borderWidth)
                 }
 
-                override fun shadow(colour: Colour, radius: Pixels, offset: Pixels, cornerRadius: Pixels) {
-                    deferredDrawCalls += impl.shadow(currentDrawRegion, colour, radius, offset, cornerRadius)
+                override fun shadow(colour: Colour, radius: Pixels, offset: Pixels, cornerRadius: Pixels, region: Region) {
+                    deferredDrawCalls += impl.shadow(region, colour, radius, offset, cornerRadius)
                 }
 
-                override fun image(path: String, tint: Colour?, isResource: Boolean) {
-                    deferredDrawCalls += impl.image(currentDrawRegion, path, tint, isResource)
+                override fun image(path: String, tint: Colour?, isResource: Boolean, region: Region) {
+                    deferredDrawCalls += impl.image(region, path, tint, isResource)
                 }
 
                 override fun write(
@@ -224,9 +233,10 @@ interface DrawContext {
                     font: Font,
                     horizontalAlignment: Alignment,
                     verticalAlignment: Alignment,
-                    indentationSize: Int
+                    indentationSize: Int,
+                    region: Region,
                 ) {
-                    deferredDrawCalls += impl.write(currentDrawRegion, buffer, font, horizontalAlignment, verticalAlignment, indentationSize)
+                    deferredDrawCalls += impl.write(region, buffer, font, horizontalAlignment, verticalAlignment, indentationSize)
 
                     for (line in buffer.lines) {
                         for (cursor in line.cursors) {

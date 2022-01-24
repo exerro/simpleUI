@@ -1,5 +1,7 @@
 package com.exerro.simpleui
 
+import com.exerro.simpleui.event.EventBus
+import com.exerro.simpleui.event.WindowEvent
 import com.exerro.simpleui.experimental.Palette
 import kotlin.time.Duration
 import kotlin.time.TimeMark

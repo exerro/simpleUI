@@ -2,7 +2,7 @@ package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.WindowEvent
+import com.exerro.simpleui.event.WindowEvent
 
 @UndocumentedExperimentalUI
 typealias AnyComponentChildrenContext = ComponentChildrenContext<*, *, *>

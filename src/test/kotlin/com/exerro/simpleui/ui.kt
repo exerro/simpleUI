@@ -1,6 +1,7 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.event.KeyModifier
 import com.exerro.simpleui.ui.*
 import com.exerro.simpleui.ui.components.*
 import com.exerro.simpleui.ui.extensions.*

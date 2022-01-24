@@ -3,7 +3,7 @@ package com.exerro.simpleui.ui
 import com.exerro.simpleui.DrawContext
 import com.exerro.simpleui.Region
 import com.exerro.simpleui.UndocumentedExperimentalUI
-import com.exerro.simpleui.WindowEvent
+import com.exerro.simpleui.event.WindowEvent
 
 @UndocumentedExperimentalUI
 sealed interface LifecycleHook {

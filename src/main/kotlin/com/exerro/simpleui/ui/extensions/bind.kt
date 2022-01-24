@@ -1,6 +1,6 @@
 package com.exerro.simpleui.ui.extensions
 
-import com.exerro.simpleui.EKeyPressed
+import com.exerro.simpleui.event.EKeyPressed
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.Action
 import com.exerro.simpleui.ui.ActionKeybind

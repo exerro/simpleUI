@@ -1,4 +1,4 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.event
 
 /** An event emitted by a [Window]. */
 sealed interface WindowEvent

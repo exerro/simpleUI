@@ -1,5 +1,6 @@
 import com.exerro.simpleui.*
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.event.KeyModifier
 import com.exerro.simpleui.extensions.filterKeyPressed
 
 /** A model to keep track of the information we want to show. */

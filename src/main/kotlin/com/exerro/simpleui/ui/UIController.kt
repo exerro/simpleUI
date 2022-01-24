@@ -1,6 +1,9 @@
 package com.exerro.simpleui.ui
 
 import com.exerro.simpleui.*
+import com.exerro.simpleui.event.EWindowResized
+import com.exerro.simpleui.event.WindowEvent
+import com.exerro.simpleui.event.filterIsInstance
 import com.exerro.simpleui.ui.extensions.singleChild
 import com.exerro.simpleui.ui.internal.ComponentInstance
 import com.exerro.simpleui.ui.internal.PersistentComponentData
@@ -13,26 +16,20 @@ class UIController<Model: UIModel>(
     val events = PushableEventBus<Event>()
 
     @UndocumentedExperimentalUI
-    fun load(width: Float, height: Float) {
+    fun load(contentRegion: Region) {
         c.update()
-        setSizeDirect(width, height)
+        setContentRegion(contentRegion)
         recomputePositioning(force = true)
     }
 
     @UndocumentedExperimentalUI
-    fun setSizeDirect(width: Float, height: Float) {
-        contentWidth = width
-        contentHeight = height
+    fun setContentRegion(region: Region) {
+        contentRegion = region
         recomputePositioning(force = false)
     }
 
     @UndocumentedExperimentalUI
     fun pushEvent(event: WindowEvent): Boolean {
-        if (event is EWindowResized) {
-            setSizeDirect(event.width.toFloat(), event.height.toFloat())
-            return true
-        }
-
         for (eventHandler in eventHandlers.reversed()) {
             if (eventHandler(event)) return true
         }
@@ -62,10 +59,8 @@ class UIController<Model: UIModel>(
 
     private lateinit var positionResolvedContent: ResolvedComponentPositionPhase
     private val pendingRefCountChildrenIds = mutableSetOf<Id>()
-    private var contentWidth = 0f
-    private var contentHeight = 0f
-    private var lastWidth = 0f
-    private var lastHeight = 0f
+    private var contentRegion = Region(0f, 0f, 0f, 0f)
+    private var lastContentRegion = Region(0f, 0f, 0f, 0f)
     private var currentModel = initialModel
     private val persistentData = mutableMapOf<Id, PersistentComponentData>()
     private var eventHandlers = emptyList<ComponentEventHandler>()
@@ -150,13 +145,12 @@ class UIController<Model: UIModel>(
     }
 
     private fun recomputePositioning(force: Boolean) {
-        if (!force && contentWidth == lastWidth && contentHeight == lastHeight) return
+        if (!force && contentRegion != lastContentRegion) return
 
-        lastWidth = contentWidth
-        lastHeight = contentHeight
+        lastContentRegion = contentRegion
         positionResolvedContent = c.transient
-            .sizeResolver(fixForChild(contentWidth), fixForChild(contentHeight), contentWidth, contentHeight)
-            .positionResolver(Region(0f, 0f, contentWidth, contentHeight))
+            .sizeResolver(fixForChild(contentRegion.width), fixForChild(contentRegion.height), contentRegion.width, contentRegion.height)
+            .positionResolver(contentRegion)
         eventHandlers = positionResolvedContent.eventHandlers
     }
 
@@ -181,8 +175,11 @@ class UIController<Model: UIModel>(
             val controller = UIController(UIModel()) { init(window) }
 
             controller.events.connect { window.draw { controller.draw(this) } }
-            window.events.connect(controller::pushEvent)
-            controller.load(window.currentWidth.toFloat(), window.currentHeight.toFloat())
+            window.events.filter { it !is EWindowResized } .connect(controller::pushEvent)
+            window.events.filterIsInstance<EWindowResized>().connect {
+                controller.setContentRegion(Region(0f, 0f, it.width.toFloat(), it.height.toFloat()))
+            }
+            controller.load(Region(0f, 0f, window.currentWidth.toFloat(), window.currentHeight.toFloat()))
 
             while (!window.isClosed) GLFWWindowCreator.update()
         }

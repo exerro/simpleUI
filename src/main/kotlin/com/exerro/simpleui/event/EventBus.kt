@@ -1,4 +1,4 @@
-package com.exerro.simpleui
+package com.exerro.simpleui.event
 
 /** A bus of events which you can [connect] to. */
 fun interface EventBus<out E> {

@@ -12,7 +12,7 @@ val lwjglNatives = when (OperatingSystem.current()) {
 }
 
 plugins {
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.10"
 }
 
 group = "com.exerro"
@@ -45,7 +45,7 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs += "-Xinline-classes"
     kotlinOptions.freeCompilerArgs += "-language-version"
-    kotlinOptions.freeCompilerArgs += "1.5"
+    kotlinOptions.freeCompilerArgs += "1.6"
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.time.ExperimentalTime"
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.experimental.ExperimentalTypeInference"
 }

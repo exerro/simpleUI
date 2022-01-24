@@ -1,6 +1,6 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.KeyModifier
+import com.exerro.simpleui.event.KeyModifier
 import com.exerro.simpleui.UndocumentedExperimentalUI
 import com.exerro.simpleui.ui.standardActions.*
 

@@ -1,6 +1,6 @@
 package com.exerro.simpleui.extensions
 
-import com.exerro.simpleui.*
+import com.exerro.simpleui.event.*
 
 /** Filter the events from the [EventBus] for [EKeyPressed] events exactly
  *  matching the [name] and [modifiers] given, and accepting repeats only if

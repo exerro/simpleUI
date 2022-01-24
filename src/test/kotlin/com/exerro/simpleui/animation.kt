@@ -1,6 +1,8 @@
 package com.exerro.simpleui
 
 import com.exerro.simpleui.colour.Colours
+import com.exerro.simpleui.event.EKeyPressed
+import com.exerro.simpleui.event.filterIsInstance
 import com.exerro.simpleui.experimental.animation.AnimatedValue
 import com.exerro.simpleui.experimental.animation.Animation
 import com.exerro.simpleui.experimental.animationTo

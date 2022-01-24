@@ -1,6 +1,6 @@
 package com.exerro.simpleui.ui
 
-import com.exerro.simpleui.EventBus
+import com.exerro.simpleui.event.EventBus
 import com.exerro.simpleui.UndocumentedExperimentalUI
 
 @UndocumentedExperimentalUI
